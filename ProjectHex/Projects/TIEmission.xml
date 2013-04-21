@@ -1,0 +1,148 @@
+<project>
+	<name>TIE Mission File</name>
+	<file>*.tie</file>
+	<types>10</types>
+	<count>14</count>
+	<nextid>11</nextid>
+	<comments>Manual write-up for testing</comments>
+	<structure>
+		<item offset="0" type="short" validate="true" name="Magic" default="-1" />
+		<item offset="2" type="short" name="NumFlightGroups" default="1" />
+		<item offset="4" type="short" name="NumMessages" />
+		<item offset="6" type="short" validate="true" default="3" name="NumGlobalsGoals" />
+		<item offset="10" type="byte" name="Officers" />
+		<item offset="13" type="bool" name="CapturedOnEject" />
+		<item offset="24" type="string" length="64" qty="6" name="EndOfMissionMessages" names="PMC1,PMC2,SMC1,SMC2,PMF1,PMF2" />
+		<item offset="410" type="string" qty="4" length="12" name="IffNames" />
+		<item offset="458" type="collection" id="1" qty="$1" name="FlightGroups" />
+		<item type="collection" id="2" qty="$2" name="Messages" />
+		<item type="collection" id="4" qty="$3" name="GlobalGoals" />
+		<item type="collection" id="5" name="Briefing" />
+		<item type="collection" id="6" qty="10" name="PreMissionQuestions" />
+		<item type="collection" id="7" qty="10" name="PostMissionQuestions" />
+	</structure>
+	
+	<definition name="Trigger" id="8" count="4" length="4">
+		<item offset="0" type="byte" name="Condition" />
+		<item offset="1" type="byte" name="Type" />
+		<item offset="2" type="byte" name="Variable" />
+		<item offset="3" type="byte" name="Amount" />
+	</definition>
+	<definition name="Order" id="9" count="15" length="18">
+		<item offset="0" type="byte" name="Order" />
+		<item offset="1" type="byte" name="Throttle" />
+		<item offset="2" type="byte" name="Variable1" />
+		<item offset="3" type="byte" name="Variable2" />
+		<item offset="4" type="byte" name="Unk18" />
+		<item offset="6" type="byte" name="Target3Type" />
+		<item offset="7" type="byte" name="Target4Type" />
+		<item offset="8" type="byte" name="Target3" />
+		<item offset="9" type="byte" name="Target4" />
+		<item offset="10" type="bool" name="T3AndOrT4" />
+		<item offset="12" type="byte" name="Target1Type" />
+		<item offset="13" type="byte" name="Target1" />
+		<item offset="14" type="byte" name="Target2Type" />
+		<item offset="15" type="byte" name="Target2" />
+		<item offset="16" type="bool" name="T1AndOrT2" />
+	</definition>
+	<definition name="Waypoints" id="10" length="30" count="5" comment="Contains either X/Y/Z/Enabled">
+		<item offset="0" type="short" qty="4" name="StartPoints" />
+		<item offset="8" type="short" qty="8" name="Waypoints" />
+		<item offset="24" type="short" name="Rendezvous" />
+		<item offset="26" type="short" name="Hyperspace" />
+		<item offset="28" type="short" name="Briefing" />
+	</definition>
+	<definition name="Variable-length string" id="6" count="2">
+		<item offset="0" type="short" name="Length" />
+		<item offset="2" type="string" length="$0" condition="$0>0" name="Text" comment="question, chr(10), answer" />
+	</definition>
+	<definition name="FlightgroupGoal" id="3" count="2" length="2">
+		<item offset="0" type="byte" name="Condition" />
+		<item offset="1" type="byte" name="GroupAmount" />
+	</definition>
+	<definition name="FlightGroup" id="1" length="292" count="57">
+		<item offset="0" type="string" length="12" name="Name" />
+		<item offset="12" type="string" length="12" name="EditorNote" />
+		<item offset="24" type="string" length="12" name="Cargo" />
+		<item offset="36" type="string" length="12" name="SpecialCargo" />
+		<item offset="48" type="byte" name="SpecialCraft" />
+		<item offset="49" type="bool" name="RandomSpecialCraft" />
+		<item offset="50" type="byte" name="CraftType" />
+		<item offset="51" type="byte" name="NumberOfCraft" />
+		<item offset="52" type="byte" name="Status" />
+		<item offset="53" type="byte" name="Warhead" />
+		<item offset="54" type="byte" name="Beam" />
+		<item offset="55" type="byte" name="Iff" />
+		<item offset="56" type="byte" name="GroupAI" />
+		<item offset="57" type="byte" name="Markings" />
+		<item offset="58" type="bool" name="FollowsOrders" />
+		<item offset="59" type="byte" name="Unk1" />
+		<item offset="60" type="byte" name="Formation" />
+		<item offset="61" type="byte" name="FormSpacing" comment="Unk2" />
+		<item offset="62" type="byte" name="GlobalGroup" comment="Unk3" />
+		<item offset="63" type="byte" name="LeaderSpacing" comment="Unk4" />
+		<item offset="64" type="byte" name="NumberOfWaves" />
+		<item offset="65" type="byte" name="Unk5" />
+		<item offset="66" type="byte" name="PlayerCraft" />
+		<item offset="67" type="byte" name="Yaw" comment="Unk6" />
+		<item offset="68" type="byte" name="Pitch" comment="Unk7" />
+		<item offset="69" type="byte" name="Roll" comment="Unk8" />
+		<item offset="70" type="bool" name="Unk9" />
+		<item offset="71" type="byte" name="Unk10" />
+		<item offset="72" type="byte" name="Unk11" />
+		<item offset="73" type="byte" name="ArrivalDifficulty" />
+		<item offset="74" type="collection" id="8" qty="2" name="ArrivalTriggers" />
+		<item offset="82" type="bool" name="ArrivalAndOr" />
+		<item offset="83" type="byte" name="Unk12" />
+		<item offset="84" type="byte" name="ArrivalDelayMinutes" />
+		<item offset="85" type="byte" name="ArrivalDelaySeconds" />
+		<item offset="86" type="collection" id="8" name="DepartTrigger" />
+		<item offset="90" type="byte" name="DepartDelayMinutes" comment="Unk13" />
+		<item offset="91" type="byte" name="DepartDelaySeconds" comment="Unk14" />
+		<item offset="92" type="byte" name="AbortCondition" />
+		<item offset="93" type="byte" name="Unk15" />
+		<item offset="94" type="byte" name="Unk16" />
+		<item offset="95" type="byte" name="Unk17" />
+		<item offset="96" type="byte" name="ArrivalMoethership" />
+		<item offset="97" type="bool" name="ArriveViaMothership" />
+		<item offset="98" type="byte" name="DepartureMothership" />
+		<item offset="99" type="bool" name="DepartViaMothership" />
+		<item offset="100" type="byte" name="AltArrMothership" />
+		<item offset="101" type="bool" name="ArriveViaAltMothership" />
+		<item offset="102" type="byte" name="AltDepMothership" />
+		<item offset="103" type="bool" name="DepartViaAltMothership" />
+		<item offset="104" type="collection" id="9" qty="3" name="Orders" />
+		<item offset="158" type="collection" id="3" qty="4" name="Goals" />
+		<item offset="166" type="sbyte" name="BonusGoalPoints" />
+		<item offset="168" type="collection" id="10" qty="4" name="Waypoints" names="X,Y,Z,Enabled (bool)" />
+		<item offset="288" type="bool" name="Unk19" />
+		<item offset="290" type="byte" name="Unk20" />
+		<item offset="291" type="bool" name="Unk21" />
+	</definition>
+	<definition name="Message" id="2" length="90" count="5">
+		<item offset="0" type="string" length="64" nullterm="true" name="Message" />
+		<item offset="64" type="collection" id="8" qty="2" name="Triggers" />
+		<item offset="72" type="string" length="12" nullterm="true" name="EditorNote" />
+		<item offset="88" type="byte" name="Delay" comment="seconds divided by 5" />
+		<item offset="89" type="bool" name="TriggerAndOr" />
+	</definition>
+	<definition name="GlobalGoal" id="4" length="28" count="2">
+		<item offset="0" type="collection" id="8" qty="2" name="Triggers" />
+		<item offset="25" type="bool" name="AndOr" />
+	</definition>
+	<definition name="Briefing" id="5" count="7">
+		<item offset="0" type="short" name="RunningTime" comment="in ticks, 12 tps" />
+		<item offset="2" type="short" name="Unk" />
+		<item offset="4" type="short" name="StartLength" />
+		<item offset="6" type="int" name="EventsLength" />
+		<item offset="10" type="short" qty="$3" name="Events" />
+		<item offset="810" type="collection" id="6" qty="32" name="Tags" />
+		<item type="collection" id="6" qty="32" name="Strings" />
+	</definition>
+	<definition name="PostMissionQuestions" id="7" count="4">
+		<item offset="0" type="short" name="Length" />
+		<item offset="2" type="byte" condition="$0>0" name="Condition" />
+		<item offset="3" type="byte" condition="$0>1" name="Type" />
+		<item offset="4" type="string" length="$0-2" condition="$0>2" name="Text" comment="q, chr(10), a" />
+	</definition>
+</project>

@@ -1,0 +1,138 @@
+tree structure of a project:
+[Project]
+  Prop
+  Prop
+  Prop
+  -Struct
+    +Item0
+	+Item1
+	-Item2
+	  Prop
+	  Prop
+	  +Struct
+	  -Array
+	    Item0
+		Item1
+		Item2
+		...
+	  Prop
+	  ...
+	+Item3
+	...
+  +Struct
+  Prop
+  ...
+--
+<project>
+  <name>TIE Mission File</name>	// REQUIRED
+  <file>*.tie</file>	// wildcard match, optional, defaults to *.*
+  <types>8</types>		// number of <definition> nodes to be read, default is zero
+  <count>15</count>	// number of <item /> in <structure>, REQUIRED
+  <nextid>10</nextid>	// internal use only, increments used Definition.ID values
+  // can also have Length declaration if filesize is fixed, optional, used for validation
+
+/* Types:
+ * Bool - OPTIONAL: false (default=0), true (default=1) [redefines numerical value stored 0-255 (-1 converted to 255)]. Initialized to FALSE, Length=1
+ * Byte - Initialized to 0, Length=1
+ * Collection - <definition> node, REQUIRED: id (definition.ID), qty (default=1). DISABLED: length, default
+ * <definition> - REQUIRED: id, name. OPTIONAL: length (const). DISABLED: offset, default, condition
+ * Error - not initialized directly, added as a placeholder during LoadProject
+ * Int - Initialized to 0, Length=4
+ * Long - Initialized to 0, Length=8
+ * SByte - Initialized to 0, Length=1
+ * Short - Initialized to 0, Length=2
+ * String - OPTIONAL: length (default=1, dynamic), nullterm (default=false) [nullterm=false with length=4 is XXXX, nullterm=true is XXX0]
+ * UInt - Initialized to 0, Length=4
+ * ULong - Initialized to 0, Length=8
+ * UShort - Initialized to 0, Length=2
+ * Var - not initialized directly, added as a placeholder during VarCollection modifications
+ * (simple Array) - method can be applied to all types. REQUIRED: qty (# for fixed qty, $# notation for dynamic). OPTIONAL: length (applies to individual entries), names (comma delimited, size should equal qty. If omitted, entries are simply indexed)
+ * ALL TYPES: OPTIONAL (unless otherwise noted): name, offset, comments, validate, default. If "offset" is omitted, assumed to be consecutive with previous
+ * VALIDATE: if validate attribute is "true", default attribute must be set. 
+ * DYNAMIC PROPERTIES: offset, length (string only), qty, condition, default
+ * DEFAULT: While typically it will be a fixed number (see NumGlobalGoals), there will be cases which dynamics can be used to provide calculated numbers such as duplicates (score duplication in pilot files) or checksums. Given the inputs, it has a pre-determined value that will be constant in that case.  A set default attribute uses the MatchesDefault property for verification.
+ * type attribute is case-insensitive for loading purposes
+ */
+ 
+  <structure>
+    <item offset="0" type="short" validate="true" name="Magic" default="-1" />
+	<item offset="2" type="short" name="NumFlightGroups" default="1" />
+	<item offset="4" type="short" name="NumMessages" />
+	<item offset="6" type="short" validate="true" default="3" name="NumGlobalsGoals" />
+	<item offset="10" type="byte" name="Officers" />
+	<item offset="13" type="bool" name="CapturedOnEject" />
+	<item offset="24" type="string" length="64" qty="6" name="EndOfMissionMessages" names="PMC1,PMC2,SMC1,SMC2,PMF1,PMF2" />
+	<item offset="410" type="string" qty="4" length="12" name="IffNames" />
+	<item offset="458" type="collection" id="1" qty="$1" name="FlightGroups" />
+	<item type="collection" id="2" qty="$2" name="Messages" />
+	...
+  </structure>
+
+  <definition name="FlightGroup" id="1" length="292" count="57">
+/*
+ * Length is decimal, only defined if fixed size
+ * Count is total number of listed items
+ * definitions are allowed to nest other collections, although not recursive. Child defintions must be defined before the parent
+ * ID values are auto-generated, array-based
+ * all items may have a "comments" property
+ */
+    <item... />
+    ...
+  </definition>
+
+  <definition name="Message" id="2" length="90" count="5">
+    <item... />
+    ...
+    <item offset="88" type="byte" name="Delay" comment="seconds divided by 5" />
+    ...
+  </definition>
+
+  <definition name="GlobalGoal" id="4" length="29" count="2">
+	<item offset="0" type="collection" index="9" qty="2" name="Triggers" />
+	<item offset="25" type="Bool" name="AndOr" />
+  </definition>
+
+/*
+ * collection(9) is Trigger, qty 2
+ */
+
+  <definition name="Briefing" id="5" count="7">
+	<item offset="0" type="short" name="RunningTime" comment="in ticks, 12 tps" />
+	<item offset="2" type="short" name="Unk" />
+	<item offset="4" type="short" name="StartLength" />
+	<item offset="6" type="int" name="EventsLength" />
+	<item offset="10" type="short" qty="$3/2" name="Events" />
+	<item offset="810" type="collection" id="6" qty="32" name="Tags" />
+	<item type="collection" id="6" qty="32" name="Strings" />
+  </definition>
+
+/*
+ * "qty=$3/2" evaluates to internal item[3] (EventsLength) divided by 2
+ * allowed operations: + - / * % & | << >>
+ */
+
+  <definition name="Variable-length string" id="7" count="2">
+	<item offset="0" type="short" name="Length" />
+	<item offset="2" type="string" length="$0" condition="$0>0" name="Text" comment="question, chr(10), answer" />
+  </definition>
+
+  <definition name="PostMissionQuestions" id="8" count="4">
+	<item offset="0" type="short" name="Length" />
+	<item offset="2" type="byte" condition="$0>0" name="Condition" />
+	<item offset="3" type="byte" condition="$0>1" name="Type" />
+	<item offset="4" type="string" length="$0-2" condition="$0>2" name="Text" comment="q, chr(10), a" />
+  </definition>
+
+/*
+ * allowed conditionals: == != > < >= <= && ||
+ * if "condition" is FALSE, item is skipped
+ * definition.count is maximum possible
+ */
+
+  <definition name="Trigger" id="9" count="4" length="4">
+	<item offset="0" type="byte" name="Condition" />
+	<item offset="1" type="byte" name="Type" />
+	<item offset="2" type="byte" name="Variable" />
+	<item offset="3" type="byte" name="Amount" />
+  </definition>
+</project>
