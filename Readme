@@ -1,0 +1,34 @@
+ProjectHex
+=======================================
+
+Author: Michael Gaisser (mjgaisser@gmail.com)
+Version:
+Date:
+
+A project-based hex editor, with full tree navigation of binary files based on
+project files created by the user. The projects define the file structure and
+"building blocks" of the file, so defining it once defines it for all.
+
+=========
+Version History
+
+=========
+Installation Notes
+
+=========
+Uninstallation Notes
+
+=========
+Copyright Information
+
+Copyright © Michael Gaisser, 2012-
+
+Portions of this program and related files are licensed under the GNU Public
+License or GNU Free Documentation License.  See GPL.txt or FDL.txt as
+appropriate.
+
+The author cannot be held responsible or liable for unwanted effects through
+the use or misuse of this software. This software is offered as-is without
+warranty of any kind.
+
+All Rights Reserved
