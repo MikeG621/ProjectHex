@@ -1,3 +1,17 @@
+/*
+ * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
+ * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in GPL.txt
+ * Version: 0.1
+ */
+ 
+/* CHANGELOG
+ * [ADD] Serializable
+ * v0.1, XXXXXX
+ */
+ 
 using System;
 
 namespace Idmr.ProjectHex
@@ -6,6 +20,7 @@ namespace Idmr.ProjectHex
 	{
 		/// <summary>Object for string items</summary>
 		/// <remarks>Initializes to an empty string without terminating null character.</remarks>
+		[Serializable]
 		public class StringVar : Var
 		{
 			bool _nullTermed = false;

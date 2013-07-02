@@ -10,9 +10,9 @@ namespace Idmr.ProjectHex
 		public Form1()
 		{
 			InitializeComponent();
-			ProjectFile proj = new ProjectFile();
+			/*ProjectFile proj = new ProjectFile();
 			proj.LoadProject("Projects\\TIEMission.xml", false);
-			System.Diagnostics.Debug.WriteLine("loaded");
+			System.Diagnostics.Debug.WriteLine("loaded");*/
 		}
 
 		private void cmdOpen_Click(object sender, EventArgs e)
@@ -24,11 +24,12 @@ namespace Idmr.ProjectHex
 		{
 			try
 			{
+				ProjectFile pf = new ProjectFile(Application.StartupPath + "\\projects\\tiemission.xml");
 				file = new BinaryFile(opnFile.FileName);
 				lblOutput.Text = file.ProjectName;
-				/*ProjectFile.SByteVar sb;
-				sb = (ProjectFile.SByteVar)file.Project.Properties["Byte:Officers"];
-				System.Diagnostics.Debug.WriteLine(sb.Name);*/
+				//ProjectFile.SByteVar sb;
+				//ProjectFile.ShortVar old = (ProjectFile.ShortVar)file.Project.Properties[8].Values[0].Values[53].Values[0].Values[0];
+				System.Diagnostics.Debug.WriteLine("rawr");
 			}
 			catch { throw; }
 		}

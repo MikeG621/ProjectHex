@@ -1,10 +1,25 @@
-﻿using System;
+﻿/*
+ * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
+ * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in GPL.txt
+ * Version: 0.1
+ */
+ 
+/* CHANGELOG
+ * [ADD] Serializable
+ * v0.1, XXXXXX
+ */
+ 
+using System;
 
 namespace Idmr.ProjectHex
 {
 	public partial class ProjectFile
 	{
 		/// <summary>Object for double-precision (eight-byte) floating point items.</summary>
+		[Serializable]
 		public class DoubleVar : Var
 		{
 			#region constructors

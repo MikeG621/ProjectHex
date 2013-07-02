@@ -1,9 +1,25 @@
+/*
+ * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
+ * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in GPL.txt
+ * Version: 0.1
+ */
+ 
+/* CHANGELOG
+ * [ADD] Serializable
+ * v0.1, XXXXXX
+ */
+ 
 using System;
 
 namespace Idmr.ProjectHex
 {
 	public partial class ProjectFile
 	{
+		/// <summary>Object for containers of multiple <see cref="Var"/> types.</summary>
+		[Serializable]
 		public class CollectionVar : Var
 		{
 			#region constructors
@@ -23,7 +39,7 @@ namespace Idmr.ProjectHex
 				catch (OverflowException x) { throw new OverflowException("'id' must be lower than " + Int32.MaxValue, x); }
 				// projects have to be written with child definitions at the top. IDs can be whatever, but new child Collections must be inserted above whatever parent wants to use it
 				// ie: if I have a Square, and I decide that I want to make it out of Lines, the new Line definition must be inserted before Square in _parent
-				if (!parent.isLoading && parent._parentFile.Types.GetIndexByID(_id) == -1)
+				if (!parent.isLoading && parent.parentFile.Types.GetIndexByID(_id) == -1)
 					throw new ArgumentOutOfRangeException("ProjectFile Type definition with specified ID not found");
 				_parent = parent;
 				_type = VarType.Collection;
@@ -44,7 +60,7 @@ namespace Idmr.ProjectHex
 			/// <exception cref="ArgumentOutOfRangeException">No <see cref="ProjectFile.Properties"/> with an ID of <i>id</i> were found</exception>
 			public CollectionVar(VarCollection parent, int id)
 			{
-				if (!parent.isLoading && parent._parentFile.Types.GetIndexByID(id) == -1)
+				if (!parent.isLoading && parent.parentFile.Types.GetIndexByID(id) == -1)
 					throw new ArgumentOutOfRangeException("ProjectFile Type definition with specified ID not found");
 				_parent = parent;
 				_type = VarType.Collection;
@@ -66,7 +82,7 @@ namespace Idmr.ProjectHex
 			/// <remarks>Returns the RawLength value of the origination DefinitionVar.</remarks>
 			public override string RawLength
 			{
-				get { return _parent._parentFile._types.GetItemByID(_id).RawLength; }
+				get { return _parent.parentFile._types.GetItemByID(_id).RawLength; }
 				set { throw new InvalidOperationException(_definitionControlMsg + "'length'"); }
 			}
 			

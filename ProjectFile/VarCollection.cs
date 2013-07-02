@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
+ * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in GPL.txt
+ * Version: 0.1
+ */
+ 
+/* CHANGELOG
+ * [ADD] parentFile/Var for internal access to _parentFile/Var, propogate to _items[].Values
+ * [UPD] _parentFile/Var no longer internal
+ * [UPD] changed name mismatch message to include identifiers
+ * [UPD] Populate() for StringVars, added stringlength
+ * v0.1, XXXXXX
+ */
+
+using System;
 using System.Collections.Generic;
 using Idmr.Common;
 
@@ -6,18 +23,20 @@ namespace Idmr.ProjectHex
 {
 	public partial class ProjectFile
 	{
+		/// <summary>Object to maintain multiple <see cref="Var">Vars.</see>.</summary>
+		[Serializable]
 		public class VarCollection : ResizableCollection<Var>
 		{
-			internal ProjectFile _parentFile;
-			internal ProjectFile.Var _parentVar;
+			ProjectFile _parentFile;
+			ProjectFile.Var _parentVar;
 			internal string[] _names = null;	// names attribute is stored here before Binary is loaded
 
 			#region constructors
 			/// <summary>Creates an empty Collection.</summary>
-			/// <remarks>No limit to collection size, initial capactiy is 25.</remarks>
+			/// <remarks>No limit to collection size, initial capacity is 25.</remarks>
 			internal VarCollection(ProjectFile parent)
 			{
-				_parentFile = parent;
+				parentFile = parent;
 				_items = new List<Var>(25);
 				Tag = null;
 			}
@@ -27,38 +46,40 @@ namespace Idmr.ProjectHex
 			/// <remarks>No limit to collection size, initial capacity is set to <i>quantity</i>.</remarks>
 			internal VarCollection(ProjectFile parent, int quantity)
 			{
-				_parentFile = parent;
+				parentFile = parent;
 				try { _items = new List<Var>(quantity); }
 				catch (ArgumentOutOfRangeException) { throw; }
 				Tag = null;
 			}
 
 			/// <summary>Creates an empty Collection.</summary>
-			/// <remarks>No limit to collection size, initial capactiy is 25.</remarks>
+			/// <remarks>No limit to collection size, initial capacity is 25.</remarks>
 			internal VarCollection(Var parent)
 			{
-				_parentVar = parent;
-				_parentFile = _parentVar._parent._parentFile;
+				parentVar = parent;
+				parentFile = parentVar._parent.parentFile;
 				_items = new List<Var>(25);
 				Tag = null;
 			}
 
 			/// <summary>Creates an empty Collection</summary>
+			/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than zero.</exception>
 			/// <remarks>No limit to collection size, initial capacity is set to <i>quantity</i></remarks>
 			internal VarCollection(Var parent, int quantity)
 			{
-				_parentVar = parent;
-				_parentFile = _parentVar._parent._parentFile;
-				_items = new List<Var>(quantity);
+				parentVar = parent;
+				parentFile = parentVar._parent.parentFile;
+				try { _items = new List<Var>(quantity); }
+				catch (ArgumentOutOfRangeException) { throw; }
 				Tag = null;
 			}
 			#endregion constructors
 
 			#region public methods
-			/// <summary>Provides the index of the item with the provided ID</summary>
-			/// <param name="id">The ID to search for</param>
-			/// <returns>The index of the item with the same ID value if found, otherwise <b>-1</b></returns>
-			/// <remarks>Intended to be used when searching <see cref="ProjectFile.Types"/>, use <see cref="GetIndexByTag"/> as a general-purpose search function</remarks>
+			/// <summary>Provides the index of the item with the provided ID.</summary>
+			/// <param name="id">The ID to search for.</param>
+			/// <returns>The index of the item with the same ID value if found, otherwise <b>-1</b>.</returns>
+			/// <remarks>Intended to be used when searching <see cref="ProjectFile.Types"/>.</remarks>
 			public int GetIndexByID(int id)
 			{
 				for (int i = 0; i < Count; i++)
@@ -66,10 +87,10 @@ namespace Idmr.ProjectHex
 				return -1;
 			}
 			
-			/// <summary>Provides the item with the provided ID</summary>
-			/// <param name="id">The ID to search for</param>
-			/// <returns>The matching item, otherwise <b>-1</b></returns>
-			/// <remarks>Intended to be used when searching <see cref="ProjectFile.Types"/>, use <see cref="GetItemByTag"/> as a general-purpose search function</remarks>
+			/// <summary>Provides the item with the provided ID.</summary>
+			/// <param name="id">The ID to search for.</param>
+			/// <returns>The matching item, otherwise <b>null</b>.</returns>
+			/// <remarks>Intended to be used when searching <see cref="ProjectFile.Types"/>.</remarks>
 			public Var GetItemByID(int id)
 			{
 				for (int i = 0; i < Count; i++)
@@ -77,9 +98,9 @@ namespace Idmr.ProjectHex
 				return null;
 			}
 			
-			/// <summary>Finds the index of the item with the specified <see cref="Var.Tag"/> value</summary>
-			/// <param name="tag">User-defined data</param>
-			/// <returns>The index of the first matching item, otherwise <b>-1</b></returns>
+			/// <summary>Finds the index of the item with the specified <see cref="Idmr.Common.FixedSizeCollection{T}.Tag"/> value.</summary>
+			/// <param name="tag">User-defined data.</param>
+			/// <returns>The index of the first matching item, otherwise <b>-1</b>.</returns>
 			public int GetIndexByTag(object tag)
 			{
 				for (int i = 0; i < Count; i++)
@@ -87,9 +108,9 @@ namespace Idmr.ProjectHex
 				return -1;
 			}
 			
-			/// <summary>Finds the item with the specified <see cref="Var.Tag"/> value</summary>
-			/// <param name="tag">User-defined data</param>
-			/// <returns>The first matching item, otherwise <b>null</b></returns>
+			/// <summary>Finds the item with the specified <see cref="Idmr.Common.FixedSizeCollection{T}.Tag"/> value.</summary>
+			/// <param name="tag">User-defined data.</param>
+			/// <returns>The first matching item, otherwise <b>null</b>.</returns>
 			public Var GetItemByTag(object tag)
 			{
 				for (int i = 0; i < Count; i++)
@@ -97,9 +118,29 @@ namespace Idmr.ProjectHex
 				return null;
 			}
 			
-			/// <summary>Finds the the first index of the item with the specified type</summary>
-			/// <param name="type">The type to search for</param>
-			/// <returns>The index of the first item with the matching type, otherwise <b>-1</b></returns>
+			/// <summary>Finds the index of the item with the specified <see cref="Var.Name"/> value.</summary>
+			/// <param name="name">Item name.</param>
+			/// <returns>The index of the first matching item, otherwise <b>-1</b>.</returns>
+			public int GetIndexByName(string name)
+			{
+				for (int i = 0; i < Count; i++)
+					if (_items[i].Name == name) return i;
+				return -1;
+			}
+			
+			/// <summary>Finds the item with the specified <see cref="Var.Name"/> value.</summary>
+			/// <param name="name">Item name.</param>
+			/// <returns>The first matching item, otherwise <b>null</b>.</returns>
+			public Var GetItemByName(string name)
+			{
+				for (int i = 0; i < Count; i++)
+					if (_items[i].Name == name) return _items[i];
+				return null;
+			}
+			
+			/// <summary>Finds the the first index of the item with the specified type.</summary>
+			/// <param name="type">The type to search for.</param>
+			/// <returns>The index of the first matching item, otherwise <b>-1</b>.</returns>
 			public int GetIndexByType(VarType type)
 			{
 				for (int i = 0; i < Count; i++)
@@ -107,9 +148,9 @@ namespace Idmr.ProjectHex
 				return -1;
 			}
 			
-			/// <summary>Finds the the first item of the item with the specified type</summary>
-			/// <param name="type">The type to search for</param>
-			/// <returns>The first matching item, otherwise <b>null</b></returns>
+			/// <summary>Finds the the first item of the item with the specified type.</summary>
+			/// <param name="type">The type to search for.</param>
+			/// <returns>The first matching item, otherwise <b>null</b>.</returns>
 			public Var GetItemByType(VarType type)
 			{
 				for (int i = 0; i < Count; i++)
@@ -129,8 +170,8 @@ namespace Idmr.ProjectHex
 				int added = _add(item);
 				if (item.Type == VarType.Definition && added != -1 && !_isLoading)
 				{
-					_items[added]._id = _parentFile._nextID;
-					_parentFile._nextID++;
+					_items[added]._id = parentFile._nextID;
+					parentFile._nextID++;
 				}
 				return added;
 			}
@@ -151,8 +192,8 @@ namespace Idmr.ProjectHex
 					added = _add(new DefinitionVar(this));
 					if (added != -1)
 					{
-						_items[added]._id = _parentFile._nextID;
-						_parentFile._nextID++;
+						_items[added]._id = parentFile._nextID;
+						parentFile._nextID++;
 					}
 				}
 				else if (type == VarType.Double) added = _add(new DoubleVar(this));
@@ -181,8 +222,8 @@ namespace Idmr.ProjectHex
 				int added = _insert(index, item);
 				if (item.Type == VarType.Definition && added != -1)
 				{
-					_items[added]._id = _parentFile._nextID;
-					_parentFile._nextID++;
+					_items[added]._id = parentFile._nextID;
+					parentFile._nextID++;
 				}
 				if (Count > 2)	// no dynamics possible before this point
 				{
@@ -224,8 +265,8 @@ namespace Idmr.ProjectHex
 				if (index < 0 || index >= Count)
 					throw new ArgumentOutOfRangeException("'index' must be 0-" + (Count - 1));
 				string msg = "Cannot remove item, is currently in use by ";
-				string check = indexCheck(_parentFile.Properties, index, "Property ", false);
-				if (check == "") check = indexCheck(_parentFile.Types, index, "Type ", true);
+				string check = indexCheck(parentFile.Properties, index, "Property ", false);
+				if (check == "") check = indexCheck(parentFile.Types, index, "Type ", true);
 				if (check != "")
 					throw new InvalidOperationException(msg + check);
 				if (Count > 1)
@@ -254,10 +295,10 @@ namespace Idmr.ProjectHex
 				int count = Count;
 				int pos = startingOffset;
 				ProjectFile.Var definition = null;
-				if (_parentVar != null && _parentVar.Type == VarType.Collection)
+				if (parentVar != null && parentVar.Type == VarType.Collection)
 				{
-					id = _parentVar.ID;
-					definition = _parentFile.Types.GetItemByID(id);
+					id = parentVar.ID;
+					definition = parentFile.Types.GetItemByID(id);
 					count = definition.Quantity;
 				}
 				for (int i = 0; i < count; i++)
@@ -265,27 +306,26 @@ namespace Idmr.ProjectHex
 					if (id != -1)
 					{
 						Add(definition.Values[i].Type);
-						this[i]._name = definition.Values[i]._name;
-						this[i].Tag = this[i].ToString();
-						this[i]._length = definition.Values[i]._length;
-						this[i]._offset = definition.Values[i]._offset;
-						this[i]._quantity = definition.Values[i]._quantity;
-						this[i]._condition = definition.Values[i]._condition;
-						this[i]._comment = definition.Values[i]._comment;
-						this[i]._id = definition.Values[i]._id;
-						this[i]._default = definition.Values[i]._default;
+						this[i]._name = definition[i]._name;
+						this[i]._length = definition[i]._length;
+						this[i]._offset = definition[i]._offset;
+						this[i]._quantity = definition[i]._quantity;
+						this[i]._condition = definition[i]._condition;
+						this[i]._comment = definition[i]._comment;
+						this[i]._id = definition[i]._id;
+						this[i]._default = definition[i]._default;
 						if (this[i].Type == VarType.Bool)
 						{
-							((BoolVar)this[i]).TrueValue = ((BoolVar)definition.Values[i]).TrueValue;
-							((BoolVar)this[i]).FalseValue = ((BoolVar)definition.Values[i]).FalseValue;
+							((BoolVar)this[i]).TrueValue = ((BoolVar)definition[i]).TrueValue;
+							((BoolVar)this[i]).FalseValue = ((BoolVar)definition[i]).FalseValue;
 						}
 						if (this[i].Type == VarType.String)
-							((StringVar)this[i]).NullTermed = ((StringVar)definition.Values[i]).NullTermed;
-						this[i].Values = definition.Values[i].Values;
-						if (this[i].Values != null)
+							((StringVar)this[i]).NullTermed = ((StringVar)definition[i]).NullTermed;
+						if (definition[i].Values != null)
 						{
-							this[i].Values._parentFile = _parentFile;
-							this[i].Values._parentVar = this[i];
+							this[i].Values = definition[i].Values.DeepClone();
+							this[i].Values.parentFile = parentFile;
+							this[i].Values.parentVar = this[i];
 						}
 					}
 					if (this[i].IsPresent)
@@ -301,7 +341,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; i++)
 									{
 										this[i].Values.Add(VarType.Bool);
-										this[i].Values[j].RawValue = rawData[pos++];
+										this[i][j].RawValue = rawData[pos++];
 									}
 								}
 								break;
@@ -312,7 +352,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.Byte);
-										((ByteVar)this[i].Values[j]).Value = rawData[pos++];
+										((ByteVar)this[i][j]).Value = rawData[pos++];
 									}
 								}
 								break;
@@ -320,8 +360,9 @@ namespace Idmr.ProjectHex
 								for (int j = 0; j < this[i].Quantity; j++)
 								{
 									this[i].Values.Add(new CollectionVar(this[i].Values, this[i].ID));
-									this[i].Values[j].Values = new VarCollection(this[i].Values[j]);
-									pos = this[i].Values[j].Values.Populate(rawData, pos);
+									this[i][j].Values = new VarCollection(this[i][j]);	//TODO: Values[j].Values initializes to Count=25 (Triggers, WPs, etc)
+									pos = this[i][j].Values.Populate(rawData, pos);
+									//TODO: insert SetCount here?
 								}
 								break;
 							case VarType.Double:
@@ -331,7 +372,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.Double);
-										this[i].Values[j].RawValue = BitConverter.ToDouble(rawData, pos);
+										this[i][j].RawValue = BitConverter.ToDouble(rawData, pos);
 										pos += 8;
 									}
 								}
@@ -343,7 +384,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.Int);
-										this[i].Values[j].RawValue = BitConverter.ToInt32(rawData, pos);
+										this[i][j].RawValue = BitConverter.ToInt32(rawData, pos);
 										pos += 4;
 									}
 								}
@@ -355,7 +396,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.Long);
-										this[i].Values[j].RawValue = BitConverter.ToInt64(rawData, pos);
+										this[i][j].RawValue = BitConverter.ToInt64(rawData, pos);
 										pos += 8;
 									}
 								}
@@ -367,7 +408,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.SByte);
-										this[i].Values[j].RawValue = (sbyte)rawData[pos++];
+										this[i][j].RawValue = (sbyte)rawData[pos++];
 									}
 								}
 								break;
@@ -378,7 +419,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.Short);
-										this[i].Values[j].RawValue = BitConverter.ToInt16(rawData, pos);
+										this[i][j].RawValue = BitConverter.ToInt16(rawData, pos);
 										pos += 2;
 									}
 								}
@@ -390,21 +431,22 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.Single);
-										this[i].Values[j].RawValue = BitConverter.ToSingle(rawData, pos);
+										this[i][j].RawValue = BitConverter.ToSingle(rawData, pos);
 										pos += 4;
 									}
 								}
 								break;
 							case VarType.String:
-								if (this[i].Quantity == 0 && Int32.Parse(Equation.Evaluate(ParseDynamicValues(this, this[i].RawLength))) != 0) this[i].RawValue = ArrayFunctions.ReadStringFromArray(rawData, pos, Int32.Parse(Equation.Evaluate(ParseDynamicValues(this, this[i].RawLength))));
+								int stringLength = Int32.Parse(Equation.Evaluate(ParseDynamicValues(this, this[i].RawLength)));
+								if (this[i].Quantity == 0 && stringLength != 0) this[i].RawValue = ArrayFunctions.ReadStringFromArray(rawData, pos, stringLength);
 								else if (this[i].Quantity != 0)
 								{
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.String);
-										if (this[i].RawLength != "0") this[i].Values[j].RawValue = ArrayFunctions.ReadStringFromArray(rawData, pos, Int32.Parse(Equation.Evaluate(ParseDynamicValues(this, this[i].RawLength))));
-										this[i].Values[j].RawLength = this[i].RawLength;
-										pos += Int32.Parse(Equation.Evaluate(ParseDynamicValues(this, this[i].RawLength)));
+										if (this[i].RawLength != "0") this[i][j].RawValue = ArrayFunctions.ReadStringFromArray(rawData, pos, stringLength);
+										this[i][j].RawLength = this[i].RawLength;
+										pos += stringLength;
 									}
 								}
 								break;
@@ -415,7 +457,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.UInt);
-										this[i].Values[j].RawValue = BitConverter.ToUInt32(rawData, pos);
+										this[i][j].RawValue = BitConverter.ToUInt32(rawData, pos);
 										pos += 4;
 									}
 								}
@@ -427,7 +469,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.ULong);
-										this[i].Values[j].RawValue = BitConverter.ToUInt64(rawData, pos);
+										this[i][j].RawValue = BitConverter.ToUInt64(rawData, pos);
 										pos += 8;
 									}
 								}
@@ -439,7 +481,7 @@ namespace Idmr.ProjectHex
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.UShort);
-										this[i].Values[j].RawValue = BitConverter.ToUInt16(rawData, pos);
+										this[i][j].RawValue = BitConverter.ToUInt16(rawData, pos);
 										pos += 2;
 									}
 								}
@@ -451,11 +493,10 @@ namespace Idmr.ProjectHex
 							{
 								if (this[i].Values._names != null)
 								{
-									try { this[i].Values[n].Name = this[i].Values._names[n]; }
-									catch { this[i].Values[n].Name = n.ToString(); System.Diagnostics.Debug.WriteLine("Names count mismatch"); }
+									try { this[i][n].Name = this[i].Values._names[n]; }
+									catch { this[i][n].Name = n.ToString(); System.Diagnostics.Debug.WriteLine("Names count mismatch: " + this[i].ToString() + "[" + n + "]"); }
 								}
-								else this[i].Values[n].Name = n.ToString();
-								this[i].Values[n].Tag = this[i].Values[n].ToString();
+								else this[i][n].Name = n.ToString();
 							}
 							this[i].Values.isLoading = false;
 						}
@@ -472,7 +513,7 @@ namespace Idmr.ProjectHex
 			#region public properties
 			/// <summary>A single item within the collection</summary>
 			/// <param name="label">The identifying string of the item in the form of "<see cref="Var.Type">Type</see><see cref="Var.Name"/></b>"</param>
-			/// <exception cref="ArgumentException">Resource not found</exception>
+			/// <exception cref="ArgumentException"><i>label</i> not found</exception>
 			/// <returns>The item matching <i>label</i>, otherwise <b>null</b></returns>
 			/// <remarks><i>label</i> is the same format as <see cref="Var.ToString()"/></remarks>
 			public Var this[string label]
@@ -508,7 +549,6 @@ namespace Idmr.ProjectHex
 				}
 			}
 
-			public object Tag { get; set; }
 			#endregion public properties
 			
 			static string indexCheck(VarCollection vars, int index, string label, bool checkChildren)
@@ -533,11 +573,38 @@ namespace Idmr.ProjectHex
 				for (int i = 0; i < vars.Count; i++) vars[i].ReplaceDynamicIndex(oldIndex, newIndex);
 			}
 			
-			/// <summary>Internal property for access within the rest of ProjectFile</summary>
+			/// <summary>Gets or sets if the collection is in a loading state.</summary>
+			/// <remarks>Provides internal access to <see cref="ResizableCollection{T}._isLoading"/> for use throughout <see cref="ProjectFile"/>.</remarks>
 			internal bool isLoading
 			{
 				get { return _isLoading; }
 				set { _isLoading = value; }
+			}
+			
+			/// <summary>Gets or sets the parent project.</summary>
+			/// <remarks>Propogates value through child <see cref="Var.Values"/> entries.</remarks>
+			internal ProjectFile parentFile
+			{
+				get { return _parentFile; }
+				set
+				{
+					_parentFile = value;
+					for (int i = 0; i < Count; i++)
+						if (_items[i].Values != null) _items[i].Values.parentFile = value;
+				}
+			}
+			
+			/// <summary>Gets or sets the parent object.</summary>
+			/// <remarks>Propogates value through child <see cref="Var.Values"/> entries.</remarks>
+			internal ProjectFile.Var parentVar
+			{
+				get { return _parentVar; }
+				set
+				{
+					_parentVar = value;
+					for (int i = 0; i < Count; i++)
+						if (_items[i].Values != null) _items[i].Values.parentVar = value;
+				}
 			}
 		}
 	}

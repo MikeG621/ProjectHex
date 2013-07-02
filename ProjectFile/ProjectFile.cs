@@ -6,6 +6,7 @@ using Idmr.Common;
 
 namespace Idmr.ProjectHex
 {
+	/// <summary>Object to contain the project definition.</summary>
 	public partial class ProjectFile
 	{
 		string _projectPath = "";	// project file
@@ -16,42 +17,90 @@ namespace Idmr.ProjectHex
 		VarCollection _properties = null;
 		VarCollection _types = null;
 		bool _isModified = false;
+		/// <summary>Next available ID number for a new Type</summary>
 		internal int _nextID = 0;
 		BinaryFile _binary = null;
 
 		static string _noBinaryMsg = "Binary file has not been loaded into the Project, dynamic values cannot be calculated";
 
-		public enum VarType { Error, Undefined, Bool, Byte, SByte, Short, UShort, Int, UInt, Long, ULong, String, Collection, Definition, Single, Double }
+		/// <summary>Type of <see cref="Var"/> objects.</summary>
+		public enum VarType : byte {
+			/// <summary>Placeholder for corrupted objects.</summary>
+			Error,
+			/// <summary>New object.</summary>
+			Undefined,
+			/// <summary>Boolean object.</summary>
+			Bool,
+			/// <summary>Unsigned 8-bit integer.</summary>
+			Byte,
+			/// <summary>Signed 8-bit integer.</summary>
+			SByte,
+			/// <summary>Signed 16-bit integer.</summary>
+			Short,
+			/// <summary>Unsigned 16-bit integer.</summary>
+			UShort,
+			/// <summary>Signed 32-bit integer.</summary>
+			Int,
+			/// <summary>Unsigned 32-bite integer.</summary>
+			UInt,
+			/// <summary>Signed 64-bit integer.</summary>
+			Long,
+			/// <summary>Unsigned 64-bit integer.</summary>
+			ULong,
+			/// <summary>Text value.</summary>
+			String,
+			/// <summary>Multiple child objects.</summary>
+			Collection,
+			/// <summary>Template collection.</summary>
+			Definition,
+			/// <summary>Signed 32-bit floating-point value.</summary>
+			Single,
+			/// <summary>Signed 64-bit floating-point value.</summary>
+			Double
+		}
 
 		#region constructors
+		/// <summary>Initializes a blank project.</summary>
 		public ProjectFile() { /* do nothing */ }
 
+		/// <summary>Initializes a project from file.</summary>
+		/// <param name="projectPath">The full path to the file to load.</param>
+		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located</exception>
+		/// <exception cref="XmlException">Definition load failure</exception>
 		public ProjectFile(string projectPath) { LoadProject(projectPath); }
 
+		/// <summary>Initializes a project from file.</summary>
+		/// <param name="projectPath">The full path to the file to load.</param>
+		/// <param name="validationOnly">Whether or not the projec tis only loaded to ensure compatability.</param>
+		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located</exception>
+		/// <exception cref="XmlException">Definition load failure</exception>
+		/// <remarks>When <i>validationOnly</i> is <b>true</b>, only project properties and items used to check compatability are loaded.</remarks>
 		public ProjectFile(string projectPath, bool validationOnly) { LoadProject(projectPath, validationOnly); }
 		#endregion constructors
 
 		#region public methods
-		/// <summary>Re-initializes the project definition from file</summary>
-		/// <exception cref="InvalidOperationException"><see cref="ProjectPath"/> has not been defined</exception>
-		/// <remarks>Wipes any content that may have been created when applied to a BinaryFile</remarks>
+		/// <summary>Re-initializes the project definition from file.</summary>
+		/// <exception cref="InvalidOperationException"><see cref="ProjectPath"/> has not been defined.</exception>
+		/// <exception cref="System.IO.FileNotFoundException">The original file could not be located, likely has been moved or deleted.</exception>
+		/// <exception cref="XmlException">Definition load failure.</exception>
+		/// <remarks>Wipes any content that may have been created when applied to a BinaryFile.</remarks>
 		public void ReloadProject()
 		{
 			if (_projectPath == "") throw new InvalidOperationException("No project file defined");
 			LoadProject(_projectPath);
 		}
 		
-		/// <summary>Loads a project definition structure for use</summary>
-		/// <param "projectFile">Project definition to be loaded</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located</exception>
-		/// <exception cref="XmlException">Definition load failure</exception>
+		/// <summary>Loads a project definition structure for use.</summary>
+		/// <param "projectFile">Project definition to be loaded.</param>
+		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located.</exception>
+		/// <exception cref="XmlException">Definition load failure.</exception>
 		public void LoadProject(string projectFile) { LoadProject(projectFile, false); }
 
-		/// <summary>Loads a project definition structure for use</summary>
-		/// <param "projectFile">Project definition to be loaded</param>
+		/// <summary>Loads a project definition structure for use.</summary>
+		/// <param "projectFile">Project definition to be loaded.</param>
 		/// <param "validationOnly">When <b>true</b>, only processes project properties and items used to check compatability.</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located</exception>
-		/// <exception cref="XmlException">Definition load failure</exception>
+		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located.</exception>
+		/// <exception cref="XmlException">Definition load failure.</exception>
 		public void LoadProject(string projectFile, bool validationOnly)
 		{
 			if (!File.Exists(projectFile))
@@ -114,8 +163,8 @@ namespace Idmr.ProjectHex
 
 		// TODO: SaveProject
 
-		/// <summary>Checks installed project files for valid projects for the given binary file</summary>
-		/// <param "binaryPath">Full path to the file to be edited</param>
+		/// <summary>Checks installed project files for valid projects for the given binary file.</summary>
+		/// <param "binaryPath">Full path to the file to be edited.</param>
 		/// <returns>Array of paths to applicable project definitions, <b>null</b> if none are found.</returns>
 		static public string[] GetProjectMatches(string binaryPath)
 		{
@@ -138,8 +187,9 @@ namespace Idmr.ProjectHex
 		/// <param name="binaryPath">Full path to the binary file to be edited</param>
 		/// <returns><b>true</b> is the project can be used, <b>false</b> otherwise</returns>
 		/// <remarks>If <i>projectPath</i> fails to load, automatically returns <b>false</b>.<br/>
-		/// Providing the project can be loaded, validates by ensuring the filename meets <see cref="ProjectFile.Wildcard"/>, if <see cref="ProjectFile.Length"/> is defined it will compare the file size, and if <see cref="ProjectFile.HasMagic"/> is <b>true</b> it will compare the magic value against the binary file.<br/>
-		/// The binary must pass all applicable tests for the project to be valid.</remarks>
+		/// Providing the project can be loaded, validates by ensuring the filename meets <see cref="ProjectFile.Wildcard"/>, if <see cref="ProjectFile.Length"/> is defined it will compare the file size, and if a property's <see cref="Var.IsValidated"/> is <b>true</b> it will compare the binary's value against the default.<br/>
+		/// The binary must pass all applicable tests for the project to be valid.<br/>
+		/// The reason for the failure is output to console.</remarks>
 		static public bool CheckProjectMatch(string projectPath, string binaryPath)
 		{
 			ProjectFile project = new ProjectFile();
@@ -207,12 +257,17 @@ namespace Idmr.ProjectHex
 			else return input;
 		}
 		
+		/// <summary>Sets the opened binary file.</summary>
 		public void AssignBinary(BinaryFile binary) { _binary = binary; }
 		#endregion public methods
 		
 		#region public props
+		/// <summary>Gets a listing of all installed project files.</summary>
 		static public string[] ProjectFileList { get { return Directory.GetFiles(Directory.GetParent(Application.ExecutablePath) + "\\Projects\\", "*.xml"); } }
+		/// <summary>Gets the path to the project.</summary>
 		public string ProjectPath { get { return _projectPath; } }
+		/// <summary>Gets or sets the name of the project.</summary>
+		/// <exception cref="ArgumentException">Value cannot match the name of another installed project.</exception>
 		public string Name
 		{
 			get { return _name; }
@@ -227,6 +282,9 @@ namespace Idmr.ProjectHex
 				_isModified = true;
 			}
 		}
+		/// <summary>Gets or sets the wildcard pattern for binary filename matching.</summary>
+		/// <remarks>Empty or <b>null</b> values will set to <b>"*.*"</b>.<br/>
+		/// **Used for validation.</remarks>
 		public string Wildcard
 		{
 			get { return _wildcard; }
@@ -237,23 +295,29 @@ namespace Idmr.ProjectHex
 				_isModified = true;
 			}
 		}
+		/// <summary>Gets or sets the fixed-length size for the binary file.</summary>
+		/// <remarks>A value of <b>0</b> or lower will be set as <b>-1</b>.<br/>
+		/// **Used for validation.</remarks>
 		public long Length
 		{
 			get { return _length; }
 			set
 			{
-				if (value < 0) _length = -1;
-				else if (value == 0) throw new ArgumentException("Value cannot be zero");
+				if (value < 1) _length = -1;
 				else _length = value;
 				_isModified = true;
 			}
 		}
+		/// <summary>Gets or sets a project note.</summary>
+		/// <remarks>Value only exists for reference, provides no function.</remarks>
 		public string Comment
 		{
 			get { return _comment; }
 			set { _comment = value; _isModified = true; }
 		}
+		/// <summary>Gets a reference to the project layout.</summary>
 		public VarCollection Properties { get { return _properties; } }
+		/// <summary>Gets a reference to the item templates.</summary>
 		public VarCollection Types { get { return _types; } }
 		/// <summary>Gets if the ProjectFile, <see cref="Properties"/> or <see cref="Types"/> have been modified since loading</summary>
 		public bool IsModified
@@ -345,6 +409,9 @@ namespace Idmr.ProjectHex
 			_isModified = false;
 		}
 
+		/// <summary>Looks for the first non-numerical character.</summary>
+		/// <param name="s">The equation string.</param>
+		/// <returns>The offset of the first non-numerical character in <i>s</i>, otherwise <i>s.Length</i>.</returns>
 		internal static int firstOperation(string s)
 		{
 			string nums = "0123456789";

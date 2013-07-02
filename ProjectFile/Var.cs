@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
+ * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in GPL.txt
+ * Version: 0.1
+ */
+ 
+/* CHANGELOG
+ * [ADD] _parent get/set for _parentCollection
+ * [UPD] _parent renamed to _parentCollection, isDynamicText/getDynamicSplit to static, _parentCollection no longer internal
+ * [ADD] Serializable
+ * v0.1, XXXXXX
+ */
+ 
+using System;
+using Idmr.Common;
 
 namespace Idmr.ProjectHex
 {
@@ -6,11 +23,12 @@ namespace Idmr.ProjectHex
 	{
 		/// <summary>Base class for project items</summary>
 		/// <remarks>Also used for <see cref="VarType.Undefined"/> types.</remarks>
+		[Serializable]
 		public class Var
 		{
-			// TODO: need a way to convert one VarType to another
-			protected internal VarCollection _parent = null;
+			protected VarCollection _parentCollection = null;
 			protected object _tag = null;
+			/// <summary>Flag used to indicated if the object has been changed since load.</summary> 
 			protected internal bool _isModified = false;
 			
 			protected static string _fixedLengthMsg = "Type is of a fixed length, cannot be set";
@@ -34,6 +52,7 @@ namespace Idmr.ProjectHex
 			public VarCollection Values = null;
 			#endregion
 
+			#region constructors
 			internal Var()
 			{
 				/* do nothing */
@@ -41,9 +60,11 @@ namespace Idmr.ProjectHex
 			
 			/// <summary>Initializes an Undefined item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
+			/// <exception cref="ArgumentNullException"><i>parent</i> is <b>null</b>.</exception>
 			internal Var(VarCollection parent)
 			{
 				_parent = parent;
+				if (parent == null) throw new ArgumentNullException("parent cannot be null");
 				bool loading = _parent.isLoading;
 				_parent.isLoading = true;
 				RawValue = 0;
@@ -53,15 +74,18 @@ namespace Idmr.ProjectHex
 			/// <summary>Initializes an Undefined item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
 			/// <param name="defaultValue">The starting value of the item.</param>
+			/// <exception cref="ArgumentNullException"><i>parent</i> is <b>null</b>.</exception>
 			internal Var(VarCollection parent, string defaultValue)
 			{
 				_parent = parent;
+				if (parent == null) throw new ArgumentNullException("parent cannot be null");
 				bool loading = _parent.isLoading;
 				_parent.isLoading = true;
 				RawValue = 0;
 				DefaultValue = defaultValue;
 				_parent.isLoading = loading;
 			}
+			#endregion constructors
 
 			#region public methods
 			/// <summary>Returns a string representation of the item</summary>
@@ -70,7 +94,7 @@ namespace Idmr.ProjectHex
 			/// <i>Parent.Name</i> nests as required to complete the breadcrumbs, allowing names such as <b>Short:FlightGroups.2.Waypoints.X.Startpoint.2</b>.</remarks>
 			public override string ToString()
 			{
-				return Type + ":" + (_parent._parentVar != null ? _parent._parentVar.ToString().Substring(_parent._parentVar.ToString().IndexOf(':') + 1) + "." : "") + Name;
+				return Type + ":" + (_parent.parentVar != null ? _parent.parentVar.ToString().Substring(_parent.parentVar.ToString().IndexOf(':') + 1) + "." : "") + Name;
 			}
 
 			/// <summary>Gets if the item contains the specified <i>index</i> as a dynamic variable</summary>
@@ -133,6 +157,24 @@ namespace Idmr.ProjectHex
 			#endregion public methods
 			
 			#region public properties
+			/// <summary>Provides Indexer getter and setter for <see cref="Values"/></summary>
+			/// <param name="index">Item index within <see cref="Values"/></param>
+			/// <exception cref="ArgumentOutOfRangeException">Invalid value for <i>index</i>.</exception>
+			/// <exception cref="InvalidOperationException">Attempted to set when <see cref="Values"/> has not been initialized.</exception>
+			/// <returns>The <see cref="Var"/> at the specified <i>index</i>, otherwise <b>null</b>.</returns>
+			public Var this[int index]
+			{
+				get
+				{
+					if (Values != null) return Values[index];
+					else return null;
+				}
+				set
+				{
+					if (Values == null) throw new InvalidOperationException("Values has not been initialized");
+					Values[index] = value;
+				}
+			}
 			/// <summary>Gets if the length definition must be calculated</summary>
 			public bool HasDynamicLength { get { return isDynamicText(_length); } }
 			/// <summary>Gets if the offset definition must be calculated</summary>
@@ -161,10 +203,10 @@ namespace Idmr.ProjectHex
 			/// <exception cref="InvalidOperationException">Parent <see cref="Var"/> controls value</exception>
 			public bool IsValidated
 			{
-				get { return (_parent._parentVar != null ? _parent._parentVar._isValidated : _isValidated); }
+				get { return (_parent.parentVar != null ? _parent.parentVar._isValidated : _isValidated); }
 				set
 				{
-					if (_parent._parentVar != null && _parent._parentVar.Type != VarType.Definition) throw new InvalidOperationException(_parentControlMsg);
+					if (_parent.parentVar != null && _parent.parentVar.Type != VarType.Definition) throw new InvalidOperationException(_parentControlMsg);
 					_isValidated = value;
 					if (!_parent.isLoading) _isModified = true;
 				}
@@ -208,14 +250,14 @@ namespace Idmr.ProjectHex
 			/// An empty or <b>null</b> value clears the conditional, resulting in an always-present value.</remarks>
 			public virtual string RawCondition
 			{
-				get { return (_isArrayChild ? _parent._parentVar._condition : _condition); }
+				get { return (_isArrayChild ? _parent.parentVar._condition : _condition); }
 				set
 				{
 					if (value == _condition) return;
-					if (_parent._parentVar != null && _parent._parentVar.Type != VarType.Definition) throw new InvalidOperationException(_parentControlMsg);
+					if (_parent.parentVar != null && _parent.parentVar.Type != VarType.Definition) throw new InvalidOperationException(_parentControlMsg);
 					string condition = _condition;
 					if (value == "" || value == null) _condition = "";
-					else if (_parent.Tag != null && _parent.Tag.ToString() == "properties" && Tag == _parent._parentFile.Properties[0].Tag)
+					else if (_parent.Tag != null && _parent.Tag.ToString() == "properties" && Tag == _parent.parentFile.Properties[0].Tag)
 						throw new InvalidOperationException("First property must always exist and cannot be conditional");
 					else if (!isDynamicText(value))
 						throw new ArgumentException("Condition attributes require dynamic values", "RawCondition.value");
@@ -238,11 +280,11 @@ namespace Idmr.ProjectHex
 			/// Default value is <b>"1"</b>. An empty or <b>null</b> value returns to the default.</remarks>
 			public virtual string RawLength
 			{
-				get { return (_isArrayChild ? _parent._parentVar._length : _length); }
+				get { return (_isArrayChild ? _parent.parentVar._length : _length); }
 				set
 				{
 					if (value == _length) return;
-					if (_parent._parentVar != null && _parent._parentVar.Type != VarType.Definition) throw new InvalidOperationException(_parentControlMsg);
+					if (_parent.parentVar != null && _parent.parentVar.Type != VarType.Definition) throw new InvalidOperationException(_parentControlMsg);
 					if (value == "" || value == null) _length = "1";
 					else if (isDynamicText(value)) throw new ArgumentException("RawLength cannot be dynamic");
 					else
@@ -261,19 +303,19 @@ namespace Idmr.ProjectHex
 			}
 			/// <summary>Gets or sets the offset definition of the item</summary>
 			/// <exception cref="ArgumentException">Static equation does not properly evaluate to an <see cref="Int64"/>.</exception>
-			/// <exception cref="ArgumentOutOfRangeException">Dynamics calculate to a value outside the range of <see cref="Int64"/>.<br/><b>-or-</b><br/>Dynamic markers fall outside the range of the parent Collection</exception>
+			/// <exception cref="ArgumentOutOfRangeException">Dynamics do not calculate to a non-negative value within the range of <see cref="Int64"/>.<br/><b>-or-</b><br/>Dynamic markers fall outside the range of the parent Collection</exception>
 			/// <exception cref="FormatException">Illegal characters present in <i>value</i>.</exception>
 			/// <exception cref="InvalidOperationException">Parent <see cref="Var"/> controls value.</exception>
 			/// <remarks>Dynamic values are permitted. Static equations are solved and saved as the resultant.<br/>
 			/// Default value is <b>"-1"</b> (consecutive). An empty or <b>null</b> value returns to the default.<br/>
-			/// As a project design consideration; if given the option, constant offsets are preferred over consecutive offsets. Using constant offsets provides better type safety and a performance boost, as the offsets in the Binary require less or no calculation. If the project format is further modified and a adjustments are made to previous entries a constant offset ensures the item does not shift to an unexpected location.</remarks>
+			/// As a project design consideration; if given the option, constant offsets are preferred over consecutive offsets. Using constant offsets provides better type safety and a performance boost, as the offsets in the Binary require less or no calculation. If the project format is further modified and adjustments are made to previous entries a constant offset ensures the item does not shift to an unexpected location.</remarks>
 			public virtual string RawOffset
 			{
-				get { return (_isArrayChild ? _parent._parentVar._offset : _offset); }
+				get { return (_isArrayChild ? _parent.parentVar._offset : _offset); }
 				set
 				{
 					if (value == _offset) return;
-					if (_parent._parentVar != null && _parent._parentVar.Type != VarType.Definition) throw new InvalidOperationException(_parentControlMsg);
+					if (_parent.parentVar != null && _parent.parentVar.Type != VarType.Definition) throw new InvalidOperationException(_parentControlMsg);
 					if (value == "" || value == null) _offset = "-1";
 					else if (!isDynamicText(value))
 					{
@@ -407,8 +449,8 @@ namespace Idmr.ProjectHex
 						throw new InvalidOperationException(_noBinaryMsg);
 					if (Values != null)
 					{
-						if (_parent._parentVar == null || _parent._parentVar.Type != _type || _type == VarType.Collection &&
-								(_parent._parentVar._id != _id || _parent._parentFile._types.GetItemByID(_id).RawLength == "-1"))
+						if (_parent.parentVar == null || _parent.parentVar.Type != _type || _type == VarType.Collection &&
+								(_parent.parentVar._id != _id || _parent.parentFile._types.GetItemByID(_id).RawLength == "-1"))
 						{
 							return Values[Values.Count - 1].LocalOffset + Values[Values.Count - 1].Length;
 							// int length = 0;
@@ -417,10 +459,10 @@ namespace Idmr.ProjectHex
 						}
 						else
 						{
-							if (!_parent._parentVar.HasDynamicLength) return Int32.Parse(_parent._parentVar.RawLength);
+							if (!_parent.parentVar.HasDynamicLength) return Int32.Parse(_parent.parentVar.RawLength);
 							if (!_binaryAssigned)
 								throw new InvalidOperationException(_noBinaryMsg);
-							return Int32.Parse(Equation.Evaluate(ParseDynamicValues(_parent._parentVar._parent, _parent._parentVar.RawLength)));
+							return Int32.Parse(Equation.Evaluate(ParseDynamicValues(_parent.parentVar._parent, _parent.parentVar.RawLength)));
 						}
 					}
 					return Int32.Parse(Equation.Evaluate(ParseDynamicValues(_parent, RawLength)));
@@ -449,7 +491,7 @@ namespace Idmr.ProjectHex
 			/// <summary>Gets the calculated global offset of the item within the <see cref="BinaryFile"/></summary>
 			/// <exception cref="ArgumentOutOfRangeException">Dynamic markers within <see cref="RawOffset"/> fall outside the range of the parent Collection.</exception>
 			/// <exception cref="InvalidOperationException">No <see cref="BinaryFile"/> has been loaded into the Project.</exception>
-			public int FileOffset { get { return LocalOffset + (_parent._parentVar != null ? _parent._parentVar.FileOffset : 0); } }
+			public int FileOffset { get { return LocalOffset + (_parent.parentVar != null ? _parent.parentVar.FileOffset : 0); } }
 			
 			/// <summary>Gets the calculated offset within the parent <see cref="VarCollection"/></summary>
 			/// <exception cref="ArgumentOutOfRangeException">Dynamic markers within <see cref="RawOffset"/> fall outside the range of the parent Collection.</exception>
@@ -507,9 +549,9 @@ namespace Idmr.ProjectHex
 			}
 			#endregion public properties
 			
-			protected bool isDynamicText(string value) { return (value != null ? value.Contains("$") : false); }
+			protected static bool isDynamicText(string value) { return (value != null ? value.Contains("$") : false); }
 			
-			protected string[] getDynamicSplit(string input, int index)
+			protected static string[] getDynamicSplit(string input, int index)
 			{
 				if (isDynamicText(input))
 				{
@@ -528,9 +570,45 @@ namespace Idmr.ProjectHex
 				else return null;
 			}
 			
-			protected bool _binaryAssigned { get { return _parent._parentFile._binary != null; } }
+			protected static void copyAttributes(Var read, Var write)
+			{
+				write._name = read._name;
+				write._offset = read._offset;
+				write._length = read._length;
+				write._value = read._value;
+				write._quantity = read._quantity;
+				write._condition = read._condition;
+				write._default = read._default;
+				write._isValidated = read._isValidated;
+				write._id = read._id;
+				write._comment = read._comment;
+				if (read.Values != null)
+				{
+					if (read.Values.parentVar != null)
+						write.Values = new VarCollection(write, read.Values.Count);
+					else
+						write.Values = new VarCollection(write._parent.parentFile, read.Values.Count);
+					for (int i = 0; i < read.Values.Count; i++)
+						write.Values.Add(read[i].Type);		// placeholder, typically gets overridden with a new type
+				}
+			}
+			
+			protected bool _binaryAssigned { get { return _parent.parentFile._binary != null; } }
 
-			protected bool _isArrayChild { get { return _parent._parentVar != null && _parent._parentVar._id == _id; } }
+			protected bool _isArrayChild { get { return _parent.parentVar != null && _parent.parentVar._id == _id; } }
+			
+			/// <summary>Gets or sets the parent collection.</summary>
+			/// <remarks>Setting will propogate through <see cref="Values"/> if necessary.</remarks>
+			protected internal VarCollection _parent
+			{
+				get { return _parentCollection; }
+				set
+				{
+					_parentCollection = value;
+					if (Values != null) Values.parentFile = _parentCollection.parentFile;
+					// parentVar doesn't need updating, since it's still this
+				}
+			}
 		}
 	}
 }

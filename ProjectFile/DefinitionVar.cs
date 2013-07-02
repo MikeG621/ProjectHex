@@ -1,3 +1,17 @@
+/*
+ * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
+ * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
+ * Licensed under the GPL v3.0 or later
+ * 
+ * Full notice in GPL.txt
+ * Version: 0.1
+ */
+ 
+/* CHANGELOG
+ * [ADD] Serializable
+ * v0.1, XXXXXX
+ */
+ 
 using System;
 
 namespace Idmr.ProjectHex
@@ -5,13 +19,14 @@ namespace Idmr.ProjectHex
 	public partial class ProjectFile
 	{
 		/// <summary>Object for <see cref="ProjectFile.Types"/> declarations.</summary>
+		[Serializable]
 		public class DefinitionVar : Var
 		{
 			#region constructors
 			/// <summary>Initializes a new type definition.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> that contains the item, should always be <see cref="ProjectFile.Types"/>.</param>
 			/// <param name="name">The name of the type.</param>
-			/// <param name="count">The total number of <items> in the definition.</items>
+			/// <param name="count">The total number of items in the definition.</param>
 			/// <param name="id">The ID number to be used with dynamics.</param>
 			/// <exception cref="ArgumentNullException"><i>name</i>, <i>count</i> or <i>id</i> are <b>null</b> or empty.</exception>
 			/// <exception cref="ArgumentException"><i>count</i> is not a constant.</exception>
@@ -48,12 +63,18 @@ namespace Idmr.ProjectHex
 				Name = "NewDefinition";
 				Values = new VarCollection(this);
 				_length = "-1";
-				_id = _parent._parentFile._nextID;
-				_parent._parentFile._nextID++;
+				_id = _parent.parentFile._nextID;
+				_parent.parentFile._nextID++;
 				_parent.isLoading = loading;
 			}
 			#endregion
 
+			/// <summary>Gets or sets the length definition of the item.</summary>
+			/// <exception cref="ArgumentException">Value is dynamic.<br/><b>-or-</b><br/>Calculation error with static equation.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">Value is less than <b>1</b> and not <b>-1</b>.<br/><b>-or</b></br>Value is greater than <see cref="Int32.MaxValue"/>.</exception>
+			/// <exception cref="FormatException">Value is not a valid integer.</exception>
+			/// <remarks>Dynamic values are not permitted. Equations are not permitted.<br/>
+			/// Default value is <b>"-1"</b>. An empty or <b>null</b> value returns to the default.</remarks>
 			public override string RawLength
 			{
 				get { return base.RawLength; }
@@ -65,8 +86,8 @@ namespace Idmr.ProjectHex
 						_length = "-1";
 						return;
 					}
-					if (isDynamicText(value) || Equation.Evaluate(value) != value) throw new ArgumentException("Quantity must be constant");
-					try { if (Int32.Parse(value) <= -1) throw new ArgumentOutOfRangeException(msg); }
+					if (isDynamicText(value) || firstOperation(value) != value.Length) throw new ArgumentException("Length must be constant");
+					try { if (Int32.Parse(value) < 1) throw new ArgumentOutOfRangeException(msg); }
 					catch (FormatException x) { throw new FormatException("Value is not a valid integer", x); }
 					catch (OverflowException x) { throw new ArgumentOutOfRangeException(msg, x); }
 					_length = value;
@@ -113,7 +134,8 @@ namespace Idmr.ProjectHex
 			/// <exception cref="ArgumentOutOfRangeException">Value is not between zero and <see cref="Int32.MaxValue"/>.</exception>
 			/// <exception cref="ArgumentException">Value is not a constant.</exception>
 			/// <exception cref="FormatException">Value is not a valid integer.</exception>
-			/// <remarks>Values are based on <see cref="Values.Count"/>. If <see cref="Values"/> expands, the new items will be <see cref="VarType.Var"/>. When truncating, items will be lost starting from the last index.</remarks>
+			/// <remarks>Values are based on <see cref="Values.Count"/>. If <see cref="Values"/> expands, the new items will be <see cref="VarType.Var"/>. When truncating, items will be lost starting from the last index.<br/>
+			/// Dynamic values are not permitted. Equations are not permitted.</remarks>
 			public override string RawQuantity
 			{
 				get { return Values.Count.ToString(); }
@@ -121,7 +143,7 @@ namespace Idmr.ProjectHex
 				{
 					string msg = "Quantity must be positive and less than " + Int32.MaxValue;
 					if (value == null || value == "") throw new ArgumentNullException(msg);
-					if (isDynamicText(value) || Equation.Evaluate(value) != value) throw new ArgumentException("Quantity must be constant");
+					if (isDynamicText(value) || firstOperation(value) != value.Length) throw new ArgumentException("Quantity must be constant");
 					try { if (Int32.Parse(value) <= 0) throw new ArgumentOutOfRangeException(msg); }
 					catch (FormatException x) { throw new FormatException("Value is not a valid integer", x); }
 					catch (OverflowException x) { throw new ArgumentOutOfRangeException(msg, x); }
