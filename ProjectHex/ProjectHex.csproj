@@ -31,21 +31,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BinaryFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Idmr.ProjectHex.BinaryFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\BinaryFile\bin\Debug\BinaryFile.dll</HintPath>
+      <HintPath>..\..\..\Libraries\Idmr.ProjectHex.BinaryFile.dll</HintPath>
     </Reference>
-    <Reference Include="Compute, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Idmr.ProjectHex.Compute, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Compute\bin\Debug\Compute.dll</HintPath>
+      <HintPath>..\..\..\Libraries\Idmr.ProjectHex.Compute.dll</HintPath>
     </Reference>
     <Reference Include="Idmr.Common, Version=1.2.0.39953, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\Idmr.Common.dll</HintPath>
     </Reference>
-    <Reference Include="ProjectFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Idmr.ProjectHex.ProjectFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ProjectFile\bin\Debug\ProjectFile.dll</HintPath>
+      <HintPath>..\..\..\Libraries\Idmr.ProjectHex.ProjectFile.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -96,6 +96,9 @@
   <ItemGroup>
     <Folder Include="classes\" />
   </ItemGroup>
+	<ItemGroup>
+		<None Include="App.config" />
+	</ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -105,7 +108,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>move /y "$(SolutionDir)$(OutDir)*.dll" "$(SolutionDir)$(OutDir)bin\"
+attrib +r "$(SolutionDir)$(OutDir)$(TargetFileName).config"</PostBuildEvent>
   </PropertyGroup>
 </Project>

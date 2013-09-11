@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Idmr.ProjectHex</RootNamespace>
-    <AssemblyName>Compute</AssemblyName>
+    <AssemblyName>Idmr.ProjectHex.Compute</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -46,4 +46,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+	<PropertyGroup>
+    <PostBuildEvent>copy /y "$(TargetPath)" "C:\Users\Michael\Documents\Visual Studio 2008\Libraries\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

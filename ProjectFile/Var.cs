@@ -1,19 +1,25 @@
 ﻿/*
  * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
  * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
  * 
- * Full notice in GPL.txt
- * Version: 0.1
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
+ * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
+ *
+ * Version: 0.0.4
  */
  
 /* CHANGELOG
+ * v0.0.4, 130910
+ * [ADD] DeepCopy()
+ * [UPD] License
+ * v0.0.3, 130701
+ * [ADD] Serializable
  * [ADD] _parent get/set for _parentCollection
  * [UPD] _parent renamed to _parentCollection, isDynamicText/getDynamicSplit to static, _parentCollection no longer internal
- * [ADD] Serializable
- * v0.1, XXXXXX
+ * v0.0.1, 130421
  */
- 
+
 using System;
 using Idmr.Common;
 
@@ -153,6 +159,18 @@ namespace Idmr.ProjectHex
 					updated = true;
 				}
 				if (updated) ReplaceDynamicIndex(oldIndex, newIndex);
+			}
+
+			public virtual object DeepCopy()
+			{
+				Var newVar = new Var();
+				copyAttributes(this, newVar);
+				newVar._tag = _tag;
+				newVar._parent = _parent;
+				if (newVar.Values != null)
+					for (int i = 0; i < newVar.Values.Count; i++)
+						newVar.Values[i] = (Var)Values[i].DeepCopy();
+				return newVar;
 			}
 			#endregion public methods
 			

@@ -1,18 +1,24 @@
 /*
  * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
  * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
  * 
- * Full notice in GPL.txt
- * Version: 0.1
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
+ * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
+ *
+ * Version: 0.0.4
  */
  
 /* CHANGELOG
- * [ADD] Serializable, operators
- * v0.1, XXXXXX
+ * v0.0.4, 130910
+ * [ADD] operators, DeepCopy()
+ * [UPD] License
+ * v0.0.3, 130701
+ * [ADD] Serializable
+ * v0.0.1, 130421
  */
  
- using System;
+using System;
 
 namespace Idmr.ProjectHex
 {
@@ -39,7 +45,19 @@ namespace Idmr.ProjectHex
 				_type = VarType.Short;
 			}
 			#endregion constructors
-			
+
+			public override object DeepCopy()
+			{
+				ShortVar newVar = new ShortVar(_parent);
+				copyAttributes(this, newVar);
+				newVar._tag = _tag;
+				newVar._parent = _parent;
+				if (newVar.Values != null)
+					for (int i = 0; i < newVar.Values.Count; i++)
+						newVar.Values[i] = (ShortVar)Values[i].DeepCopy();
+				return newVar;
+			}
+
 			/// <summary>Gets or sets the final value.</summary>
 			/// <exception cref="ArgumentOutOfRangeException"><see cref="RawValue"/> falls outside <b>-32,768 to 32,767</b>.</exception>
 			/// <exception cref="ArgumentException">Error computing the final value.</exception>
@@ -62,14 +80,32 @@ namespace Idmr.ProjectHex
 			}
 			
 			#region operators
-			/// <summary>Converts a signed byte to an unsigned byte.</summary>
+			/// <summary>Converts a signed short to a boolean value.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>A boolean object.</returns>
+			/// <remarks>Assumes default values for <see cref="BoolVar.TrueValue"/> and <see cref="BoolVar.FalseValue"/> after applying a mask to isolate the bottom byte. Meaning any non-zero value is interpreted as <b>true</b> and the numerical equivalent will be <b>1</b>.</remarks>
+			public static explicit operator BoolVar(ShortVar var)
+			{
+				BoolVar nv = new BoolVar(var._parent);
+				copyAttributes(var, nv);
+				nv.Value = (BitConverter.GetBytes(var.Value)[0] != 0);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (BoolVar)(ShortVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a signed short to an unsigned byte.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>An unsigned byte object.</returns>
-			public static implicit operator ByteVar(ShortVar var)
+			/// <remarks>New value is the bottom 8 bits from the original.</remarks>
+			public static explicit operator ByteVar(ShortVar var)
 			{
 				ByteVar nv = new ByteVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToByte(var.Value & 0xFF);
+				nv.Value = BitConverter.GetBytes(var.Value)[0];
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -78,14 +114,16 @@ namespace Idmr.ProjectHex
 				return nv;
 			}
 			
-			/// <summary>Converts an unsigned byte to a double-precision value.</summary>
+			/// <summary>Converts a signed short to a double-precision value.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>A double-precision object.</returns>
 			public static implicit operator DoubleVar(ShortVar var)
 			{
 				DoubleVar nv = new DoubleVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToDouble(var.Value);
+				byte[] s = BitConverter.GetBytes(var.Value);
+				byte[] a = { s[0], s[1], 0, 0, 0, 0, 0, 0 };
+				nv.Value = BitConverter.ToDouble(a, 0);
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -94,14 +132,16 @@ namespace Idmr.ProjectHex
 				return nv;
 			}
 			
-			/// <summary>Converts an unsigned byte to a signed 32-bit integer.</summary>
+			/// <summary>Converts a signed short to a signed 32-bit integer.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>A signed 32-bit integer object.</returns>
 			public static implicit operator IntVar(ShortVar var)
 			{
 				IntVar nv = new IntVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToInt32(var.Value);
+				byte[] s = BitConverter.GetBytes(var.Value);
+				byte[] a = { s[0], s[1], 0, 0 };
+				nv.Value = BitConverter.ToInt32(a, 0);
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -110,14 +150,16 @@ namespace Idmr.ProjectHex
 				return nv;
 			}
 			
-			/// <summary>Converts an unsigned byte to a signed 64-bit integer.</summary>
+			/// <summary>Converts a signed short to a signed 64-bit integer.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>A signed 64-bit integer object.</returns>
 			public static implicit operator LongVar(ShortVar var)
 			{
 				LongVar nv = new LongVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToInt64(var.Value);
+				byte[] s = BitConverter.GetBytes(var.Value);
+				byte[] a = { s[0], s[1], 0, 0, 0, 0, 0, 0 };
+				nv.Value = BitConverter.ToInt64(a, 0);
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -126,14 +168,15 @@ namespace Idmr.ProjectHex
 				return nv;
 			}
 			
-			/// <summary>Converts an unsigned byte to a signed byte.</summary>
+			/// <summary>Converts a signed short to a signed byte.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>A signed byte object.</returns>
+			/// <remarks>New value is the bottom 8 bits from the original.</remarks>
 			public static explicit operator SByteVar(ShortVar var)
 			{
 				SByteVar nv = new SByteVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToSByte(var.Value & 0xFF);
+				nv.Value = (sbyte)BitConverter.GetBytes(var.Value)[0];
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -142,14 +185,16 @@ namespace Idmr.ProjectHex
 				return nv;
 			}
 			
-			/// <summary>Converts an unsigned byte to a single-precision value.</summary>
+			/// <summary>Converts a signed short to a single-precision value.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>A single-precision object.</returns>
 			public static implicit operator SingleVar(ShortVar var)
 			{
 				SingleVar nv = new SingleVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToSingle(var.Value);
+				byte[] s = BitConverter.GetBytes(var.Value);
+				byte[] a = { s[0], s[1], 0, 0 };
+				nv.Value = BitConverter.ToSingle(a, 0);
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -158,14 +203,16 @@ namespace Idmr.ProjectHex
 				return nv;
 			}
 			
-			/// <summary>Converts an unsigned byte to an unsigned 32-bit integer.</summary>
+			/// <summary>Converts a signed short to an unsigned 32-bit integer.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>An unsigned 32-bit integer object.</returns>
 			public static implicit operator UIntVar(ShortVar var)
 			{
 				UIntVar nv = new UIntVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToUInt32(var.Value);
+				byte[] s = BitConverter.GetBytes(var.Value);
+				byte[] a = { s[0], s[1], 0, 0 };
+				nv.Value = BitConverter.ToUInt32(a, 0);
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -174,14 +221,16 @@ namespace Idmr.ProjectHex
 				return nv;
 			}
 			
-			/// <summary>Converts an unsigned byte to an unsigned 64-bit integer.</summary>
+			/// <summary>Converts a signed short to an unsigned 64-bit integer.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>An unsigned 64-bit integer object.</returns>
 			public static implicit operator ULongVar(ShortVar var)
 			{
 				ULongVar nv = new ULongVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToUInt64(var.Value);
+				byte[] s = BitConverter.GetBytes(var.Value);
+				byte[] a = { s[0], s[1], 0, 0, 0, 0, 0, 0 };
+				nv.Value = BitConverter.ToUInt64(a, 0);
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -190,14 +239,14 @@ namespace Idmr.ProjectHex
 				return nv;
 			}
 			
-			/// <summary>Converts an unsigned byte to an unsigned 16-bit integer.</summary>
+			/// <summary>Converts a signed short to an unsigned 16-bit integer.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>An unsigned 16-bit integer object.</returns>
 			public static implicit operator UShortVar(ShortVar var)
 			{
 				UShortVar nv = new UShortVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToUInt16(var.Value);
+				nv.Value = (ushort)var.Value;
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)

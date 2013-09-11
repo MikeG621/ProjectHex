@@ -8,8 +8,8 @@
     <ProjectGuid>{DC29B0E1-6CBA-402C-A683-5D8ED28AEF8B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BinaryFile</RootNamespace>
-    <AssemblyName>BinaryFile</AssemblyName>
+    <RootNamespace>Idmr.ProjectHex</RootNamespace>
+    <AssemblyName>Idmr.ProjectHex.BinaryFile</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,17 +31,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Compute, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Idmr.ProjectHex.Compute, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Compute\bin\Debug\Compute.dll</HintPath>
+      <HintPath>..\..\..\Libraries\Idmr.ProjectHex.Compute.dll</HintPath>
     </Reference>
     <Reference Include="Idmr.Common, Version=1.2.0.21675, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\Idmr.Common.dll</HintPath>
     </Reference>
-    <Reference Include="ProjectFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Idmr.ProjectHex.ProjectFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ProjectFile\bin\Debug\ProjectFile.dll</HintPath>
+      <HintPath>..\..\..\Libraries\Idmr.ProjectHex.ProjectFile.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
@@ -57,4 +57,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+	<PropertyGroup>
+    <PostBuildEvent>copy /y "$(TargetPath)" "C:\Users\Michael\Documents\Visual Studio 2008\Libraries\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -1,20 +1,28 @@
 ﻿/*
  * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
  * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
  * 
- * Full notice in GPL.txt
- * Version: 0.1
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
+ * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
+ *
+ * Version: 0.0.4
  */
- 
+
 /* CHANGELOG
+ * v0.0.4, 130910
+ * [UPD] Var.DeepCopy() implementation
+ * [UPD] StringVar arrays no long assign child's RawLength
+ * [UPD] License
+ * v0.0.3, 130701
+ * [ADD] Serializable
  * [ADD] parentFile/Var for internal access to _parentFile/Var, propogate to _items[].Values
  * [UPD] _parentFile/Var no longer internal
  * [UPD] changed name mismatch message to include identifiers
  * [UPD] Populate() for StringVars, added stringlength
- * v0.1, XXXXXX
+ * v0.0.1, 130421
  */
-
+ 
 using System;
 using System.Collections.Generic;
 using Idmr.Common;
@@ -165,7 +173,11 @@ namespace Idmr.ProjectHex
 			/// <remarks>If <i>item</i> is a <see cref="Definition"/>, uses the next available ID per the parent <see cref="ProjectFile"/></remarks>
 			public override int Add(Var item)
 			{
-				if (!item._parent.isLoading && item.IsDynamic) throw new ArgumentException("Cannot add existing items that use dynamic variables");
+				if (!_isLoading && item.IsDynamic)
+				{
+					System.Diagnostics.Debug.WriteLine(item.ToString());
+					throw new ArgumentException("Cannot add existing items that use dynamic variables");
+				}
 				item._parent = this;
 				int added = _add(item);
 				if (item.Type == VarType.Definition && added != -1 && !_isLoading)
@@ -289,6 +301,7 @@ namespace Idmr.ProjectHex
 			/// <returns>First offset following the collection data.</returns>
 			public int Populate(byte[] rawData, int startingOffset)
 			{
+                System.Diagnostics.Debug.WriteLine("pop, " + startingOffset);
 				bool loading = _isLoading;
 				_isLoading = true;
 				int id = -1;
@@ -305,28 +318,21 @@ namespace Idmr.ProjectHex
 				{
 					if (id != -1)
 					{
-						Add(definition.Values[i].Type);
-						this[i]._name = definition[i]._name;
-						this[i]._length = definition[i]._length;
-						this[i]._offset = definition[i]._offset;
-						this[i]._quantity = definition[i]._quantity;
-						this[i]._condition = definition[i]._condition;
-						this[i]._comment = definition[i]._comment;
-						this[i]._id = definition[i]._id;
-						this[i]._default = definition[i]._default;
-						if (this[i].Type == VarType.Bool)
-						{
-							((BoolVar)this[i]).TrueValue = ((BoolVar)definition[i]).TrueValue;
-							((BoolVar)this[i]).FalseValue = ((BoolVar)definition[i]).FalseValue;
-						}
-						if (this[i].Type == VarType.String)
-							((StringVar)this[i]).NullTermed = ((StringVar)definition[i]).NullTermed;
-						if (definition[i].Values != null)
-						{
-							this[i].Values = definition[i].Values.DeepClone();
-							this[i].Values.parentFile = parentFile;
-							this[i].Values.parentVar = this[i];
-						}
+						System.Diagnostics.Debug.WriteLine(definition[i].Type.ToString());
+						if (definition[i].Type == VarType.Bool) Add((BoolVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.Byte) Add((ByteVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.Collection) Add((CollectionVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.Double) Add((DoubleVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.Int) Add((IntVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.Long) Add((LongVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.SByte) Add((SByteVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.Short) Add((ShortVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.Single) Add((SingleVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.String) Add((StringVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.UInt) Add((UIntVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.ULong) Add((ULongVar)definition[i].DeepCopy());
+						else if (definition[i].Type == VarType.UShort) Add((UShortVar)definition[i].DeepCopy());
+						else Add((Var)definition[i].DeepCopy());
 					}
 					if (this[i].IsPresent)
 					{
@@ -445,7 +451,6 @@ namespace Idmr.ProjectHex
 									{
 										this[i].Values.Add(VarType.String);
 										if (this[i].RawLength != "0") this[i][j].RawValue = ArrayFunctions.ReadStringFromArray(rawData, pos, stringLength);
-										this[i][j].RawLength = this[i].RawLength;
 										pos += stringLength;
 									}
 								}
@@ -503,6 +508,7 @@ namespace Idmr.ProjectHex
 						else pos += this[i].Length;
 					}
 				}
+				System.Diagnostics.Debug.WriteLine("copied");
 				if (definition != null && definition.RawLength != "-1")
 					pos = startingOffset + Int32.Parse(definition.RawLength);
 				_isLoading = loading;

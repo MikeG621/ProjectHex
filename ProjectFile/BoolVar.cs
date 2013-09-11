@@ -1,15 +1,22 @@
 /*
  * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
  * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
  * 
- * Full notice in GPL.txt
- * Version: 0.1
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
+ * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
+ *
+ * Version: 0.0.4
  */
  
 /* CHANGELOG
+ * v0.0.4, 130910
+ * [ADD] operators, DefaultTrueValue, DefaultFalseValue, DeepCopy
+ * [UPD] _trueValue and _falseValue now use Default*
+ * [UPD] License
+ * v0.0.3, 130701
  * [ADD] Serializable
- * v0.1, XXXXXX
+ * v0.0.1, 130421
  */
  
 using System;
@@ -23,18 +30,17 @@ namespace Idmr.ProjectHex
 		public class BoolVar : Var
 		{
 		
-			byte _trueValue = 1;
-			byte _falseValue = 0;
+			byte _trueValue = DefaultTrueValue;
+			byte _falseValue = DefaultFalseValue;
 			
 			#region constructors
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
 			/// <param name="trueValue">The raw byte value stored in the file for <b>true</b>. Accepted values are <b>-1</b> to <b>255</b>. Default is <b>1</b>.</param>
 			/// <param name="falseValue">The raw byte value stored in the file for <b>false</b>. Accepted values are <b>-1</b> to <b>255</b>. Default is <b>0</b>.</param>
-			/// <exception cref="FormatException">Unable to parse <i>trueValue</i> or <i>falseValue</i>.</exception>
 			/// <exception cref="OverflowException"><i>trueValue</i> or <i>falseValue</i> is less than <b>-1</b> or greater than <b>255</b>.</exception>
 			/// <remarks><see cref="RawValue"/> initializes to <b>false</b>.<br/>
-			/// If <i>trueValue</i> or <i>falseValue</i> are <b>null</b>, default values are used.<br/>
+			/// If <i>trueValue</i> or <i>falseValue</i> are <b>null</b> or cannot be parsed, default values are used.<br/>
 			/// Values of <b>-1</b> are converted to <b>255</b>.</remarks>
 			public BoolVar(VarCollection parent, string trueValue, string falseValue)
 			{
@@ -96,11 +102,11 @@ namespace Idmr.ProjectHex
 			/// <param name="trueValue">The raw byte value stored in the file for <b>true</b>. Accepted values are <b>-1</b> to <b>255</b>. Default is <b>1</b>.</param>
 			/// <param name="falseValue">The raw byte value stored in the file for <b>false</b>. Accepted values are <b>-1</b> to <b>255</b>. Default is <b>0</b>.</param>
 			/// <param name="defaultValue">The starting value of the item</param>
-			/// <exception cref="FormatException">Unable to parse <i>trueValue</i> or <i>falseValue</i>.</exception>
 			/// <exception cref="OverflowException"><i>trueValue</i> or <i>falseValue</i> is less than <b>-1</b> or greater than <b>255</b>.</exception>
 			/// <remarks><see cref="RawValue"/> initializes to <b>false</b>.<br/>
-			/// If <i>trueValue</i> or <i>falseValue</i> are <b>null</b>, default values are used.<br/>
-			/// Values of <b>-1</b> are converted to <b>255</b>.</remarks>
+			/// If <i>trueValue</i> or <i>falseValue</i> are <b>null</b> or cannot parsed, default values are used.<br/>
+			/// Values of <b>-1</b> are converted to <b>255</b>.<br/>
+			/// For <see cref="DefaultValue"/> to be set to <b>true</b>, <i>defaultValue</i> must match <see cref="TrueValue"/> or "<b>true</b>" (case-insensitive).  All other inputs will be read as <b>false</b>.</remarks>
 			public BoolVar(VarCollection parent, string trueValue, string falseValue, string defaultValue)
 			{
 				_parent = parent;
@@ -133,7 +139,8 @@ namespace Idmr.ProjectHex
 			/// <param name="trueValue">The raw value stored in the file for <b>true</b>. Default is <b>1</b>.</param>
 			/// <param name="falseValue">The raw value stored in the file for <b>false</b>. Default is <b>0</b>.</param>
 			/// <param name="defaultValue">The starting value of the item</param>
-			/// <remarks><see cref="RawValue"/> initializes to <b>false</b>.</remarks>
+			/// <remarks><see cref="RawValue"/> initializes to <b>false</b>.<br/>
+			/// For <see cref="DefaultValue"/> to be set to <b>true</b>, <i>defaultValue</i> must match <see cref="TrueValue"/> or "<b>true</b>" (case-insensitive).  All other inputs will be read as <b>false</b>.</remarks>
 			public BoolVar(VarCollection parent, byte trueValue, byte falseValue, string defaultValue)
 			{
 				_parent = parent;
@@ -150,7 +157,8 @@ namespace Idmr.ProjectHex
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
 			/// <param name="defaultValue">The starting value of the item</param>
-			/// <remarks><see cref="RawValue"/> initializes to <b>false</b>.</remarks>
+			/// <remarks><see cref="RawValue"/> initializes to <b>false</b>.<br/>
+			/// For <see cref="DefaultValue"/> to be set to <b>true</b>, <i>defaultValue</i> must match <see cref="TrueValue"/> or "<b>true</b>" (case-insensitive).  All other inputs will be read as <b>false</b>.</remarks>
 			public BoolVar(VarCollection parent, string defaultValue)
 			{
 				_parent = parent;
@@ -162,11 +170,27 @@ namespace Idmr.ProjectHex
 				_parent.isLoading = loading;
 			}
 			#endregion constructors
+
+			public override object DeepCopy()
+			{
+				BoolVar newVar = new BoolVar(_parent, _trueValue, _falseValue);
+				copyAttributes(this, newVar);
+				newVar._tag = _tag;
+				newVar._parent = _parent;
+				if (newVar.Values != null)
+					for (int i = 0; i < newVar.Values.Count; i++)
+						newVar.Values[i] = (BoolVar)Values[i].DeepCopy();
+				return newVar;
+			}
+
+			static public byte DefaultTrueValue = 1;
+			
+			static public byte DefaultFalseValue = 0;
 			
 			/// <summary>Gets or sets the value of the item.</summary>
 			/// <exception cref="ArgumentException">Value does not evaluate to a valid boolean.</exception>
 			/// <remarks>A value of <b>null</b> or an empty string will set to <b>false</b>.<br/>
-			/// A value of <see cref="TrueValue"/> or <see cref="FalseValue"/> will set ot the appropriate value.</remarks>
+			/// A value of <see cref="TrueValue"/> or <see cref="FalseValue"/> will set to the appropriate value.</remarks>
 			public override object RawValue
 			{
 				get { return _value; }
@@ -190,7 +214,7 @@ namespace Idmr.ProjectHex
 			/// <exception cref="ArgumentOutOfRangeException">Value contains dynamic markers outside the parent collection.</exception>
 			/// <exception cref="ArgumentException">Value is not a valid Conditional.<br/><b>-or-</b><br/>Value does not evaluate to a valid boolean.</exception>
 			/// <remarks>A value of <b>null</b> or an empty string will remove the default value.<br/>
-			/// A value of <see cref="TrueValue"/> or <see cref="FalseValue"/> will set ot the appropriate value.</remarks>
+			/// A value of <see cref="TrueValue"/> or <see cref="FalseValue"/> will set to the appropriate value.</remarks>
 			public override object DefaultValue
 			{
 				get { return _default; }
@@ -224,12 +248,12 @@ namespace Idmr.ProjectHex
 			{
 				get
 				{
-					if (_parent._parentVar != null && _parent._parentVar.Type == VarType.Bool) return ((BoolVar)_parent._parentVar)._falseValue;
+					if (_parent.parentVar != null && _parent.parentVar.Type == VarType.Bool) return ((BoolVar)_parent.parentVar)._falseValue;
 					return _falseValue;
 				}
 				set
 				{
-					if (_parent._parentVar != null && _parent._parentVar.Type == VarType.Bool) throw new InvalidOperationException(_parentControlMsg);
+					if (_parent.parentVar != null && _parent.parentVar.Type == VarType.Bool) throw new InvalidOperationException(_parentControlMsg);
 					_falseValue = value;
 					if (!_parent.isLoading) _isModified = true;
 				}
@@ -243,12 +267,12 @@ namespace Idmr.ProjectHex
 			{
 				get
 				{
-					if (_parent._parentVar != null && _parent._parentVar.Type == VarType.Bool) return ((BoolVar)_parent._parentVar)._trueValue;
+					if (_parent.parentVar != null && _parent.parentVar.Type == VarType.Bool) return ((BoolVar)_parent.parentVar)._trueValue;
 					return _trueValue;
 				}
 				set
 				{
-					if (_parent._parentVar != null && _parent._parentVar.Type == VarType.Bool) throw new InvalidOperationException(_parentControlMsg);
+					if (_parent.parentVar != null && _parent.parentVar.Type == VarType.Bool) throw new InvalidOperationException(_parentControlMsg);
 					_trueValue = value;
 					if (!_parent.isLoading) _isModified = true;
 				}
@@ -265,6 +289,180 @@ namespace Idmr.ProjectHex
 					if (!_parent.isLoading) _isModified = true;
 				}
 			}
+			
+			#region operators
+			/// <summary>Converts a bool to an unsigned byte.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>An unsigned byte object.</returns>
+			/// <remarks>The new <see cref="ByteVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate.</remarks>
+			public static implicit operator ByteVar(BoolVar var)
+			{
+				ByteVar nv = new ByteVar(var._parent);
+				copyAttributes(var, nv);
+				nv.Value = (var.Value ? var.TrueValue : var.FalseValue);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (ByteVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a bool to a double-precision value.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>A double-precision object.</returns>
+			/// <remarks>The new <see cref="DoubleVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate before conversion.</remarks>
+			public static implicit operator DoubleVar(BoolVar var)
+			{
+				DoubleVar nv = new DoubleVar(var._parent);
+				copyAttributes(var, nv);
+                byte[] a = { (var.Value ? var.TrueValue : var.FalseValue), 0, 0, 0, 0, 0, 0, 0 };
+				nv.Value = BitConverter.ToDouble(a, 0);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (DoubleVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a bool to a signed 32-bit integer.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>A signed 32-bit integer object.</returns>
+			/// <remarks>The new <see cref="IntVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate.</remarks>
+			public static implicit operator IntVar(BoolVar var)
+			{
+				IntVar nv = new IntVar(var._parent);
+				copyAttributes(var, nv);
+                nv.Value = (var.Value ? var.TrueValue : var.FalseValue);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (IntVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a bool to a signed 64-bit integer.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>A signed 64-bit integer object.</returns>
+			/// <remarks>The new <see cref="LongVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate.</remarks>
+			public static implicit operator LongVar(BoolVar var)
+			{
+				LongVar nv = new LongVar(var._parent);
+				copyAttributes(var, nv);
+                nv.Value = (var.Value ? var.TrueValue : var.FalseValue);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (LongVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a bool to an unsigned byte.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>A signed byte object.</returns>
+			/// <remarks>The new <see cref="SByteVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate.</remarks>
+			public static implicit operator SByteVar(BoolVar var)
+			{
+				SByteVar nv = new SByteVar(var._parent);
+				copyAttributes(var, nv);
+                nv.Value = (sbyte)(var.Value ? var.TrueValue : var.FalseValue);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (SByteVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a bool to a signed 16-bit integer.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>A signed 16-bit integer object.</returns>
+			/// <remarks>The new <see cref="ByteVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate.</remarks>
+			public static implicit operator ShortVar(BoolVar var)
+			{
+				ShortVar nv = new ShortVar(var._parent);
+				copyAttributes(var, nv);
+                nv.Value = (var.Value ? var.TrueValue : var.FalseValue);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (ShortVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a bool to a single-precision value.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>A single-precision object.</returns>
+			/// <remarks>The new <see cref="SingleVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate before converting.</remarks>
+			public static implicit operator SingleVar(BoolVar var)
+			{
+				SingleVar nv = new SingleVar(var._parent);
+				copyAttributes(var, nv);
+                byte[] a = { (var.Value ? var.TrueValue : var.FalseValue), 0, 0, 0 };
+				nv.Value = BitConverter.ToSingle(a, 0);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (SingleVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a bool to an unsigned 32-bit integer.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>An unsigned 32-bit integer object.</returns>
+			/// <remarks>The new <see cref="UIntVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate.</remarks>
+			public static implicit operator UIntVar(BoolVar var)
+			{
+				UIntVar nv = new UIntVar(var._parent);
+				copyAttributes(var, nv);
+                nv.Value = (var.Value ? var.TrueValue : var.FalseValue);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (UIntVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a bool to an unsigned 64-bit integer.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>An unsigned 64-bit integer object.</returns>
+			/// <remarks>The new <see cref="ULongVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate.</remarks>
+			public static implicit operator ULongVar(BoolVar var)
+			{
+				ULongVar nv = new ULongVar(var._parent);
+				copyAttributes(var, nv);
+                nv.Value = (var.Value ? var.TrueValue : var.FalseValue);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (ULongVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			
+			/// <summary>Converts a bool to an unsigned 16-bit integer.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>An unsigned 16-bit integer object.</returns>
+			/// <remarks>The new <see cref="UShortVar.Value">Value</see> will be assigned <see cref="TrueValue"/> or <see cref="FalseValue"/> as appropriate before.</remarks>
+			public static implicit operator UShortVar(BoolVar var)
+			{
+				UShortVar nv = new UShortVar(var._parent);
+				copyAttributes(var, nv);
+                nv.Value = (var.Value ? var.TrueValue : var.FalseValue);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (UShortVar)(BoolVar)var[i];
+				}
+				return nv;
+			}
+			#endregion operators
 		}
 	}
 }

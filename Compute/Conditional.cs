@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+ * Idmr.ProjectHex.Compute.dll, Calculation library file
+ * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
+ * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
+ *
+ * Version: 0.0.4
+ */
+ 
+/* CHANGELOG
+ * v0.0.4, 130910
+ * [UPD] License
+ * v0.0.1, 130421
+ */
+ 
+using System;
 
 namespace Idmr.ProjectHex
 {
@@ -8,7 +25,7 @@ namespace Idmr.ProjectHex
 		/// <summary>Determines if the input is formatted properly.</summary>
 		/// <param name="cond">Conditional to be evaluated.</param>
 		/// <exception cref="ArgumentNullException"><i>cond</i> is <b>null</b> or empty.</exception>
-		/// <returns><b>false</b> is illegal characters are detected, otherwise <b>true</b>.</returns>
+		/// <returns><b>false</b> if illegal characters are detected, otherwise <b>true</b>.</returns>
 		public static bool IsValid(string cond)
 		{
 			try { return isValid(ref cond); }

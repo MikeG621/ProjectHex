@@ -4,6 +4,10 @@
 	<types>10</types>
 	<count>14</count>
 	<nextid>11</nextid>
+	<default type="string.encoding">utf-8</default>
+	<default type="string.nulltermed">false</default>
+	<default type="bool.truevalue">1</default>
+	<default type="bool.falsevalue">0</default>
 	<comments>Manual write-up for testing</comments>
 	<structure>
 		<item offset="0" type="short" validate="true" name="Magic" default="-1" />

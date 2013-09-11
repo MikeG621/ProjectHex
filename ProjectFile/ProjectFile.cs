@@ -1,4 +1,24 @@
-﻿using System;
+﻿/*
+ * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
+ * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
+ * 
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
+ * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
+ *
+ * Version: 0.0.4
+ */
+
+ /* CHANGELOG
+ * v0.0.4, 130910
+ * [ADD] Read initial defaults for String and Bool
+ * [UPD] License
+ * v0.0.3, 130701
+ * [ADD] Serializable
+ * v0.0.1, 130421
+ */
+ 
+using System;
 using System.IO;
 using System.Windows.Forms;
 using System.Xml;
@@ -7,6 +27,7 @@ using Idmr.Common;
 namespace Idmr.ProjectHex
 {
 	/// <summary>Object to contain the project definition.</summary>
+    [Serializable]
 	public partial class ProjectFile
 	{
 		string _projectPath = "";	// project file
@@ -22,6 +43,7 @@ namespace Idmr.ProjectHex
 		BinaryFile _binary = null;
 
 		static string _noBinaryMsg = "Binary file has not been loaded into the Project, dynamic values cannot be calculated";
+		static string _corruptDefaultMsg = "Corrupted default declarations, missing ";
 
 		/// <summary>Type of <see cref="Var"/> objects.</summary>
 		public enum VarType : byte {
@@ -127,6 +149,15 @@ namespace Idmr.ProjectHex
 					else if (reader.Name == "nextid") _nextID = reader.ReadElementContentAsInt();
 					else if (reader.Name == "comments") _comment = reader.ReadElementContentAsString();
 					else if (reader.Name == "length") _length = reader.ReadElementContentAsLong();
+					else if (reader.Name == "default")
+					{
+						if (reader["type"] == null) throw new XmlException(_corruptDefaultMsg + "type.");
+						else if (reader["type"] == "string.encoding") StringVar.DefaultEncoding = System.Text.Encoding.GetEncoding(reader.ReadElementContentAsString());
+						else if (reader["type"] == "string.nulltermed") StringVar.DefaultNullTermed = (reader.ReadElementContentAsString().ToLower() == "true");
+						else if (reader["type"] == "bool.truevalue") BoolVar.DefaultTrueValue = reader.ReadElementAsByte();
+						else if (reader["type"] == "bool.falsevalue") BoolVar.DefaultFalseValue = reader.ReadElementAsByte();
+						else throw new XmlException(_corruptDefaultMsg + "valid type.");
+					}
 					else if (reader.Name == "structure")
 					{
 						if (_properties == null) throw new XmlException("Missing \"project > count\"");

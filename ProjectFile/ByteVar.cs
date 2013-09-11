@@ -1,15 +1,21 @@
 /*
  * Idmr.ProjectHex.ProjectFile.dll, Project definition library file
  * Copyright (C) 2012- Michael Gaisser (mjgaisser@gmail.com)
- * Licensed under the GPL v3.0 or later
  * 
- * Full notice in GPL.txt
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
+ * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
+ *
  * Version: 0.1
  */
  
 /* CHANGELOG
- * [ADD] Serializable, operators
- * v0.1, XXXXXX
+ * v0.0.4, 130910
+ * [ADD] operators, DeepCopy
+ * [UPD] License
+ * v0.0.3, 130701
+ * [ADD] Serializable
+ * v0.0.1, 130421
  */
  
 using System;
@@ -59,8 +65,37 @@ namespace Idmr.ProjectHex
 				get { return "1"; }
 				set { throw new InvalidOperationException(_fixedLengthMsg); }
 			}
-			
+
+			public override object DeepCopy()
+			{
+				ByteVar newVar = new ByteVar(_parent);
+				copyAttributes(this, newVar);
+				newVar._tag = _tag;
+				newVar._parent = _parent;
+				if (newVar.Values != null)
+					for (int i = 0; i < newVar.Values.Count; i++)
+						newVar.Values[i] = (ByteVar)Values[i].DeepCopy();
+				return newVar;
+			}
+
 			#region operators
+			/// <summary>Converts an unsigned byte to a boolean value.</summary>
+			/// <param name="var">The object to convert.</param>
+			/// <returns>A boolean object.</returns>
+			/// <remarks>Assumes default values for <see cref="BoolVar.TrueValue"/> and <see cref="BoolVar.FalseValue"/>. Therefore any non-zero value is interpreted as <b>true</b> and the numerical equivalent will be <b>1</b>.</remarks>
+			public static explicit operator BoolVar(ByteVar var)
+			{
+				BoolVar nv = new BoolVar(var._parent);
+				copyAttributes(var, nv);
+				nv.Value = (var.Value != 0);
+				if (nv.Values != null && nv.Values.Count > 0)
+				{
+					for (int i = 0; i < nv.Values.Count; i++)
+						nv[i] = (BoolVar)(ByteVar)var[i];
+				}
+				return nv;
+			}
+			
 			/// <summary>Converts an unsigned byte to a double-precision value.</summary>
 			/// <param name="var">The object to convert.</param>
 			/// <returns>A double-precision object.</returns>
@@ -68,7 +103,8 @@ namespace Idmr.ProjectHex
 			{
 				DoubleVar nv = new DoubleVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToDouble(var.Value);
+				byte[] a = { var.Value, 0, 0, 0, 0, 0, 0, 0 };
+				nv.Value = BitConverter.ToDouble(a, 0);
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -84,7 +120,7 @@ namespace Idmr.ProjectHex
 			{
 				IntVar nv = new IntVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToInt32(var.Value);
+				nv.Value = var.Value;
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -100,7 +136,7 @@ namespace Idmr.ProjectHex
 			{
 				LongVar nv = new LongVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToInt64(var.Value);
+				nv.Value = var.Value;
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -116,7 +152,7 @@ namespace Idmr.ProjectHex
 			{
 				SByteVar nv = new SByteVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToSByte(var.Value);
+				nv.Value = (sbyte)var.Value;
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -132,7 +168,7 @@ namespace Idmr.ProjectHex
 			{
 				ShortVar nv = new ShortVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToInt16(var.Value);
+				nv.Value = var.Value;
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -148,7 +184,8 @@ namespace Idmr.ProjectHex
 			{
 				SingleVar nv = new SingleVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToSingle(var.Value);
+				byte[] a = { var.Value, 0, 0, 0 };
+				nv.Value = BitConverter.ToSingle(a, 0);
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -164,7 +201,7 @@ namespace Idmr.ProjectHex
 			{
 				UIntVar nv = new UIntVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToUInt32(var.Value);
+                nv.Value = var.Value;
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -180,7 +217,7 @@ namespace Idmr.ProjectHex
 			{
 				ULongVar nv = new ULongVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToUInt64(var.Value);
+				nv.Value = var.Value;
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
@@ -196,7 +233,7 @@ namespace Idmr.ProjectHex
 			{
 				UShortVar nv = new UShortVar(var._parent);
 				copyAttributes(var, nv);
-				nv.Value = Convert.ToUInt16(var.Value);
+				nv.Value = var.Value;
 				if (nv.Values != null && nv.Values.Count > 0)
 				{
 					for (int i = 0; i < nv.Values.Count; i++)
