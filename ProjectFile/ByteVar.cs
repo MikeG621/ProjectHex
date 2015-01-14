@@ -6,18 +6,22 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1
+ * Version: 0.1.4+
  */
- 
+
 /* CHANGELOG
- * v0.0.4, 130910
+ * [ADD] SetBytes
+ * [ADD] IsChild implementation
+ * [ADD] min/max
+ * [UPD] out of range default in ctor throws exception
+ * v0.1.4, 130910
  * [ADD] operators, DeepCopy
  * [UPD] License
- * v0.0.3, 130701
+ * v0.1.3, 130701
  * [ADD] Serializable
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
- 
+
 using System;
 
 namespace Idmr.ProjectHex
@@ -27,7 +31,10 @@ namespace Idmr.ProjectHex
 		/// <summary>Object for unsigned single-byte items.</summary>
 		[Serializable]
 		public class ByteVar : Var
-		{	
+		{
+			byte _minValue = 0;
+			byte _maxValue = 255;
+			
 			#region constructors
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
@@ -38,24 +45,45 @@ namespace Idmr.ProjectHex
 			}
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
+			/// <param name="minValue">The lower bound of the item.</param>
+			/// <param name="maxValue">The upper bound of the item.</param>
 			/// <param name="defaultValue">The starting value of the item</param>
-			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.</remarks>
-			public ByteVar(VarCollection parent, string defaultValue) : base(parent, defaultValue)
+			/// <exception cref="ArgumentOutOfRangeException"><i>minValue</i>, <i>maxValue</i> or <i>defaultValue</i> fall outside <b>0 to 255</b>.</exception>
+			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.<br/>
+			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to <b>0</b> and <b>255</b>, respectively.</remarks>
+			public ByteVar(VarCollection parent, string minValue, string maxValue, string defaultValue) : base(parent, defaultValue)
 			{
+				if (minValue != null && minValue != "") _minValue = Byte.Parse(minValue);
+				if (maxValue != null && maxValue != "") _maxValue = Byte.Parse(maxValue);
+				Byte.Parse(defaultValue);
 				_type = VarType.Byte;
 			}
 			#endregion constructors
 			
 			/// <summary>Gets or sets the final value.</summary>
-			/// <exception cref="ArgumentOutOfRangeException"><see cref="RawValue"/> falls outside <b>0 to 255</b>.</exception>
+			/// <exception cref="ArgumentNullException"><see cref="RawValue"/> is <b>null</b> or an empty string.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>value</i> falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
+			/// <exception cref="FormatException"><see cref="RawValue"/> is not a valid byte.</exception>
+			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <b>0</b> and <b>255</b>.</exception>
 			public byte Value
 			{
 				get { return Byte.Parse(_value.ToString()); }
 				set
 				{
+					if (value < _minValue || value > _maxValue)
+						throw new ArgumentOutOfRangeException("value falls outside " + _minValue + " to " + _maxValue);
 					_value = value;
 					if (!_parent.isLoading) _isModified = true;
 				}
+			}
+			
+			/// <summary>Sets <see cref="Value"/> using a byte array.</summary>
+			/// <exception cref="ArgumentException">'buffer' does not have a length of <b>1</b>.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">The value falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
+			public override void SetBytes(byte[] buffer)
+			{
+				if (buffer.Length != 1) throw new ArgumentException("'buffer' must have a length of 1.");
+				Value = buffer[0];
 			}
 			
 			/// <summary>Gets the byte length of the item</summary>
@@ -66,6 +94,51 @@ namespace Idmr.ProjectHex
 				set { throw new InvalidOperationException(_fixedLengthMsg); }
 			}
 
+			/// <summary>Gets or sets the minimum allowable value.</summary>
+			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
+			/// <remarks>Defaults to <b>0</b>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			public byte MinimumValue
+			{
+				get
+				{
+					if (IsChild) return ((ByteVar)_parent.parentVar)._minValue;
+					return _minValue;
+				}
+				set
+				{
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
+					_minValue = value;
+					if (!_parent.isLoading) _isModified = true;
+				}
+			}
+
+			/// <summary>Gets if the minimum value has been changed.</summary>
+			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
+			public bool UseMinValue { get { return (_minValue != 0); } }
+
+			/// <summary>Gets or sets the maximum allowable value.</summary>
+			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
+			/// <remarks>Defaults to <b>255</b>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			public byte MaximumValue
+			{
+				get
+				{
+					if (IsChild) return ((ByteVar)_parent.parentVar)._maxValue;
+					return _maxValue;
+				}
+				set
+				{
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
+					_maxValue = value;
+					if (!_parent.isLoading) _isModified = true;
+				}
+			}
+			/// <summary>Gets if the maximum value has been changed.</summary>
+			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
+			public bool UseMaxValue { get { return (_maxValue != 255); } }
+			
 			public override object DeepCopy()
 			{
 				ByteVar newVar = new ByteVar(_parent);

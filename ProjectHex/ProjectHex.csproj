@@ -94,11 +94,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="classes\" />
   </ItemGroup>
-	<ItemGroup>
-		<None Include="App.config" />
-	</ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -108,7 +108,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>move /y "$(SolutionDir)$(OutDir)*.dll" "$(SolutionDir)$(OutDir)bin\"
-attrib +r "$(SolutionDir)$(OutDir)$(TargetFileName).config"</PostBuildEvent>
+    <PostBuildEvent>move /y "$(TargetDir)*.dll" "$(TargetDir)bin\"
+attrib +r "$(TargetPath).config"</PostBuildEvent>
   </PropertyGroup>
 </Project>

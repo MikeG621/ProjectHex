@@ -6,18 +6,21 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
- 
+
 /* CHANGELOG
- * v0.0.4, 130910
+ * [NEW] GetBytes, SetBytes
+ * [UPD] _isArrayChild changed to IsChild
+ * [UPD] DeepCopy() throws Invalid
+ * v0.1.4, 130910
  * [ADD] DeepCopy()
  * [UPD] License
- * v0.0.3, 130701
+ * v0.1.3, 130701
  * [ADD] Serializable
  * [ADD] _parent get/set for _parentCollection
  * [UPD] _parent renamed to _parentCollection, isDynamicText/getDynamicSplit to static, _parentCollection no longer internal
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
 
 using System;
@@ -161,16 +164,27 @@ namespace Idmr.ProjectHex
 				if (updated) ReplaceDynamicIndex(oldIndex, newIndex);
 			}
 
+			/// <summary>Returns a clone of the object. Must be overridden in derived class.</summary>
+			/// <exception cref="InvalidOperationException">Base class does not implement a DeepCopy function.</exception>
+			/// <remarks>The intent is to never use a plain Var type, therefore the base function is left without an implementation. The <see cref="DefinitionVar"/> and <see cref="ErrorVar"/> likewise do not have implentations. The remaining types implement the function tailored for their individual types.<br/>
+			/// The returned value must be cast to the appropriate type.</remarks>
 			public virtual object DeepCopy()
 			{
-				Var newVar = new Var();
-				copyAttributes(this, newVar);
-				newVar._tag = _tag;
-				newVar._parent = _parent;
-				if (newVar.Values != null)
-					for (int i = 0; i < newVar.Values.Count; i++)
-						newVar.Values[i] = (Var)Values[i].DeepCopy();
-				return newVar;
+				throw new InvalidOperationException();
+			}
+			
+			/// <summary>Returns <see cref="RawValue"/> as a byte array.</summary>
+			public virtual byte[] GetBytes()
+			{
+				return BitConverter.GetBytes(_value);
+			}
+			
+			/// <summary>Sets <see cref="RawValue"/> using a byte array.</summary>
+			/// <exception cref="InvalidOperationException">Base class does not implement the SetBytes method.</exception>
+			/// <remarks>This intent is never use a plan Var type, therefore the base function, <see cref="DefinitionVar"/> and <see cref="ErrorVar"/> are left without a method of assigning the value using raw byte data.</remarks>
+			public virtual void SetBytes(byte[] buffer)
+			{
+				throw new InvalidOperationException();
 			}
 			#endregion public methods
 			
@@ -221,7 +235,7 @@ namespace Idmr.ProjectHex
 			/// <exception cref="InvalidOperationException">Parent <see cref="Var"/> controls value</exception>
 			public bool IsValidated
 			{
-				get { return (_parent.parentVar != null ? _parent.parentVar._isValidated : _isValidated); }
+				get { return (IsChild ? _parent.parentVar._isValidated : _isValidated); }
 				set
 				{
 					if (_parent.parentVar != null && _parent.parentVar.Type != VarType.Definition) throw new InvalidOperationException(_parentControlMsg);
@@ -268,7 +282,7 @@ namespace Idmr.ProjectHex
 			/// An empty or <b>null</b> value clears the conditional, resulting in an always-present value.</remarks>
 			public virtual string RawCondition
 			{
-				get { return (_isArrayChild ? _parent.parentVar._condition : _condition); }
+				get { return (IsChild ? _parent.parentVar._condition : _condition); }
 				set
 				{
 					if (value == _condition) return;
@@ -298,7 +312,7 @@ namespace Idmr.ProjectHex
 			/// Default value is <b>"1"</b>. An empty or <b>null</b> value returns to the default.</remarks>
 			public virtual string RawLength
 			{
-				get { return (_isArrayChild ? _parent.parentVar._length : _length); }
+				get { return (IsChild ? _parent.parentVar._length : _length); }
 				set
 				{
 					if (value == _length) return;
@@ -329,7 +343,7 @@ namespace Idmr.ProjectHex
 			/// As a project design consideration; if given the option, constant offsets are preferred over consecutive offsets. Using constant offsets provides better type safety and a performance boost, as the offsets in the Binary require less or no calculation. If the project format is further modified and adjustments are made to previous entries a constant offset ensures the item does not shift to an unexpected location.</remarks>
 			public virtual string RawOffset
 			{
-				get { return (_isArrayChild ? _parent.parentVar._offset : _offset); }
+				get { return (IsChild ? _parent.parentVar._offset : _offset); }
 				set
 				{
 					if (value == _offset) return;
@@ -471,9 +485,6 @@ namespace Idmr.ProjectHex
 								(_parent.parentVar._id != _id || _parent.parentFile._types.GetItemByID(_id).RawLength == "-1"))
 						{
 							return Values[Values.Count - 1].LocalOffset + Values[Values.Count - 1].Length;
-							// int length = 0;
-							// for (int i = 0; i < Values.Count; i++) length += Values[i].Length;
-							// return length;
 						}
 						else
 						{
@@ -559,12 +570,15 @@ namespace Idmr.ProjectHex
 			}
 
 			/// <summary>Gets or sets the object that contains user-defined information</summary>
-			/// <remarks>This exists solely for programatic purposes, value is not stored in the binary or project file. Defaults to the output of <see cref="ToString()"/>.</remarks>
+			/// <remarks>This exists solely for programatic purposes, value is not stored in the binary or project file.</remarks>
 			public object Tag
 			{
 				get { return _tag; }
 				set { _tag = value; }
 			}
+
+			/// <summary>Gets is the item has parent-controlled properties.</summary>
+			public bool IsChild { get { return _parent.parentVar != null && _parent.parentVar.Type == Type && _parent.parentVar._id == _id; } }
 			#endregion public properties
 			
 			protected static bool isDynamicText(string value) { return (value != null ? value.Contains("$") : false); }
@@ -612,8 +626,6 @@ namespace Idmr.ProjectHex
 			}
 			
 			protected bool _binaryAssigned { get { return _parent.parentFile._binary != null; } }
-
-			protected bool _isArrayChild { get { return _parent.parentVar != null && _parent.parentVar._id == _id; } }
 			
 			/// <summary>Gets or sets the parent collection.</summary>
 			/// <remarks>Setting will propogate through <see cref="Values"/> if necessary.</remarks>

@@ -6,16 +6,19 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
  
 /* CHANGELOG
- * v0.0.4, 130910
+ * [ADD] SetBytes
+ * [ADD] min/max
+ * [UPD] out of range default in ctor throws exception
+ * v0.1.4, 130910
  * [ADD] operators, DeepCopy()
  * [UPD] License
- * v0.0.3, 130701
+ * v0.1.3, 130701
  * [ADD] Serializable
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
  
 using System;
@@ -27,7 +30,10 @@ namespace Idmr.ProjectHex
 		/// <summary>Object for unsigned four-byte items.</summary>
 		[Serializable]
 		public class UIntVar : Var
-		{	
+		{
+			uint _minValue = 0;
+			uint _maxValue = UInt32.MaxValue;
+			
 			#region constructors
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
@@ -38,10 +44,17 @@ namespace Idmr.ProjectHex
 			}
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
+			/// <param name="minValue">The lower bound of the item.</param>
+			/// <param name="maxValue">The upper bound of the item.</param>
 			/// <param name="defaultValue">The starting value of the item</param>
-			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.</remarks>
-			public UIntVar(VarCollection parent, string defaultValue) : base(parent, defaultValue)
+			/// <exception cref="ArgumentOutOfRangeException"><i>minValue</i>, <i>maxValue</i> or <i>defaultValue</i> fall outside the range of <see cref="UInt32"/>.</exception>
+			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.<br>
+			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to the limits of <see cref="UInt32"/>.</remarks>
+			public UIntVar(VarCollection parent, string minValue, string maxValue, string defaultValue) : base(parent, defaultValue)
 			{
+				if (minValue != null && minValue != "") _minValue = UInt32.Parse(minValue);
+				if (maxValue != null && maxValue != "") _maxValue = UInt32.Parse(maxValue);
+				UInt32.Parse(defaultValue);
 				_type = VarType.UInt;
 			}
 			#endregion constructors
@@ -57,15 +70,28 @@ namespace Idmr.ProjectHex
 						newVar.Values[i] = (UIntVar)Values[i].DeepCopy();
 				return newVar;
 			}
+			
+			/// <summary>Sets <see cref="Value"/> using a byte array.</summary>
+			/// <exception cref="ArgumentException">'buffer' does not have a length of <b>4</b>.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">The value falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
+			public override void SetBytes(byte[] buffer)
+			{
+				if (buffer.Length != 4) throw new ArgumentException("'buffer' must have a length of 4.");
+				Value = BitConverter.ToUInt32(buffer);
+			}
 
 			/// <summary>Gets or sets the final value.</summary>
-			/// <exception cref="ArgumentOutOfRangeException"><see cref="RawValue"/> falls outside <b>0 to 4,294,967,295</b>.</exception>
-			/// <exception cref="ArgumentException">Error computing the final value.</exception>
+			/// <exception cref="ArgumentNullException"><see cref="RawValue"/> is <b>null</b> or an empty string.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>value</i> falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
+			/// <exception cref="FormatException"><see cref="RawValue"/> is not a valid uint.</exception>
+			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <b>0</b> and <see cref="IInt32.MaxValue"/>.</exception>
 			public uint Value
 			{
 				get { return UInt32.Parse(_value.ToString()); }
 				set
 				{
+					if (value < _minValue || value > _maxValue)
+						throw new ArgumentOutOfRangeException("value falls outside " + _minValue + " to " + _maxValue);
 					_value = value;
 					if (!_parent.isLoading) _isModified = true;
 				}
@@ -78,6 +104,51 @@ namespace Idmr.ProjectHex
 				get { return "4"; }
 				set { throw new InvalidOperationException(_fixedLengthMsg); }
 			}
+
+			/// <summary>Gets or sets the minimum allowable value.</summary>
+			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
+			/// <remarks>Defaults to <see cref="UInt32.MinValue"/>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			public uint MinimumValue
+			{
+				get
+				{
+					if (IsChild) return ((UIntVar)_parent.parentVar)._minValue;
+					return _minValue;
+				}
+				set
+				{
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
+					_minValue = value;
+					if (!_parent.isLoading) _isModified = true;
+				}
+			}
+
+			/// <summary>Gets if the minimum value has been changed.</summary>
+			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
+			public bool UseMinValue { get { return (_minValue != 0); } }
+
+			/// <summary>Gets or sets the maximum allowable value.</summary>
+			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
+			/// <remarks>Defaults to <see cref="UInt32.MaxValue"/>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			public uint MaximumValue
+			{
+				get
+				{
+					if (IsChild) return ((UIntVar)_parent.parentVar)._maxValue;
+					return _maxValue;
+				}
+				set
+				{
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
+					_maxValue = value;
+					if (!_parent.isLoading) _isModified = true;
+				}
+			}
+			/// <summary>Gets if the maximum value has been changed.</summary>
+			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
+			public bool UseMaxValue { get { return (_maxValue != UInt32.MaxValue); } }
 			
 			#region operators
 			/// <summary>Converts an unsigned int to a boolean value.</summary>

@@ -6,32 +6,35 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
 
 /* CHANGELOG
- * v0.0.4, 130910
+ * [UPD] Populate() implements StringVar.Encoding
+ * [UPD] Add(StringVar) modified the ctor call
+ * v0.1.4, 130910
  * [UPD] Var.DeepCopy() implementation
  * [UPD] StringVar arrays no long assign child's RawLength
  * [UPD] License
- * v0.0.3, 130701
+ * v0.1.3, 130701
  * [ADD] Serializable
  * [ADD] parentFile/Var for internal access to _parentFile/Var, propogate to _items[].Values
  * [UPD] _parentFile/Var no longer internal
  * [UPD] changed name mismatch message to include identifiers
  * [UPD] Populate() for StringVars, added stringlength
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
  
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Idmr.Common;
 
 namespace Idmr.ProjectHex
 {
 	public partial class ProjectFile
 	{
-		/// <summary>Object to maintain multiple <see cref="Var">Vars.</see>.</summary>
+		/// <summary>Object to maintain multiple <see cref="Var">Vars</see>.</summary>
 		[Serializable]
 		public class VarCollection : ResizableCollection<Var>
 		{
@@ -214,7 +217,7 @@ namespace Idmr.ProjectHex
 				else if (type == VarType.SByte) added = _add(new SByteVar(this));
 				else if (type == VarType.Short) added = _add(new ShortVar(this));
 				else if (type == VarType.Single) added = _add(new SingleVar(this));
-				else if (type == VarType.String) added = _add(new StringVar(this, "false"));
+				else if (type == VarType.String) added = _add(new StringVar(this, false));
 				else if (type == VarType.UInt) added = _add(new UIntVar(this));
 				else if (type == VarType.ULong) added = _add(new ULongVar(this));
 				else if (type == VarType.UShort) added = _add(new UShortVar(this));
@@ -301,7 +304,7 @@ namespace Idmr.ProjectHex
 			/// <returns>First offset following the collection data.</returns>
 			public int Populate(byte[] rawData, int startingOffset)
 			{
-                System.Diagnostics.Debug.WriteLine("pop, " + startingOffset);
+                //System.Diagnostics.Debug.WriteLine("pop, " + startingOffset);
 				bool loading = _isLoading;
 				_isLoading = true;
 				int id = -1;
@@ -318,7 +321,7 @@ namespace Idmr.ProjectHex
 				{
 					if (id != -1)
 					{
-						System.Diagnostics.Debug.WriteLine(definition[i].Type.ToString());
+						//System.Diagnostics.Debug.WriteLine(definition[i].Type.ToString());
 						if (definition[i].Type == VarType.Bool) Add((BoolVar)definition[i].DeepCopy());
 						else if (definition[i].Type == VarType.Byte) Add((ByteVar)definition[i].DeepCopy());
 						else if (definition[i].Type == VarType.Collection) Add((CollectionVar)definition[i].DeepCopy());
@@ -366,9 +369,8 @@ namespace Idmr.ProjectHex
 								for (int j = 0; j < this[i].Quantity; j++)
 								{
 									this[i].Values.Add(new CollectionVar(this[i].Values, this[i].ID));
-									this[i][j].Values = new VarCollection(this[i][j]);	//TODO: Values[j].Values initializes to Count=25 (Triggers, WPs, etc)
+									this[i][j].Values = new VarCollection(this[i][j]);
 									pos = this[i][j].Values.Populate(rawData, pos);
-									//TODO: insert SetCount here?
 								}
 								break;
 							case VarType.Double:
@@ -444,13 +446,14 @@ namespace Idmr.ProjectHex
 								break;
 							case VarType.String:
 								int stringLength = Int32.Parse(Equation.Evaluate(ParseDynamicValues(this, this[i].RawLength)));
-								if (this[i].Quantity == 0 && stringLength != 0) this[i].RawValue = ArrayFunctions.ReadStringFromArray(rawData, pos, stringLength);
+								Encoding enc = ((StringVar)this[i]).Encoding;
+								if (this[i].Quantity == 0 && stringLength != 0) this[i].RawValue = enc.GetString(rawData, pos, stringLength);
 								else if (this[i].Quantity != 0)
 								{
 									for (int j = 0; j < this[i].Quantity; j++)
 									{
 										this[i].Values.Add(VarType.String);
-										if (this[i].RawLength != "0") this[i][j].RawValue = ArrayFunctions.ReadStringFromArray(rawData, pos, stringLength);
+										if (this[i].RawLength != "0") this[i][j].RawValue = enc.GetString(rawData, pos, stringLength);
 										pos += stringLength;
 									}
 								}
@@ -508,7 +511,7 @@ namespace Idmr.ProjectHex
 						else pos += this[i].Length;
 					}
 				}
-				System.Diagnostics.Debug.WriteLine("copied");
+				//System.Diagnostics.Debug.WriteLine("copied");
 				if (definition != null && definition.RawLength != "-1")
 					pos = startingOffset + Int32.Parse(definition.RawLength);
 				_isLoading = loading;
@@ -518,7 +521,7 @@ namespace Idmr.ProjectHex
 
 			#region public properties
 			/// <summary>A single item within the collection</summary>
-			/// <param name="label">The identifying string of the item in the form of "<see cref="Var.Type">Type</see><see cref="Var.Name"/></b>"</param>
+			/// <param name="label">The identifying string of the item in the form of "<see cref="Var.Type">Type</see>:<see cref="Var.Name"/></b>"</param>
 			/// <exception cref="ArgumentException"><i>label</i> not found</exception>
 			/// <returns>The item matching <i>label</i>, otherwise <b>null</b></returns>
 			/// <remarks><i>label</i> is the same format as <see cref="Var.ToString()"/></remarks>

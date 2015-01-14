@@ -6,15 +6,17 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
- 
+
 /* CHANGELOG
- * v0.0.4, 130910
+ * [ADD] support for "<>", "~=" notation for "not equal"
+ * [ADD] support for "**" notation for exponents
+ * v0.1.4, 130910
  * [UPD] License
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
- 
+
 using System;
 
 namespace Idmr.ProjectHex
@@ -37,21 +39,23 @@ namespace Idmr.ProjectHex
 		{
 			try { formatInput(ref cond); }
 			catch (ArgumentNullException) { throw; }
-			string allowed = "0123456789+-*/%<>&^|().,=!TF";
+			string allowed = "0123456789+-*/%<>&^|().,=!~TF";
 			for (int i = 0; i < cond.Length; i++)
 				if (allowed.IndexOf(cond[i]) == -1) return false;
 			// reject isolated '='
 			if (cond.IndexOf("=") != -1 && cond.IndexOf("<=") == -1 && cond.IndexOf(">=") == -1 && cond.IndexOf("!=") == -1 && cond.IndexOf("==") == -1) return false;
+			if (cond.IndexOf("~") != -1 && cond.IndexOf("~=") == -1) return false;
 			return true;
 		}
 
 		/// <summary>Computes a given conditional and returns the result as a boolean.</summary>
-		/// <remarks>Operation support: "+ - * / % () {} [] &lt;&lt; &gt;&gt; & ^ |", decimals.<br/>
-		/// Condition support: "&lt; &gt; &lt;= &gt;= == != && ||"<br/>
+		/// <remarks>Operation support: "+ - * / % () {} [] &lt;&lt; &gt;&gt; & (^ **) |", decimals.<br/>
+		/// Condition support: "&lt; &gt; &lt;= &gt;= == (!= ~= <>) && ||"<br/>
 		/// Bit-wise operations (&lt;&lt; &gt;&gt; & ^ |) do not support decimals. Using these operations will round as necessary during calculation.<br/>
 		/// Boolean values may be included in <i>cond</i> as <b>true/T/yes</b> and <b>false/F/no</b> (case-insensitive).<br/>
 		/// Bitshift operators can be used in conjunction with &lt; and &gt; conditionals with or without parenthesis, however the use of parenthesis provides better performance and clarity (ie, "(x>>y)>z" is preferred over "x>>y>z" although both yield the same result).<br/>
-		/// If <i>cond</i> evaluates to a numerical value instead of <b>true</b>/<b>false</b>, non-zero results will return <b>true</b>.</remarks>
+		/// If <i>cond</i> evaluates to a numerical value instead of <b>true</b>/<b>false</b>, non-zero results will return <b>true</b>.<br/>
+		/// For exponents, both "<b>^</b>" and "<b>**</b>" are acceptable notations. For "not equal", "<b>!=</b>", "<b>~=</b>" and "<b>&lt;&gt;</b>" are acceptable notations.</remarks>
 		/// <param name="cond">Conditional to be evaluated</param>
 		/// <exception cref="ArgumentException"><i>cond</i> contains logical errors.</exception>
 		/// <exception cref="FormatException">Illegal characters present.</exception>
@@ -77,6 +81,9 @@ namespace Idmr.ProjectHex
 			cond = cond.Replace('[', '(');
 			cond = cond.Replace('}', ')');
 			cond = cond.Replace(']', ')');
+			cond = cond.Replace("**", "^");
+			cond = cond.Replace("~=", "!=");
+			cond = cond.Replace("<>", "!=");
 			cond = cond.ToUpper();
 			cond = cond.Replace("TRUE", "T");
 			cond = cond.Replace("FALSE", "F");

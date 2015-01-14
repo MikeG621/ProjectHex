@@ -39,15 +39,29 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\Idmr.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Idmr.ProjectHex.ProjectFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Idmr.ProjectHex.ProjectFile, Version=0.0.4.19613, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\Idmr.ProjectHex.ProjectFile.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SelectionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SelectionDialog.Designer.cs">
+      <DependentUpon>SelectionDialog.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SelectionDialog.resx">
+      <DependentUpon>SelectionDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -57,7 +71,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-	<PropertyGroup>
+  <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetPath)" "C:\Users\Michael\Documents\Visual Studio 2008\Libraries\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

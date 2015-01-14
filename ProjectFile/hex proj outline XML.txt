@@ -35,19 +35,19 @@ tree structure of a project:
  * Bool - OPTIONAL: false (default=0), true (default=1) [redefines numerical value stored 0-255 (-1 converted to 255)]. Initialized to FALSE, Length=1
  * Byte - Initialized to 0, Length=1
  * Collection - <definition> node, REQUIRED: id (definition.ID), qty (default=1). DISABLED: length, default
- * <definition> - REQUIRED: id, name. OPTIONAL: length (const). DISABLED: offset, default, condition
+ * <definition> - REQUIRED: id, qty. OPTIONAL: length (const). DISABLED: offset, default, condition
  * Error - not initialized directly, added as a placeholder during LoadProject
  * Int - Initialized to 0, Length=4
  * Long - Initialized to 0, Length=8
  * SByte - Initialized to 0, Length=1
  * Short - Initialized to 0, Length=2
- * String - OPTIONAL: length (default=1, dynamic), nullterm (default=false) [nullterm=false with length=4 is XXXX, nullterm=true is XXX0]
+ * String - OPTIONAL: length (default=1, dynamic), nullterm (default=false) [nullterm=false with length=4 is XXXX, nullterm=true is XXX0], encoding
  * UInt - Initialized to 0, Length=4
  * ULong - Initialized to 0, Length=8
  * UShort - Initialized to 0, Length=2
  * Var - not initialized directly, added as a placeholder during VarCollection modifications
  * (simple Array) - method can be applied to all types. REQUIRED: qty (# for fixed qty, $# notation for dynamic). OPTIONAL: length (applies to individual entries), names (comma delimited, size should equal qty. If omitted, entries are simply indexed)
- * ALL TYPES: OPTIONAL (unless otherwise noted): name, offset, comments, validate, default. If "offset" is omitted, assumed to be consecutive with previous
+ * ALL TYPES: OPTIONAL (unless otherwise noted):offset, comments, validate, default. If "offset" is omitted, assumed to be consecutive with previous REQUIRED: name
  * VALIDATE: if validate attribute is "true", default attribute must be set. 
  * DYNAMIC PROPERTIES: offset, length (string only), qty, condition, default
  * DEFAULT: While typically it will be a fixed number (see NumGlobalGoals), there will be cases which dynamics can be used to provide calculated numbers such as duplicates (score duplication in pilot files) or checksums. Given the inputs, it has a pre-determined value that will be constant in that case.  A set default attribute uses the MatchesDefault property for verification.

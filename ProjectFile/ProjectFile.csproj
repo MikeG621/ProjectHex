@@ -78,7 +78,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-	<PropertyGroup>
+  <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetPath)" "C:\Users\Michael\Documents\Visual Studio 2008\Libraries\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

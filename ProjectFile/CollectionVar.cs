@@ -6,16 +6,16 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4
  */
  
 /* CHANGELOG
- * v0.0.4, 130910
+ * v0.1.4, 130910
  * [ADD] DeepCopy
  * [UPD] License
- * v0.0.3, 130701
+ * v0.1.3, 130701
  * [ADD] Serializable
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
  
 using System;

@@ -6,13 +6,16 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
  
 /* CHANGELOG
- * v0.0.4, 130910
+ * [UPD] formatInput exception changed to ArgumentNull
+ * [ADD] checks to isValid for "||" and "&&"
+ * [ADD] support for "**" notation for exponents
+ * v0.1.4, 130910
  * [UPD] License
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
  
 using System;
@@ -25,7 +28,7 @@ namespace Idmr.ProjectHex
 		/// <summary>Determines if the input is formatted properly.</summary>
 		/// <param name="eq">Equation to be evaluated.</param>
 		/// <exception cref="ArgumentNullException"><i>eq</i> is <b>null</b> or empty.</exception>
-		/// <returns><b>false</b> is illegal characters are detected, otherwise <b>true</b>.</returns>
+		/// <returns><b>false</b> if illegal characters are detected, otherwise <b>true</b>.</returns>
 		public static bool IsValid(string eq)
 		{
 			try { return isValid(ref eq); }
@@ -41,13 +44,14 @@ namespace Idmr.ProjectHex
 			for (int i = 0; i < eq.Length; i++)
 				if (allowed.IndexOf(eq[i]) == -1) return false;
 			// reject isloated '<' and '>'
-			if ((eq.IndexOf("<") != -1 && eq.IndexOf("<<") == -1) || (eq.IndexOf(">") != -1 && eq.IndexOf(">>") == -1)) return false;
+			if ((eq.IndexOf("<") != -1 && eq.IndexOf("<<") == -1) || (eq.IndexOf(">") != -1 && eq.IndexOf(">>") == -1) || eq.IndexOf("||") != -1 || eq.IndexOf("&&") != -1) return false;
 			return true;
 		}
 
 		/// <summary>Computes a given equation and returns the result as a string.</summary>
 		/// <remarks>Supports: "+ - * / % () {} [] &lt;&lt; &gt;&gt; & ^ |", decimals.<br/>
-		/// Bit-wise operations (&lt;&lt; &gt;&gt; & ^ |) do not support decimals. Using these operations will round as necessary during calculation.</remarks>
+		/// Bit-wise operations (&lt;&lt; &gt;&gt; & ^ |) do not support decimals. Using these operations will round as necessary during calculation.<br/>
+		/// For exponents, both "^" and "**" are acceptable notations.</remarks>
 		/// <param name="eq">Equation to be evaluated</param>
 		/// <exception cref="ArgumentException"><i>eq</i> contains logical errors.</exception>
 		/// <exception cref="FormatException">Illegal characters present.</exception>
@@ -63,16 +67,17 @@ namespace Idmr.ProjectHex
 			catch (ArgumentException x) { throw new ArgumentException("Error: " + x.Message); }
 			return result;
 		}
-		
-		/// <exception cref="NullReferenceException"><i>eq</i> is <b>null</b> or empty.</exception>
+
+		/// <exception cref="ArgumentNullException"><i>eq</i> is <b>null</b> or empty.</exception>
 		static void formatInput(ref string eq)
 		{
-			if (eq == "" || eq == null) throw new ArgumentException("Error: Equation is empty");
+			if (eq == "" || eq == null) throw new ArgumentNullException("Error: Equation is empty");
 			eq = eq.Replace(" ", "");
 			eq = eq.Replace('{', '(');
 			eq = eq.Replace('[', '(');
 			eq = eq.Replace('}', ')');
 			eq = eq.Replace(']', ')');
+			eq = eq.Replace("**", "^");
 		}
 		
 		/// <exception cref="ArgumentException">Bracket mismatch<br/><b>-or-</b><br/>Empty term</exception>

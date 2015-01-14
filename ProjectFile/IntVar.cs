@@ -6,16 +6,19 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
  
 /* CHANGELOG
- * v0.0.4, 130910
+ * [ADD] SetBytes
+ * [ADD] min/max
+ * [UPD] out of range default in ctor throws exception
+ * v0.1.4, 130910
  * [ADD] operators, DeepCopy()
  * [UPD] License
- * v0.0.3, 130701
+ * v0.1.3, 130701
  * [ADD] Serializable
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
  
 using System;
@@ -27,7 +30,10 @@ namespace Idmr.ProjectHex
 		/// <summary>Object for signed four-byte items.</summary>
 		[Serializable]
 		public class IntVar : Var
-		{	
+		{
+			int _minValue = Int32.MinValue;
+			int _maxValue = Int32.MaxValue;
+			
 			#region constructors
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
@@ -38,10 +44,17 @@ namespace Idmr.ProjectHex
 			}
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
+			/// <param name="minValue">The lower bound of the item.</param>
+			/// <param name="maxValue">The upper bound of the item.</param>
 			/// <param name="defaultValue">The starting value of the item</param>
-			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.</remarks>
-			public IntVar(VarCollection parent, string defaultValue) : base(parent, defaultValue)
+			/// <exception cref="ArgumentOutOfRangeException"><i>minValue</i>, <i>maxValue</i> or <i>defaultValue</i> fall outside the range of <see cref="Int32"/>.</exception>
+			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.<br>
+			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to the limits of <see cref="Int32"/>.</remarks>
+			public IntVar(VarCollection parent, string minValue, string maxValue, string defaultValue) : base(parent, defaultValue)
 			{
+				if (minValue != null && minValue != "") _minValue = Int32.Parse(minValue);
+				if (maxValue != null && maxValue != "") _maxValue = Int32.Parse(maxValue);
+				Int32.Parse(defaultValue);
 				_type = VarType.Int;
 			}
 			#endregion constructors
@@ -57,16 +70,28 @@ namespace Idmr.ProjectHex
 						newVar.Values[i] = (IntVar)Values[i].DeepCopy();
 				return newVar;
 			}
+			
+			/// <summary>Sets <see cref="Value"/> using a byte array.</summary>
+			/// <exception cref="ArgumentException">'buffer' does not have a length of <b>4</b>.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">The value falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
+			public override void SetBytes(byte[] buffer)
+			{
+				if (buffer.Length != 4) throw new ArgumentException("'buffer' must have a length of 4.");
+				Value = BitConverter.ToInt32(buffer);
+			}
 
 			/// <summary>Gets or sets the final value.</summary>
 			/// <exception cref="ArgumentNullException"><see cref="RawValue"/> is <b>null</b> or an empty string.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>value</i> falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
 			/// <exception cref="FormatException"><see cref="RawValue"/> is not a valid integer.</exception>
-			/// <exception cref="OverflorException"><see cref="RawValue"/> does not fall between <see cref="Int32.MinValue"/> and <see cref="Int32.MaxValue"/>.</exception>
+			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <see cref="Int32.MinValue"/> and <see cref="Int32.MaxValue"/>.</exception>
 			public int Value
 			{
 				get { return Int32.Parse(_value.ToString()); }
 				set
 				{
+					if (value < _minValue || value > _maxValue)
+						throw new ArgumentOutOfRangeException("value falls outside " + _minValue + " to " + _maxValue);
 					_value = value;
 					if (!_parent.isLoading) _isModified = true;
 				}
@@ -79,6 +104,51 @@ namespace Idmr.ProjectHex
 				get { return "4"; }
 				set { throw new InvalidOperationException(_fixedLengthMsg); }
 			}
+
+			/// <summary>Gets or sets the minimum allowable value.</summary>
+			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
+			/// <remarks>Defaults to <see cref="Int32.MinValue"/>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			public int MinimumValue
+			{
+				get
+				{
+					if (IsChild) return ((IntVar)_parent.parentVar)._minValue;
+					return _minValue;
+				}
+				set
+				{
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
+					_minValue = value;
+					if (!_parent.isLoading) _isModified = true;
+				}
+			}
+
+			/// <summary>Gets if the minimum value has been changed.</summary>
+			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
+			public bool UseMinValue { get { return (_minValue != Int32.MinValue); } }
+
+			/// <summary>Gets or sets the maximum allowable value.</summary>
+			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
+			/// <remarks>Defaults to <see cref="Int32.MaxValue"/>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			public int MaximumValue
+			{
+				get
+				{
+					if (IsChild) return ((IntVar)_parent.parentVar)._maxValue;
+					return _maxValue;
+				}
+				set
+				{
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
+					_maxValue = value;
+					if (!_parent.isLoading) _isModified = true;
+				}
+			}
+			/// <summary>Gets if the maximum value has been changed.</summary>
+			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
+			public bool UseMaxValue { get { return (_maxValue != Int32.MaxValue); } }
 			
 			#region operators
 			/// <summary>Converts a signed int to a boolean value.</summary>

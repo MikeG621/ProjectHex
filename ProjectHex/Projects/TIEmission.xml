@@ -11,8 +11,8 @@
 	<comments>Manual write-up for testing</comments>
 	<structure>
 		<item offset="0" type="short" validate="true" name="Magic" default="-1" />
-		<item offset="2" type="short" name="NumFlightGroups" default="1" />
-		<item offset="4" type="short" name="NumMessages" />
+		<item offset="2" type="short" name="NumFlightGroups" default="1" max="48"/>
+		<item offset="4" type="short" name="NumMessages" max="16"/>
 		<item offset="6" type="short" validate="true" default="3" name="NumGlobalsGoals" />
 		<item offset="10" type="byte" name="Officers" />
 		<item offset="13" type="bool" name="CapturedOnEject" />

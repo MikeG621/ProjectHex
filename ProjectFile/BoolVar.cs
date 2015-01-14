@@ -6,17 +6,19 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
  
 /* CHANGELOG
- * v0.0.4, 130910
+ * [ADD] SetBytes
+ * [ADD] IsChild implementation
+ * v0.1.4, 130910
  * [ADD] operators, DefaultTrueValue, DefaultFalseValue, DeepCopy
  * [UPD] _trueValue and _falseValue now use Default*
  * [UPD] License
- * v0.0.3, 130701
+ * v0.1.3, 130701
  * [ADD] Serializable
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
  
 using System;
@@ -182,9 +184,23 @@ namespace Idmr.ProjectHex
 						newVar.Values[i] = (BoolVar)Values[i].DeepCopy();
 				return newVar;
 			}
+			
+			/// <summary>Sets <see cref="RawValue"/> using a byte array.</summary>
+			/// <exception cref="ArgumentException">'buffer' does not have a length of <b>1</b>.</exception>
+			/// <remarks>Only a numerical value matching <see cref="TrueValue"/> will set to <b>true</b>, all others will set to <b>false</b>.</remarks>
+			public override void SetBytes(byte[] buffer)
+			{
+				if (buffer.Length != 1) throw new ArgumentException("'buffer' must have a length of 1.");
+				if (buffer[0] == TrueValue) _value = true;
+				else _value = false;
+			}
 
+			/// <summary>When not specified in the ctor, the initial value for <see cref="TrueValue"/>.</summary>
+			/// <remarks>Default value is <b>1</b>.</remarks>
 			static public byte DefaultTrueValue = 1;
 			
+			/// <summary>When not specified in the ctor, the initial value for <see cref="FalseValue"/>.</summary>
+			/// <remarks>Default value is <b>0</b>.</remarks>
 			static public byte DefaultFalseValue = 0;
 			
 			/// <summary>Gets or sets the value of the item.</summary>
@@ -240,20 +256,21 @@ namespace Idmr.ProjectHex
 					if (!_parent.isLoading) _isModified = true;
 				}
 			}
+
 			/// <summary>Gets or sets the numerical value for <b>false</b>.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Default value is <b>0</b>.<br/>
-			/// If part of a byte array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			/// <remarks>Defaults to the value of <see cref="DefaultFalseValue"/>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public byte FalseValue
 			{
 				get
 				{
-					if (_parent.parentVar != null && _parent.parentVar.Type == VarType.Bool) return ((BoolVar)_parent.parentVar)._falseValue;
+					if (IsChild) return ((BoolVar)_parent.parentVar)._falseValue;
 					return _falseValue;
 				}
 				set
 				{
-					if (_parent.parentVar != null && _parent.parentVar.Type == VarType.Bool) throw new InvalidOperationException(_parentControlMsg);
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
 					_falseValue = value;
 					if (!_parent.isLoading) _isModified = true;
 				}
@@ -261,18 +278,18 @@ namespace Idmr.ProjectHex
 			
 			/// <summary>Gets or sets the numerical value for <b>true</b>.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Default value is <b>1</b>.<br/>
-			/// If part of a byte array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			/// <remarks>Defaults to the value of <see crf="DefaultTrueValue"/>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public byte TrueValue
 			{
 				get
 				{
-					if (_parent.parentVar != null && _parent.parentVar.Type == VarType.Bool) return ((BoolVar)_parent.parentVar)._trueValue;
+					if (IsChild) return ((BoolVar)_parent.parentVar)._trueValue;
 					return _trueValue;
 				}
 				set
 				{
-					if (_parent.parentVar != null && _parent.parentVar.Type == VarType.Bool) throw new InvalidOperationException(_parentControlMsg);
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
 					_trueValue = value;
 					if (!_parent.isLoading) _isModified = true;
 				}

@@ -6,7 +6,7 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
  
 using System.Reflection;
@@ -35,13 +35,9 @@ using System.Runtime.InteropServices;
 
 // Version information for an assembly consists of the following four values:
 //
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
+//      Major.Minor.Revision.Build
 //
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.0.4.*")]
-//[assembly: AssemblyFileVersion("1.0.0.0")]
+// Modify Version for breaking change, FileV and InfoV do not affect CLR
+[assembly: AssemblyVersion("0.1")]
+[assembly: AssemblyFileVersion("0.1.4.0")]
+[assembly: AssemblyInformationalVersion("0.1 beta")]

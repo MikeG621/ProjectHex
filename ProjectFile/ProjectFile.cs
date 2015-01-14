@@ -6,16 +6,21 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
 
- /* CHANGELOG
- * v0.0.4, 130910
+/* CHANGELOG
+ * [NEW] Save
+ * [NEW] numerical type min/max read
+ * [UPD] Tag no longer initialized during load
+ * [UPD] StringVar loads "encoding" attribute
+ * [UPD] tweaked corrupted default msgs
+ * v0.1.4, 130910
  * [ADD] Read initial defaults for String and Bool
  * [UPD] License
- * v0.0.3, 130701
+ * v0.1.3, 130701
  * [ADD] Serializable
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
  
 using System;
@@ -38,12 +43,12 @@ namespace Idmr.ProjectHex
 		VarCollection _properties = null;
 		VarCollection _types = null;
 		bool _isModified = false;
-		/// <summary>Next available ID number for a new Type</summary>
+		/// <summary>Next available ID number for a new Type.</summary>
 		internal int _nextID = 0;
 		BinaryFile _binary = null;
 
-		static string _noBinaryMsg = "Binary file has not been loaded into the Project, dynamic values cannot be calculated";
-		static string _corruptDefaultMsg = "Corrupted default declarations, missing ";
+		static string _noBinaryMsg = "Binary file has not been loaded into the Project, dynamic values cannot be calculated.";
+		static string _corruptDefaultMsg = "Corrupted default declaration, ";
 
 		/// <summary>Type of <see cref="Var"/> objects.</summary>
 		public enum VarType : byte {
@@ -87,15 +92,15 @@ namespace Idmr.ProjectHex
 
 		/// <summary>Initializes a project from file.</summary>
 		/// <param name="projectPath">The full path to the file to load.</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located</exception>
-		/// <exception cref="XmlException">Definition load failure</exception>
+		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located.</exception>
+		/// <exception cref="XmlException">Definition load failure.</exception>
 		public ProjectFile(string projectPath) { LoadProject(projectPath); }
 
 		/// <summary>Initializes a project from file.</summary>
 		/// <param name="projectPath">The full path to the file to load.</param>
-		/// <param name="validationOnly">Whether or not the projec tis only loaded to ensure compatability.</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located</exception>
-		/// <exception cref="XmlException">Definition load failure</exception>
+		/// <param name="validationOnly">Whether or not the project is only loaded to ensure compatability.</param>
+		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located.</exception>
+		/// <exception cref="XmlException">Definition load failure.</exception>
 		/// <remarks>When <i>validationOnly</i> is <b>true</b>, only project properties and items used to check compatability are loaded.</remarks>
 		public ProjectFile(string projectPath, bool validationOnly) { LoadProject(projectPath, validationOnly); }
 		#endregion constructors
@@ -103,7 +108,7 @@ namespace Idmr.ProjectHex
 		#region public methods
 		/// <summary>Re-initializes the project definition from file.</summary>
 		/// <exception cref="InvalidOperationException"><see cref="ProjectPath"/> has not been defined.</exception>
-		/// <exception cref="System.IO.FileNotFoundException">The original file could not be located, likely has been moved or deleted.</exception>
+		/// <exception cref="FileNotFoundException">The original file could not be located, likely has been moved or deleted.</exception>
 		/// <exception cref="XmlException">Definition load failure.</exception>
 		/// <remarks>Wipes any content that may have been created when applied to a BinaryFile.</remarks>
 		public void ReloadProject()
@@ -114,14 +119,14 @@ namespace Idmr.ProjectHex
 		
 		/// <summary>Loads a project definition structure for use.</summary>
 		/// <param "projectFile">Project definition to be loaded.</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located.</exception>
+		/// <exception cref="FileNotFoundException"><i>projectFile</i> could not be located.</exception>
 		/// <exception cref="XmlException">Definition load failure.</exception>
 		public void LoadProject(string projectFile) { LoadProject(projectFile, false); }
 
 		/// <summary>Loads a project definition structure for use.</summary>
 		/// <param "projectFile">Project definition to be loaded.</param>
 		/// <param "validationOnly">When <b>true</b>, only processes project properties and items used to check compatability.</param>
-		/// <exception cref="System.IO.FileNotFoundException"><i>projectFile</i> could not be located.</exception>
+		/// <exception cref="FileNotFoundException"><i>projectFile</i> could not be located.</exception>
 		/// <exception cref="XmlException">Definition load failure.</exception>
 		public void LoadProject(string projectFile, bool validationOnly)
 		{
@@ -133,7 +138,6 @@ namespace Idmr.ProjectHex
 			settings.IgnoreComments = true;
 			settings.IgnoreWhitespace = true;
 			XmlReader reader = XmlReader.Create(_projectPath, settings);
-
 			try
 			{
 				reader.ReadToFollowing("project");
@@ -151,12 +155,12 @@ namespace Idmr.ProjectHex
 					else if (reader.Name == "length") _length = reader.ReadElementContentAsLong();
 					else if (reader.Name == "default")
 					{
-						if (reader["type"] == null) throw new XmlException(_corruptDefaultMsg + "type.");
+						if (reader["type"] == null) throw new XmlException(_corruptDefaultMsg + "missing type.");
 						else if (reader["type"] == "string.encoding") StringVar.DefaultEncoding = System.Text.Encoding.GetEncoding(reader.ReadElementContentAsString());
 						else if (reader["type"] == "string.nulltermed") StringVar.DefaultNullTermed = (reader.ReadElementContentAsString().ToLower() == "true");
-						else if (reader["type"] == "bool.truevalue") BoolVar.DefaultTrueValue = reader.ReadElementAsByte();
-						else if (reader["type"] == "bool.falsevalue") BoolVar.DefaultFalseValue = reader.ReadElementAsByte();
-						else throw new XmlException(_corruptDefaultMsg + "valid type.");
+						else if (reader["type"] == "bool.truevalue") BoolVar.DefaultTrueValue = Convert.ToByte(reader.ReadElementContentAsInt());
+						else if (reader["type"] == "bool.falsevalue") BoolVar.DefaultFalseValue = Convert.ToByte(reader.ReadElementContentAsInt());
+						else throw new XmlException(_corruptDefaultMsg + "unknown type (" + reader["type"] + ".");
 					}
 					else if (reader.Name == "structure")
 					{
@@ -192,8 +196,319 @@ namespace Idmr.ProjectHex
 			catch { reader.Close(); throw; }
 		}
 
-		// TODO: SaveProject
-
+		/// <summary>Save the project definition in it's current location.</summary>
+		/// <remarks>If the project has not yet been saved, will prompt via dialog for a new location.</remarks>
+		/// <exception cref="ArgumentException">Project location has not been set and user cancelled save dialog.</exception>
+		/// <exception cref="InvalidOperationException"><see cref="ErrorVar"/> types detected in project structure or definitions.</exception>
+		/// <exception cref=="Idmr.SaveFileException">Error during save processes, no changes to file made.</exception>
+		public void SaveProject()
+		{
+			if (_projectPath == "")
+			{
+				SaveFileDialog save = new SaveFileDialog();
+				save.DefaultExt = ".xml";
+				save.FileName = Name;
+				save.Filter = "XML Project files (.xml)|*.xml";
+				DialogResult res = save.ShowDialog();
+				if (res == DialogResult.OK) _projectPath = save.FileName;
+				else throw new ArgumentException("Project location has not been set.");
+			}
+			string noSave = "Project cannot be saved with ";
+			if (_properties.GetIndexByType(VarType.Error) != -1)
+				throw new InvalidOperationException(noSave + "Errors in project structure");
+			if (_types.GetIndexByType(VarType.Error) != -1)
+				throw new InvalidOperationException(noSave + "Errors in definitions");
+			if (_properties.GetIndexByType(VarType.Undefined) != -1)
+				throw new InvalidOperationException(noSave + "unspecified types in project structure");
+			if (_types.GetIndexByType(VarType.Undefined) != -1)
+				throw new InvalidOperationException(noSave + "unspecified types in definitions");
+			string tempPath = _projectPath + ".tmp";
+			XmlWriter xw = null;
+			try
+			{
+				if (File.Exists(_projectPath)) File.Copy(_projectPath, tempPath);
+				XmlWriterSettings ws = new XmlWriterSettings();
+				ws.Indent = true;
+				ws.OmitXmlDeclaration = true;
+				xw = XmlWriter.Create(_projectPath, ws);
+				xw.WriteStartElement("project");
+				#region project header
+				xw.WriteElementString("name", _name);
+				if (_wildcard != "*.*") xw.WriteElementString("file", _wildcard);
+				if (_types != null && _types.Count > 0) xw.WriteElementString("types", _types.Count.ToString());
+				xw.WriteElementString("count", _properties.Count.ToString());
+				if (_length > 0) xw.WriteElementString("length", _length.ToString());
+				if (_nextID > 0) xw.WriteElementString("nextid", _nextID.ToString());
+				if (StringVar.DefaultEncoding != System.Text.Encoding.UTF8)
+				{
+					xw.WriteStartElement("default");
+					xw.WriteAttributeString("type", "string.encoding");
+					xw.WriteString(StringVar.DefaultEncoding.ToString());
+					xw.WriteEndElement();
+				}
+				if (StringVar.DefaultNullTermed)
+				{
+					xw.WriteStartElement("default");
+					xw.WriteAttributeString("type", "string.nulltermed");
+					xw.WriteString("true");
+					xw.WriteEndElement();
+				}
+				if (BoolVar.DefaultTrueValue != 1)
+				{
+					xw.WriteStartElement("default");
+					xw.WriteAttributeString("type", "bool.truevalue");
+					xw.WriteString(BoolVar.DefaultTrueValue.ToString());
+					xw.WriteEndElement();
+				}
+				if (BoolVar.DefaultFalseValue != 0)
+				{
+					xw.WriteStartElement("default");
+					xw.WriteAttributeString("type", "bool.falsevalue");
+					xw.WriteString(BoolVar.DefaultFalseValue.ToString());
+					xw.WriteEndElement();
+				}
+				if (_comment != "") xw.WriteElementString("comments", _comment);
+				#endregion project header
+				xw.WriteStartElement("structure");
+				#region structure
+				foreach (Var p in _properties)
+				{
+					VarType type = p.Type;
+					xw.WriteStartElement("item");	// <item...
+					if (!p.IsChild && p._offset != "-1") xw.WriteAttributeString("offset", p._offset);
+					xw.WriteAttributeString("type", type.ToString().Remove(type.ToString().Length - 3).ToLower());
+					xw.WriteAttributeString("name", p.Name);
+					if (!p.IsChild && p._condition != "") xw.WriteAttributeString("condition", p._condition);
+					if (!p.IsChild && p._isValidated)
+					{
+						xw.WriteAttributeString("validate", "true");
+						if (p.DefaultValue == null)
+							throw new ArgumentNullException("Default value must be set for validated properties");
+					}
+					if (p.DefaultValue != null) xw.WriteAttributeString("default", p.DefaultValue.ToString());
+					if (type == VarType.Bool)
+					{
+						BoolVar v = (BoolVar)p;
+						if (!v.IsChild && v.TrueValue != BoolVar.DefaultTrueValue) xw.WriteAttributeString("true", v.TrueValue.ToString());
+						if (!v.IsChild && v.FalseValue != BoolVar.DefaultFalseValue) xw.WriteAttributeString("false", v.FalseValue.ToString());
+					}
+					else if (type == VarType.Byte)
+					{
+						ByteVar v = (ByteVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					else if (type == VarType.Collection)
+					{
+						xw.WriteAttributeString("id", p.ID.ToString());
+						xw.WriteAttributeString("qty", p.RawQuantity);
+					}
+					else if (type == VarType.Double)
+					{
+						DoubleVar v = (DoubleVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					else if (type == VarType.Int)
+					{
+						IntVar v = (IntVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					else if (type == VarType.Long)
+					{
+						LongVar v = (LongVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					else if (type == VarType.SByte)
+					{
+						SByteVar v = (SByteVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					else if (type == VarType.Short)
+					{
+						ShortVar v = (ShortVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					else if (type == VarType.Single)
+					{
+						SingleVar v = (SingleVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					else if (type == VarType.String)
+					{
+						StringVar v = (StringVar)p;
+						if (!v.IsChild && v.Encoding != StringVar.DefaultEncoding) xw.WriteAttributeString("encoding", v.Encoding.ToString());
+						if (!v.IsChild && v.NullTermed != StringVar.DefaultNullTermed) xw.WriteAttributeString("nullterm", v.NullTermed.ToString());
+						if (!v.IsChild && v.RawLength != "0") xw.WriteAttributeString("length", v.RawLength);
+					}
+					else if (type == VarType.UInt)
+					{
+						UIntVar v = (UIntVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					else if (type == VarType.ULong)
+					{
+						ULongVar v = (ULongVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					else if (type == VarType.UShort)
+					{
+						UShortVar v = (UShortVar)p;
+						if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+						if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+					}
+					if (p.RawQuantity != "" && type != VarType.Collection)
+					{
+						xw.WriteAttributeString("qty", p.RawQuantity);
+						if (p.Values._names != null) xw.WriteAttributeString("names", String.Join(",", p.Values._names));
+					}
+					if (p.Comment != "") xw.WriteAttributeString("comment", p.Comment);
+					xw.WriteEndElement();	// />
+				}
+				#endregion structure
+				xw.WriteEndElement();	//</structure>
+				if (_types != null && _types.Count > 0)
+				{
+					foreach (Var t in _types)
+					{
+						xw.WriteStartElement("definition");	// <definition...
+						xw.WriteAttributeString("name", t.Name);
+						xw.WriteAttributeString("id", t.ID.ToString());
+						xw.WriteAttributeString("count", t.Values.Count.ToString());
+						if (t.RawLength != "-1") xw.WriteAttributeString("length", t.RawLength);
+						if (t.Comment != "") xw.WriteAttributeString("comment", t.Comment);	// >
+						#region definition items
+						foreach (Var p in t.Values)
+						{
+							VarType type = p.Type;
+							xw.WriteStartElement("item");	// <item...
+							if (!p.IsChild && p._offset != "-1") xw.WriteAttributeString("offset", p._offset);
+							xw.WriteAttributeString("type", type.ToString().Remove(type.ToString().Length - 3).ToLower());
+							xw.WriteAttributeString("name", p.Name);
+							if (!p.IsChild && p._condition != "") xw.WriteAttributeString("condition", p._condition);
+							if (!p.IsChild && p._isValidated)
+							{
+								xw.WriteAttributeString("validate", "true");
+								if (p.DefaultValue == null)
+									throw new ArgumentNullException("Default value must be set for validated properties");
+							}
+							if (p.DefaultValue != null) xw.WriteAttributeString("default", p.DefaultValue.ToString());
+							if (type == VarType.Bool)
+							{
+								BoolVar v = (BoolVar)p;
+								if (!v.IsChild && v.TrueValue != BoolVar.DefaultTrueValue) xw.WriteAttributeString("true", v.TrueValue.ToString());
+								if (!v.IsChild && v.FalseValue != BoolVar.DefaultFalseValue) xw.WriteAttributeString("false", v.FalseValue.ToString());
+							}
+							else if (type == VarType.Byte)
+							{
+								ByteVar v = (ByteVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							else if (type == VarType.Collection)
+							{
+								xw.WriteAttributeString("id", p.ID.ToString());
+								xw.WriteAttributeString("qty", p.RawQuantity);
+							}
+							else if (type == VarType.Double)
+							{
+								DoubleVar v = (DoubleVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							else if (type == VarType.Int)
+							{
+								IntVar v = (IntVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							else if (type == VarType.Long)
+							{
+								LongVar v = (LongVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							else if (type == VarType.SByte)
+							{
+								SByteVar v = (SByteVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							else if (type == VarType.Short)
+							{
+								ShortVar v = (ShortVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							else if (type == VarType.Single)
+							{
+								SingleVar v = (SingleVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							else if (type == VarType.String)
+							{
+								StringVar v = (StringVar)p;
+								if (!v.IsChild && v.Encoding != StringVar.DefaultEncoding) xw.WriteAttributeString("encoding", v.Encoding.ToString());
+								if (!v.IsChild && v.NullTermed != StringVar.DefaultNullTermed) xw.WriteAttributeString("nullterm", v.NullTermed.ToString());
+								if (!v.IsChild && v.RawLength != "0") xw.WriteAttributeString("length", v.RawLength);
+							}
+							else if (type == VarType.UInt)
+							{
+								UIntVar v = (UIntVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							else if (type == VarType.ULong)
+							{
+								ULongVar v = (ULongVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							else if (type == VarType.UShort)
+							{
+								UShortVar v = (UShortVar)p;
+								if (v.UseMaxValue) xw.WriteAttributeString("max", v.MaximumValue.ToString());
+								if (v.UseMinValue) xw.WriteAttributeString("min", v.MinimumValue.ToString());
+							}
+							if (p.RawQuantity != "" && type != VarType.Collection)
+							{
+								xw.WriteAttributeString("qty", p.RawQuantity);
+								if (p.Values._names != null) xw.WriteAttributeString("names", String.Join(",", p.Values._names));
+							}
+							if (p.Comment != "") xw.WriteAttributeString("comment", p.Comment);
+							xw.WriteEndElement();	// />
+						}
+						#endregion definition items
+						xw.WriteEndElement();	// </definition>
+					}
+				}
+				xw.WriteEndElement();	// </project>
+				xw.Close();
+				File.Delete(tempPath);
+			}
+			catch (Exception x)
+			{
+				if (xw != null) xw.Close();
+				if (File.Exists(tempPath)) File.Copy(tempPath, _projectPath);
+				File.Delete(tempPath);
+				throw new SaveFileException(x);
+			}
+		}
+		
+		public void SaveProject(string projectFile)
+		{
+			_projectPath = projectFile;
+			SaveProject();
+		}
+		
 		/// <summary>Checks installed project files for valid projects for the given binary file.</summary>
 		/// <param "binaryPath">Full path to the file to be edited.</param>
 		/// <returns>Array of paths to applicable project definitions, <b>null</b> if none are found.</returns>
@@ -210,13 +525,13 @@ namespace Idmr.ProjectHex
 				for (int i = 0; i < j; i++) returnedMatches[i] = matches[i];
 				return returnedMatches;
 			}
-			else return null;
+			return null;
 		}
 
-		/// <summary>Validates whether or not a given project is suitable for the given binary</summary>
-		/// <param name="projectPath">Full path to the project file</param>
-		/// <param name="binaryPath">Full path to the binary file to be edited</param>
-		/// <returns><b>true</b> is the project can be used, <b>false</b> otherwise</returns>
+		/// <summary>Validates whether or not a given project is suitable for the given binary.</summary>
+		/// <param name="projectPath">Full path to the project file.</param>
+		/// <param name="binaryPath">Full path to the binary file to be edited.</param>
+		/// <returns><b>true</b> is the project can be used, <b>false</b> otherwise.</returns>
 		/// <remarks>If <i>projectPath</i> fails to load, automatically returns <b>false</b>.<br/>
 		/// Providing the project can be loaded, validates by ensuring the filename meets <see cref="ProjectFile.Wildcard"/>, if <see cref="ProjectFile.Length"/> is defined it will compare the file size, and if a property's <see cref="Var.IsValidated"/> is <b>true</b> it will compare the binary's value against the default.<br/>
 		/// The binary must pass all applicable tests for the project to be valid.<br/>
@@ -264,11 +579,11 @@ namespace Idmr.ProjectHex
 			return true;
 		}
 		
-		/// <summary>Parses <i>input</i> to replace dynamic markers with the solved values</summary>
-		/// <param name="vars">The collection to use for the indexes</param>
-		/// <param name="input">The full string with dynamic markers</param>
-		/// <exception cref="ArgumentOutOfRangeException">A marker index was detected that is outside the range of <i>vars</i></exception>
-		/// <remarks>If <i>input</i> does not contain any markers, simply returns itself</remarks>
+		/// <summary>Parses <i>input</i> to replace dynamic markers with the solved values.</summary>
+		/// <param name="vars">The collection to use for the indexes.</param>
+		/// <param name="input">The full string with dynamic markers.</param>
+		/// <exception cref="ArgumentOutOfRangeException">A marker index was detected that is outside the range of <i>vars</i>.</exception>
+		/// <remarks>If <i>input</i> does not contain any markers, simply returns itself.</remarks>
 		static public string ParseDynamicValues(VarCollection vars, string input)
 		{
 			//if (vars._parentFile._binary == null) throw new InvalidOperationException(_noBinaryMsg);
@@ -285,11 +600,11 @@ namespace Idmr.ProjectHex
 				middle = vars[Int32.Parse(middle)].RawValue.ToString();
 				return ParseDynamicValues(vars, left + middle + right);
 			}
-			else return input;
+			return input;
 		}
 		
 		/// <summary>Sets the opened binary file.</summary>
-		public void AssignBinary(BinaryFile binary) { _binary = binary; }
+		public void AssignBinary(Idmr.ProjectHex.BinaryFile binary) { _binary = binary; }
 		#endregion public methods
 		
 		#region public props
@@ -350,7 +665,7 @@ namespace Idmr.ProjectHex
 		public VarCollection Properties { get { return _properties; } }
 		/// <summary>Gets a reference to the item templates.</summary>
 		public VarCollection Types { get { return _types; } }
-		/// <summary>Gets if the ProjectFile, <see cref="Properties"/> or <see cref="Types"/> have been modified since loading</summary>
+		/// <summary>Gets if the ProjectFile, <see cref="Properties"/> or <see cref="Types"/> have been modified since loading.</summary>
 		public bool IsModified
 		{
 			get
@@ -381,27 +696,27 @@ namespace Idmr.ProjectHex
 				if (type == "bool")
 					vars.Add(new BoolVar(vars, structure["true"], structure["false"], defaultValue));
 				else if (type == "byte")
-					vars.Add(new ByteVar(vars, defaultValue));
+					vars.Add(new ByteVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "double")
-					vars.Add(new DoubleVar(vars, defaultValue));
+					vars.Add(new DoubleVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "int")
-					vars.Add(new IntVar(vars, defaultValue));
+					vars.Add(new IntVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "long")
-					vars.Add(new LongVar(vars, defaultValue));
+					vars.Add(new LongVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "sbyte")
-					vars.Add(new SByteVar(vars, defaultValue));
+					vars.Add(new SByteVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "short")
-					vars.Add(new ShortVar(vars, defaultValue));
+					vars.Add(new ShortVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "single")
-					vars.Add(new SingleVar(vars, defaultValue));
+					vars.Add(new SingleVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "string")
-					vars.Add(new StringVar(vars, structure["nullterm"], structure["length"], defaultValue));
+					vars.Add(new StringVar(vars, structure["nullterm"], structure["length"], defaultValue, structure["encoding"]));
 				else if (type == "uint")
-					vars.Add(new UIntVar(vars, defaultValue));
+					vars.Add(new UIntVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "ulong")
-					vars.Add(new ULongVar(vars, defaultValue));
+					vars.Add(new ULongVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "ushort")
-					vars.Add(new UShortVar(vars, defaultValue));
+					vars.Add(new UShortVar(vars, structure["min"], structure["max"], defaultValue));
 				else if (type == "collection")
 					vars.Add(new CollectionVar(vars, structure["id"]));
 				else
@@ -412,7 +727,6 @@ namespace Idmr.ProjectHex
 					continue;
 				}
 				vars[i].Name = structure["name"];
-				vars[i].Tag = vars[i].ToString();
 				if (structure["validate"] == "true") vars[i].IsValidated = true;
 				vars[i].RawOffset = structure["offset"];
 				vars[i].Comment = structure["comment"];

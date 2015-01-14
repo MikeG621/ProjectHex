@@ -12,22 +12,22 @@ node throughout the entire binary.
 _______________________
 ### Version History ###
 
-- 0.0.4, 130910
-	* [ADD] Started laying out additional project-level defaults for StringVar and BoolVar
-	* [ADD] Operators for most VarTypes
-	* [UPD] Reading a Binary now implements a DeepCopy() method when loading Types
-	* [UPD] License changed to MPL 2.0
+0.0.4, 130910
+* [ADD] Started laying out additional project-level defaults for StringVar and BoolVar
+* [ADD] Operators for most VarTypes
+* [UPD] Reading a Binary now implements a DeepCopy() method when loading Types
+* [UPD] License changed to MPL 2.0
 
-- 0.0.3, 130701
-	* [ADD] Additional commenting
-	* [ADD] Serializable
-	* [UPD] Modified some internal properties
+0.0.3, 130701
+* [ADD] Additional commenting
+* [ADD] Serializable
+* [UPD] Modified some internal properties
 
-- 0.0.2, 130613
-	* Text updates
+0.0.2, 130613
+* Text updates
 
-- 0.0.1, 130421
-	* Initial Upload
+0.0.1, 130421
+* Initial Upload
 
 ### Installation Notes ###
 Requires the use of [MikeG621\Common].

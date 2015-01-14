@@ -6,16 +6,19 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.0.4
+ * Version: 0.1.4+
  */
  
 /* CHANGELOG
- * v0.0.4, 130910
+ * [ADD] SetBytes
+ * [ADD] min/max
+ * [UPD] out of range default in ctor throws exception
+ * v0.1.4, 130910
  * [ADD] operators, DeepCopy()
  * [UPD] License
- * v0.0.3, 130701
+ * v0.1.3, 130701
  * [ADD] Serializable
- * v0.0.1, 130421
+ * v0.1.1, 130421
  */
  
 using System;
@@ -27,7 +30,10 @@ namespace Idmr.ProjectHex
 		/// <summary>Object for signed single-byte items.</summary>
 		[Serializable]
 		public class SByteVar : Var
-		{	
+		{
+			sbyte _minValue = -128;
+			sbyte _maxValue = 127;
+			
 			#region constructors
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
@@ -38,10 +44,17 @@ namespace Idmr.ProjectHex
 			}
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
+			/// <param name="minValue">The lower bound of the item.</param>
+			/// <param name="maxValue">The upper bound of the item.</param>
 			/// <param name="defaultValue">The starting value of the item</param>
-			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.</remarks>
-			public SByteVar(VarCollection parent, string defaultValue) : base(parent, defaultValue)
+			/// <exception cref="ArgumentOutOfRangeException"><i>minValue</i>, <i>maxValue</i> or <i>defaultValue</i> fall outside <b>-128 to 127</b>.</exception>
+			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.<br>
+			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to <b>-128</b> and <b>127</b>, respectively.</remarks>
+			public SByteVar(VarCollection parent, string minValue, string maxValue, string defaultValue) : base(parent, defaultValue)
 			{
+				if (minValue != null && minValue != "") _minValue = SByte.Parse(minValue);
+				if (maxValue != null && maxValue != "") _maxValue = SByte.Parse(maxValue);
+				SByte.Parse(defaultValue);
 				_type = VarType.SByte;
 			}
 			#endregion constructors
@@ -57,15 +70,28 @@ namespace Idmr.ProjectHex
 						newVar.Values[i] = (SByteVar)Values[i].DeepCopy();
 				return newVar;
 			}
+			
+			/// <summary>Sets <see cref="RawValue"/> using a byte array.</summary>
+			/// <exception cref="ArgumentException">'buffer' does not have a length of <b>1</b>.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">The value falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
+			public override void SetBytes(byte[] buffer)
+			{
+				if (buffer.Length != 1) throw new ArgumentException("'buffer' must have a length of 1.");
+				Value = (sbyte)buffer[0];
+			}
 
 			/// <summary>Gets or sets the final value.</summary>
-			/// <exception cref="ArgumentOutOfRangeException"><see cref="RawValue"/> falls outside <b>-128 to 127</b>.</exception>
-			/// <exception cref="ArgumentException">Error computing the final value.</exception>
+			/// <exception cref="ArgumentNullException"><see cref="RawValue"/> is <b>null</b> or an empty string.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>value</i> falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
+			/// <exception cref="FormatException"><see cref="RawValue"/> is not a valid sbyte.</exception>
+			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <b>-128</b> and <b>127</b>.</exception>
 			public sbyte Value
 			{
 				get { return SByte.Parse(_value.ToString()); }
 				set
 				{
+					if (value < _minValue || value > _maxValue)
+						throw new ArgumentOutOfRangeException("value falls outside " + _minValue + " to " + _maxValue);
 					_value = value;
 					if (!_parent.isLoading) _isModified = true;
 				}
@@ -79,6 +105,51 @@ namespace Idmr.ProjectHex
 				set { throw new InvalidOperationException(_fixedLengthMsg); }
 			}
 
+			/// <summary>Gets or sets the minimum allowable value.</summary>
+			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
+			/// <remarks>Defaults to <see cref="Double.MinValue"/>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			public sbyte MinimumValue
+			{
+				get
+				{
+					if (IsChild) return ((SByteVar)_parent.parentVar)._minValue;
+					return _minValue;
+				}
+				set
+				{
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
+					_minValue = value;
+					if (!_parent.isLoading) _isModified = true;
+				}
+			}
+
+			/// <summary>Gets if the minimum value has been changed.</summary>
+			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
+			public bool UseMinValue { get { return (_minValue != -128); } }
+
+			/// <summary>Gets or sets the maximum allowable value.</summary>
+			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
+			/// <remarks>Defaults to <see cref="SByte.MaxValue"/>.<br/>
+			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
+			public sbyte MaximumValue
+			{
+				get
+				{
+					if (IsChild) return ((SByteVar)_parent.parentVar)._maxValue;
+					return _maxValue;
+				}
+				set
+				{
+					if (IsChild) throw new InvalidOperationException(_parentControlMsg);
+					_maxValue = value;
+					if (!_parent.isLoading) _isModified = true;
+				}
+			}
+			/// <summary>Gets if the maximum value has been changed.</summary>
+			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
+			public bool UseMaxValue { get { return (_maxValue != 127); } }
+			
 			#region operators
 			/// <summary>Converts a signed byte to a boolean value.</summary>
 			/// <param name="var">The object to convert.</param>

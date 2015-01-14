@@ -32,12 +32,8 @@ namespace Idmr.ProjectHex
 		{
 			try
 			{
-				ProjectFile pf = new ProjectFile(Application.StartupPath + "\\projects\\tiemission.xml");
-                System.Diagnostics.Debug.WriteLine("Project loaded, loading Binary...");
 				file = new BinaryFile(opnFile.FileName);
-				lblOutput.Text = file.ProjectName;
-				//ProjectFile.SByteVar sb;
-				//ProjectFile.ShortVar old = (ProjectFile.ShortVar)file.Project.Properties[8].Values[0].Values[53].Values[0].Values[0];
+				lblOutput.Text = file.Project.Name;
 				System.Diagnostics.Debug.WriteLine("Binary loaded");
 			}
 			catch { throw; }
