@@ -3,7 +3,5 @@ document.write('<h4>\
 \
 <p>Copyright © Michael Gaisser, 2012-</p>\
 \
-<p>This software is subject to the terms of the Mozilla Public \
-License, v. 2.0. If a copy of the MPL (License.txt) was not distributed \
-with this file, You can obtain one at <a href="http://mozilla.org/MPL/2.0/">http://mozilla.org/MPL/2.0/</a></p>\
+<p>This software is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL (License.txt) was not distributed with this file, You can obtain one at <a href="http://mozilla.org/MPL/2.0/">http://mozilla.org/MPL/2.0/</a></p>\
 ');
