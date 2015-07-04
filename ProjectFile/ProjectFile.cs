@@ -199,7 +199,7 @@ namespace Idmr.ProjectHex
 		/// <summary>Save the project definition in it's current location.</summary>
 		/// <remarks>If the project has not yet been saved, will prompt via dialog for a new location.</remarks>
 		/// <exception cref="ArgumentException">Project location has not been set and user cancelled save dialog.</exception>
-		/// <exception cref="InvalidOperationException"><see cref="ErrorVar"/> types detected in project structure or definitions.</exception>
+		/// <exception cref="InvalidOperationException"><see cref="ErrorVar"/> or Undefined types detected in project structure or definitions.</exception>
 		/// <exception cref=="Idmr.SaveFileException">Error during save processes, no changes to file made.</exception>
 		public void SaveProject()
 		{
@@ -213,15 +213,17 @@ namespace Idmr.ProjectHex
 				if (res == DialogResult.OK) _projectPath = save.FileName;
 				else throw new ArgumentException("Project location has not been set.");
 			}
-			string noSave = "Project cannot be saved with ";
+			string noSave = "Project cannot be saved:";
+			string errorMsg = "";
 			if (_properties.GetIndexByType(VarType.Error) != -1)
-				throw new InvalidOperationException(noSave + "Errors in project structure");
+				errorMsg += "\r\nErrors in project structure";
 			if (_types.GetIndexByType(VarType.Error) != -1)
-				throw new InvalidOperationException(noSave + "Errors in definitions");
+				errorMsg += "\r\nErrors in definitions";
 			if (_properties.GetIndexByType(VarType.Undefined) != -1)
-				throw new InvalidOperationException(noSave + "unspecified types in project structure");
+				errorMsg += "\r\nUnspecified types in project structure";
 			if (_types.GetIndexByType(VarType.Undefined) != -1)
-				throw new InvalidOperationException(noSave + "unspecified types in definitions");
+				errorMsg += "\r\nUnspecified types in definitions";
+			if (errorMsg != "") throw new InvalidOperationException(noSave + errorMsg);
 			string tempPath = _projectPath + ".tmp";
 			XmlWriter xw = null;
 			try
@@ -503,6 +505,10 @@ namespace Idmr.ProjectHex
 			}
 		}
 		
+		/// <summary>Save the project definition in a new location.</summary>
+		/// <param name="projectFile">New path for the project.</param>
+		/// <exception cref="InvalidOperationException"><see cref="ErrorVar"/> types detected in project structure or definitions.</exception>
+		/// <exception cref=="Idmr.SaveFileException">Error during save processes, no changes to file made.</exception>
 		public void SaveProject(string projectFile)
 		{
 			_projectPath = projectFile;

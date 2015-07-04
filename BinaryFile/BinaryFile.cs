@@ -64,6 +64,7 @@ namespace Idmr.ProjectHex
 				DialogResult result = dlg.ShowDialog();
 				if (result == DialogResult.OK && dlg.SelectedIndex != -1)
 					_project = new ProjectFile(matches[dlg.SelectedIndex]);
+				// else load it as blank
 			}
 			// else zero, and it's already a blank project
 			loadBinary();
@@ -87,7 +88,8 @@ namespace Idmr.ProjectHex
 			loadBinary();
 		}
 		#endregion constructors
-		
+
+		#region public methods
 		/// <summary>Sets the file size and length of the raw data.</summary>
 		/// <param name="length">The new file size.</param>
 		/// <param name="truncate">Allows shrinking the file size.</param>
@@ -114,7 +116,34 @@ namespace Idmr.ProjectHex
 				_isModified = true;
 			}
 		}
-		
+
+		/// <summary>Save the raw data.</summary>
+		/// /// <exception cref=="Idmr.SaveFileException">Error during save processes, no changes to file made.</exception>
+		public void Save()
+		{
+			string tempPath = _path + ".tmp";
+			if (File.Exists(_path)) File.Copy(_path, tempPath);
+			try
+			{
+				// TODO: save binary
+			}
+			catch (Exception x)
+			{
+				if (File.Exists(tempPath)) File.Copy(tempPath, _path);
+				File.Delete(tempPath);
+				throw new SaveFileException(x);
+			}
+		}
+
+		/// <summary>Save the raw data to a new location.</summary>
+		/// <param name="filePath">The new path.</param>
+		/// /// <exception cref=="Idmr.SaveFileException">Error during save processes, no changes to file made.</exception>
+		public void Save(string filePath)
+		{
+			_path = filePath;
+			Save();
+		}
+		#endregion
 		void loadBinary()
 		{
 			FileStream fs = File.OpenRead(_path);
@@ -140,7 +169,7 @@ namespace Idmr.ProjectHex
 			}
 		}
 		
-		#region props
+		#region public props
 		/// <summary>Gets the Project object applied to the file.</summary>
 		public ProjectFile Project { get { return _project; } }
 		/// <summary>Gets or sets the byte value located at the specified <i>index</i></summary>
@@ -151,7 +180,7 @@ namespace Idmr.ProjectHex
 			get
 			{
 				if (index < 0 || index >= Length) throw new ArgumentOutOfRangeException("'index' must be 0 to " + (Length - 1));
-				return _raw[index];
+				return (byte)_raw[index];
 			}
 			set
 			{
@@ -182,7 +211,7 @@ namespace Idmr.ProjectHex
 		
 		/// <summary>Gets the boolean single-byte value at the current <see cref="Position"/></summary>
 		/// <remarks>Evaluates <b>zero</b> as <b>true</b>, all others are <b>false</b>.</remarks>
-		public bool CurrentValueAsBool { get { return _raw[_position] != 0; } }
+		public bool CurrentValueAsBool { get { return (byte)_raw[_position] != 0; } }
 		/// <summary>Gets the unsigned single-byte value at the current <see cref="Position"/></summary>
 		public byte CurrentValueAsByte { get { return (byte)_raw[_position]; } }
 		/// <summary>Gets the signed single-byte value as the current <see cref="Position"/></summary>

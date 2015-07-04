@@ -77,7 +77,7 @@ namespace Idmr.ProjectHex
 			public override void SetBytes(byte[] buffer)
 			{
 				if (buffer.Length != 2) throw new ArgumentException("'buffer' must have a length of 2.");
-				Value = BitConverter.ToInt16(buffer);
+				Value = BitConverter.ToInt16(buffer, 0);
 			}
 
 			/// <summary>Gets or sets the final value.</summary>

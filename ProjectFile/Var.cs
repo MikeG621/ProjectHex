@@ -176,7 +176,9 @@ namespace Idmr.ProjectHex
 			/// <summary>Returns <see cref="RawValue"/> as a byte array.</summary>
 			public virtual byte[] GetBytes()
 			{
-				return BitConverter.GetBytes(_value);
+				byte[] bytes = new byte[_value.ToString().Length];
+				ArrayFunctions.WriteToArray(_value.ToString(), bytes, 0);
+				return bytes;
 			}
 			
 			/// <summary>Sets <see cref="RawValue"/> using a byte array.</summary>

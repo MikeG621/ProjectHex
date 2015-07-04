@@ -25,6 +25,7 @@ namespace Idmr.ProjectHex
 		{
 			InitializeComponent();
 			lstProjects.Items.AddRange(matches);
+			lstProjects.SelectedIndex = 0;
 		}
 
 		private void cmdOK_Click(object sender, EventArgs e)

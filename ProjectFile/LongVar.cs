@@ -75,7 +75,7 @@ namespace Idmr.ProjectHex
 			public override void SetBytes(byte[] buffer)
 			{
 				if (buffer.Length != 8) throw new ArgumentException("'buffer' must have a length of 8.");
-				Value = BitConverter.ToInt64(buffer);
+				Value = BitConverter.ToInt64(buffer, 0);
 			}
 
 			/// <summary>Gets or sets the final value.</summary>
