@@ -6,10 +6,11 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.4+
+ * Version: 0.1.5
  */
- 
+
 /* CHANGELOG
+ * v0.1.5, 150705
  * [ADD] SetBytes
  * [ADD] IsChild implementation
  * v0.1.4, 130910
@@ -20,7 +21,7 @@
  * [ADD] Serializable
  * v0.1.1, 130421
  */
- 
+
 using System;
 
 namespace Idmr.ProjectHex

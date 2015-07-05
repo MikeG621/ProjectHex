@@ -1,8 +1,8 @@
 # ProjectHex #
 
 Author: [Michael Gaisser](mailto:mjgaisser@gmail.com)
-Version: 0.0.4
-Date: 130910
+Version: 0.0.5
+Date: 150705
 
 A project-based hex editor, with full tree navigation of binary files based on
 project files created by the user. The projects define the file structure and
@@ -11,6 +11,15 @@ node throughout the entire binary.
 
 _______________________
 ### Version History ###
+
+0.0.5, 150705
+* [ADD] ProjectFile updates, namely Save(), Get/SetBytes(), min/max values and IsChild implementation
+* [ADD] StringVar Encoding implementation
+* [ADD] BinaryFile Save, SelectionDialog
+* [ADD] Compute "**" exponential notation, "<>" and "~=" inequality notation
+* [ADD] Equation "**" exponential notation
+* [UPD] Equation will correctly return ''false'' for "||" and "&&"
+* Bug fixes
 
 0.0.4, 130910
 * [ADD] Started laying out additional project-level defaults for StringVar and BoolVar

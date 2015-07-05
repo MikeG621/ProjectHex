@@ -6,7 +6,7 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.4
+ * Version: 0.1.5
  */
  
 /* CHANGELOG

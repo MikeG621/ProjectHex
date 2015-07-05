@@ -6,10 +6,12 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.4+
+ * Version: 0.1.5
  */
 
 /* CHANGELOG
+ * v0.1.5, 150705
+ * [NEW] Save
  * [NEW] working on this[].set
  * [UPD] _raw converted to ArrayList
  * [ADD] SelectionDialog
@@ -19,7 +21,7 @@
  * [UPD] License
  * v0.1.1, 130421
  */
- 
+
 using System;
 using System.Collections;
 using System.IO;
@@ -118,17 +120,31 @@ namespace Idmr.ProjectHex
 		}
 
 		/// <summary>Save the raw data.</summary>
-		/// /// <exception cref=="Idmr.SaveFileException">Error during save processes, no changes to file made.</exception>
+		/// <exception cref=="Idmr.SaveFileException">Binary location has not been set and user cancelled the dialog.<br/>-or-<br/>Error during save processes, no changes to file made.</exception>
 		public void Save()
 		{
+			if (_path == "")
+			{
+				SaveFileDialog save = new SaveFileDialog();
+				DialogResult res = save.ShowDialog();
+				if (res == DialogResult.OK) _path = save.FileName;
+				else throw new SaveFileException("Binary location has not been set.");
+			}
+
 			string tempPath = _path + ".tmp";
 			if (File.Exists(_path)) File.Copy(_path, tempPath);
+			FileStream fs = null;
 			try
 			{
-				// TODO: save binary
+				fs = new FileStream(_path, FileMode.OpenOrCreate, FileAccess.Write);
+				fs.Write((byte[])_raw.ToArray(typeof(byte)), 0, _raw.Count);
+				fs.SetLength(fs.Position);
+				fs.Close();
+				File.Delete(tempPath);
 			}
 			catch (Exception x)
 			{
+				if (fs != null) fs.Close();
 				if (File.Exists(tempPath)) File.Copy(tempPath, _path);
 				File.Delete(tempPath);
 				throw new SaveFileException(x);
@@ -185,8 +201,8 @@ namespace Idmr.ProjectHex
 			set
 			{
 				// TODO: get this working
-				throw new NotImplementedException("this[].set not yet fully defined");
 				if (index < 0 || index >= Length) throw new ArgumentOutOfRangeException("'index' must be 0 to " + (Length - 1));
+				_raw[index] = value;
 			}
 		}
 		/// <summary>Gets the full path to the binary file</summary>

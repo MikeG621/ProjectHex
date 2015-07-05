@@ -6,7 +6,7 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.4
+ * Version: 0.1.5
  */
  
 using System.Reflection;
@@ -39,5 +39,5 @@ using System.Runtime.InteropServices;
 //
 // Modify Version for breaking change, FileV and InfoV do not affect CLR
 [assembly: AssemblyVersion("0.1")]
-[assembly: AssemblyFileVersion("0.1.4.0")]
+[assembly: AssemblyFileVersion("0.1.5.0")]
 [assembly: AssemblyInformationalVersion("0.1 beta")]

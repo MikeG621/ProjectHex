@@ -6,7 +6,7 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.4+
+ * Version: 0.1.5
  */
 
 /* CHANGELOG
@@ -198,9 +198,8 @@ namespace Idmr.ProjectHex
 
 		/// <summary>Save the project definition in it's current location.</summary>
 		/// <remarks>If the project has not yet been saved, will prompt via dialog for a new location.</remarks>
-		/// <exception cref="ArgumentException">Project location has not been set and user cancelled save dialog.</exception>
 		/// <exception cref="InvalidOperationException"><see cref="ErrorVar"/> or Undefined types detected in project structure or definitions.</exception>
-		/// <exception cref=="Idmr.SaveFileException">Error during save processes, no changes to file made.</exception>
+		/// <exception cref=="Idmr.SaveFileException">Project location has not been set and user cancelled save dialog.<br/>-or-<br/>Error during save processes, no changes to file made.</exception>
 		public void SaveProject()
 		{
 			if (_projectPath == "")
@@ -211,7 +210,7 @@ namespace Idmr.ProjectHex
 				save.Filter = "XML Project files (.xml)|*.xml";
 				DialogResult res = save.ShowDialog();
 				if (res == DialogResult.OK) _projectPath = save.FileName;
-				else throw new ArgumentException("Project location has not been set.");
+				else throw new SaveFileException("Project location has not been set.");
 			}
 			string noSave = "Project cannot be saved:";
 			string errorMsg = "";
@@ -610,7 +609,7 @@ namespace Idmr.ProjectHex
 		}
 		
 		/// <summary>Sets the opened binary file.</summary>
-		public void AssignBinary(Idmr.ProjectHex.BinaryFile binary) { _binary = binary; }
+		public void AssignBinary(BinaryFile binary) { _binary = binary; }
 		#endregion public methods
 		
 		#region public props
