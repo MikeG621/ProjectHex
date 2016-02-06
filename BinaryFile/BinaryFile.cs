@@ -58,7 +58,9 @@ namespace Idmr.ProjectHex
 			if (!File.Exists(binaryPath))
 				throw new FileNotFoundException("'binaryPath'" + _notFound);
 			_path = binaryPath;
+			System.Diagnostics.Debug.WriteLine("looking for matches...");
 			string[] matches = ProjectFile.GetProjectMatches(_path);
+			System.Diagnostics.Debug.WriteLine("found " + matches.Length + " matches");
 			if (matches.Length == 1) _project = new ProjectFile(matches[0]);
 			else if (matches.Length > 1)
 			{
@@ -69,6 +71,7 @@ namespace Idmr.ProjectHex
 				// else load it as blank
 			}
 			// else zero, and it's already a blank project
+			System.Diagnostics.Debug.WriteLine(_project.Name);
 			loadBinary();
 		}
 		

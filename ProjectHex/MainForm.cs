@@ -15,28 +15,24 @@ using System.Windows.Forms;
 
 namespace Idmr.ProjectHex
 {
-	public partial class Form1 : Form
+	public partial class MainForm : Form
 	{
-		BinaryFile file;
-		public Form1()
+		BinaryFile _binary;
+		public MainForm()
 		{
 			InitializeComponent();
 		}
 
-		private void cmdOpen_Click(object sender, EventArgs e)
+		private void opnFile_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+		{
+			_binary = new BinaryFile(opnFile.FileName);
+			this.Text = "ProjectHex - " + _binary.Project.Name + " - " + _binary.FilePath;
+		}
+
+		private void miOpen_Click(object sender, EventArgs e)
 		{
 			opnFile.ShowDialog();
 		}
 
-		private void opnFile_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			try
-			{
-				file = new BinaryFile(opnFile.FileName);
-				lblOutput.Text = file.Project.Name;
-				System.Diagnostics.Debug.WriteLine("Binary loaded");
-			}
-			catch { throw; }
-		}
 	}
 }

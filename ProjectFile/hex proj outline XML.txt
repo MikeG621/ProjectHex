@@ -47,12 +47,19 @@ tree structure of a project:
  * UShort - Initialized to 0, Length=2
  * Var - not initialized directly, added as a placeholder during VarCollection modifications
  * (simple Array) - method can be applied to all types. REQUIRED: qty (# for fixed qty, $# notation for dynamic). OPTIONAL: length (applies to individual entries), names (comma delimited, size should equal qty. If omitted, entries are simply indexed)
- * ALL TYPES: OPTIONAL (unless otherwise noted):offset, comments, validate, default. If "offset" is omitted, assumed to be consecutive with previous REQUIRED: name
+ * ALL TYPES: OPTIONAL (unless otherwise noted):offset, comments, validate, default. If "offset" is omitted, assumed to be consecutive with previous. If "offset" is consecutive but constant, define it anyway for performance; dynamics are calculated every time. REQUIRED: name
  * VALIDATE: if validate attribute is "true", default attribute must be set. 
  * DYNAMIC PROPERTIES: offset, length (string only), qty, condition, default
  * DEFAULT: While typically it will be a fixed number (see NumGlobalGoals), there will be cases which dynamics can be used to provide calculated numbers such as duplicates (score duplication in pilot files) or checksums. Given the inputs, it has a pre-determined value that will be constant in that case.  A set default attribute uses the MatchesDefault property for verification.
  * type attribute is case-insensitive for loading purposes
  */
+ 
+ /* ***New "id" concept***
+  * instead of using dynamic indexes based on the colleciton index (which can change during Proj/Type editing), define an "itemid" attribute on items that are used as dynamics inputs
+  * structure and definitions will keep track of their own next-itemid's, much like the nextid node for type indexes.
+  * Like type indexes, id's will increase and never be reused.
+  * Should create a new method to retrieve items via id.
+  */
  
   <structure>
     <item offset="0" type="short" validate="true" name="Magic" default="-1" />

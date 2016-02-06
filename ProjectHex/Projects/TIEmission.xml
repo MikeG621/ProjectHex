@@ -9,11 +9,11 @@
 	<default type="bool.truevalue">1</default>
 	<default type="bool.falsevalue">0</default>
 	<comments>Manual write-up for testing</comments>
-	<structure>
+	<structure nextid="4">
 		<item offset="0" type="short" validate="true" name="Magic" default="-1" />
-		<item offset="2" type="short" name="NumFlightGroups" default="1" max="48"/>
-		<item offset="4" type="short" name="NumMessages" max="16"/>
-		<item offset="6" type="short" validate="true" default="3" name="NumGlobalsGoals" />
+		<item offset="2" type="short" name="NumFlightGroups" default="1" max="48" itemid="1" />
+		<item offset="4" type="short" name="NumMessages" max="16" itemid="2" />
+		<item offset="6" type="short" validate="true" default="3" name="NumGlobalsGoals" itemid="3" />
 		<item offset="10" type="byte" name="Officers" />
 		<item offset="13" type="bool" name="CapturedOnEject" />
 		<item offset="24" type="string" length="64" qty="6" name="EndOfMissionMessages" names="PMC1,PMC2,SMC1,SMC2,PMF1,PMF2" />
@@ -56,8 +56,8 @@
 		<item offset="26" type="short" name="Hyperspace" />
 		<item offset="28" type="short" name="Briefing" />
 	</definition>
-	<definition name="Variable-length string" id="6" count="2">
-		<item offset="0" type="short" name="Length" />
+	<definition name="Variable-length string" id="6" count="2" nextid="1">
+		<item offset="0" type="short" name="Length" itemid="0" />
 		<item offset="2" type="string" length="$0" condition="$0>0" name="Text" comment="question, chr(10), answer" />
 	</definition>
 	<definition name="FlightgroupGoal" id="3" count="2" length="2">
@@ -134,17 +134,17 @@
 		<item offset="0" type="collection" id="8" qty="2" name="Triggers" />
 		<item offset="25" type="bool" name="AndOr" />
 	</definition>
-	<definition name="Briefing" id="5" count="7">
+	<definition name="Briefing" id="5" count="7" nextid="4">
 		<item offset="0" type="short" name="RunningTime" comment="in ticks, 12 tps" />
 		<item offset="2" type="short" name="Unk" />
-		<item offset="4" type="short" name="StartLength" />
+		<item offset="4" type="short" name="StartLength" itemid="3" />
 		<item offset="6" type="int" name="EventsLength" />
 		<item offset="10" type="short" qty="$3" name="Events" />
 		<item offset="810" type="collection" id="6" qty="32" name="Tags" />
 		<item type="collection" id="6" qty="32" name="Strings" />
 	</definition>
-	<definition name="PostMissionQuestions" id="7" count="4">
-		<item offset="0" type="short" name="Length" />
+	<definition name="PostMissionQuestions" id="7" count="4" nextid="1">
+		<item offset="0" type="short" name="Length" itemid="0" />
 		<item offset="2" type="byte" condition="$0>0" name="Condition" />
 		<item offset="3" type="byte" condition="$0>1" name="Type" />
 		<item offset="4" type="string" length="$0-2" condition="$0>2" name="Text" comment="q, chr(10), a" />

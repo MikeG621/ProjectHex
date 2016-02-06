@@ -193,7 +193,7 @@ namespace Idmr.ProjectHex
 				_types.isLoading = false;
 				reader.Close();
 			}
-			catch { reader.Close(); throw; }
+			catch (Exception x) { System.Diagnostics.Debug.WriteLine("Load Project: " + x.Message); reader.Close(); throw; }
 		}
 
 		/// <summary>Save the project definition in it's current location.</summary>
@@ -520,6 +520,7 @@ namespace Idmr.ProjectHex
 		static public string[] GetProjectMatches(string binaryPath)
 		{
 			string[] projects = ProjectFileList;
+			System.Diagnostics.Debug.WriteLine(projects.Length.ToString() + " projects installed");
 			string[] matches = new string[projects.Length];
 			int j = 0;
 			foreach (string p in projects)
@@ -545,7 +546,7 @@ namespace Idmr.ProjectHex
 		{
 			ProjectFile project = new ProjectFile();
 			try { project.LoadProject(projectPath, true); }
-			catch { return false; }
+			catch { System.Diagnostics.Debug.WriteLine("CheckProjectMatch: load " + StringFunctions.GetFileName(projectPath) + " project failed"); return false; }
 			FileStream fs = null;
 			try
 			{
