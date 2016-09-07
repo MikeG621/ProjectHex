@@ -39,12 +39,8 @@
 			this.chkInput = new System.Windows.Forms.CheckBox();
 			this.lblID = new System.Windows.Forms.Label();
 			this.chkArray = new System.Windows.Forms.CheckBox();
-			this.grpSize = new System.Windows.Forms.GroupBox();
-			this.chkDynamic = new System.Windows.Forms.CheckBox();
+			this.grpArray = new System.Windows.Forms.GroupBox();
 			this.label3 = new System.Windows.Forms.Label();
-			this.numQty = new System.Windows.Forms.NumericUpDown();
-			this.label4 = new System.Windows.Forms.Label();
-			this.txtEquation = new System.Windows.Forms.TextBox();
 			this.chkValidate = new System.Windows.Forms.CheckBox();
 			this.label5 = new System.Windows.Forms.Label();
 			this.txtDefault = new System.Windows.Forms.TextBox();
@@ -71,12 +67,35 @@
 			this.checkBox1 = new System.Windows.Forms.CheckBox();
 			this.label14 = new System.Windows.Forms.Label();
 			this.txtOffset = new System.Windows.Forms.TextBox();
-			this.grpSize.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.numQty)).BeginInit();
+			this.txtArrayQty = new System.Windows.Forms.TextBox();
+			this.label4 = new System.Windows.Forms.Label();
+			this.txtArrayNames = new System.Windows.Forms.TextBox();
+			this.grpBool = new System.Windows.Forms.GroupBox();
+			this.label15 = new System.Windows.Forms.Label();
+			this.label16 = new System.Windows.Forms.Label();
+			this.numBoolTrue = new System.Windows.Forms.NumericUpDown();
+			this.numBoolFalse = new System.Windows.Forms.NumericUpDown();
+			this.grpCollection = new System.Windows.Forms.GroupBox();
+			this.label17 = new System.Windows.Forms.Label();
+			this.txtComment = new System.Windows.Forms.TextBox();
+			this.label18 = new System.Windows.Forms.Label();
+			this.cboCollType = new System.Windows.Forms.ComboBox();
+			this.grpString = new System.Windows.Forms.GroupBox();
+			this.label19 = new System.Windows.Forms.Label();
+			this.txtLength = new System.Windows.Forms.TextBox();
+			this.chkNullTermed = new System.Windows.Forms.CheckBox();
+			this.label20 = new System.Windows.Forms.Label();
+			this.cboEncoding = new System.Windows.Forms.ComboBox();
+			this.grpArray.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numDefTrue)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numDefFalse)).BeginInit();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numFileLength)).BeginInit();
+			this.grpBool.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numBoolTrue)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numBoolFalse)).BeginInit();
+			this.grpCollection.SuspendLayout();
+			this.grpString.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// cmdAdd
@@ -118,16 +137,16 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(468, 59);
+			this.label1.Location = new System.Drawing.Point(471, 59);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(31, 13);
+			this.label1.Size = new System.Drawing.Size(35, 13);
 			this.label1.TabIndex = 5;
-			this.label1.Text = "Type";
+			this.label1.Text = "Type*";
 			// 
 			// cboType
 			// 
 			this.cboType.FormattingEnabled = true;
-			this.cboType.Location = new System.Drawing.Point(505, 56);
+			this.cboType.Location = new System.Drawing.Point(508, 56);
 			this.cboType.Name = "cboType";
 			this.cboType.Size = new System.Drawing.Size(121, 21);
 			this.cboType.TabIndex = 6;
@@ -135,15 +154,15 @@
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(468, 86);
+			this.label2.Location = new System.Drawing.Point(471, 86);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(35, 13);
+			this.label2.Size = new System.Drawing.Size(39, 13);
 			this.label2.TabIndex = 5;
-			this.label2.Text = "Name";
+			this.label2.Text = "Name*";
 			// 
 			// txtName
 			// 
-			this.txtName.Location = new System.Drawing.Point(505, 83);
+			this.txtName.Location = new System.Drawing.Point(508, 83);
 			this.txtName.Name = "txtName";
 			this.txtName.Size = new System.Drawing.Size(121, 20);
 			this.txtName.TabIndex = 7;
@@ -151,7 +170,7 @@
 			// chkInput
 			// 
 			this.chkInput.AutoSize = true;
-			this.chkInput.Location = new System.Drawing.Point(468, 109);
+			this.chkInput.Location = new System.Drawing.Point(471, 109);
 			this.chkInput.Name = "chkInput";
 			this.chkInput.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
 			this.chkInput.Size = new System.Drawing.Size(91, 17);
@@ -162,7 +181,7 @@
 			// lblID
 			// 
 			this.lblID.AutoSize = true;
-			this.lblID.Location = new System.Drawing.Point(566, 110);
+			this.lblID.Location = new System.Drawing.Point(569, 110);
 			this.lblID.Name = "lblID";
 			this.lblID.Size = new System.Drawing.Size(30, 13);
 			this.lblID.TabIndex = 9;
@@ -171,7 +190,7 @@
 			// chkArray
 			// 
 			this.chkArray.AutoSize = true;
-			this.chkArray.Location = new System.Drawing.Point(468, 181);
+			this.chkArray.Location = new System.Drawing.Point(471, 205);
 			this.chkArray.Name = "chkArray";
 			this.chkArray.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
 			this.chkArray.Size = new System.Drawing.Size(50, 17);
@@ -179,69 +198,33 @@
 			this.chkArray.Text = "Array";
 			this.chkArray.UseVisualStyleBackColor = true;
 			// 
-			// grpSize
+			// grpArray
 			// 
-			this.grpSize.Controls.Add(this.txtEquation);
-			this.grpSize.Controls.Add(this.label4);
-			this.grpSize.Controls.Add(this.numQty);
-			this.grpSize.Controls.Add(this.label3);
-			this.grpSize.Controls.Add(this.chkDynamic);
-			this.grpSize.Enabled = false;
-			this.grpSize.Location = new System.Drawing.Point(468, 204);
-			this.grpSize.Name = "grpSize";
-			this.grpSize.Size = new System.Drawing.Size(155, 98);
-			this.grpSize.TabIndex = 11;
-			this.grpSize.TabStop = false;
-			this.grpSize.Text = "Item Size";
-			// 
-			// chkDynamic
-			// 
-			this.chkDynamic.AutoSize = true;
-			this.chkDynamic.Location = new System.Drawing.Point(6, 19);
-			this.chkDynamic.Name = "chkDynamic";
-			this.chkDynamic.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-			this.chkDynamic.Size = new System.Drawing.Size(88, 17);
-			this.chkDynamic.TabIndex = 0;
-			this.chkDynamic.Text = "Dynamic size";
-			this.chkDynamic.UseVisualStyleBackColor = true;
+			this.grpArray.Controls.Add(this.txtArrayNames);
+			this.grpArray.Controls.Add(this.label4);
+			this.grpArray.Controls.Add(this.txtArrayQty);
+			this.grpArray.Controls.Add(this.label3);
+			this.grpArray.Enabled = false;
+			this.grpArray.Location = new System.Drawing.Point(471, 228);
+			this.grpArray.Name = "grpArray";
+			this.grpArray.Size = new System.Drawing.Size(155, 87);
+			this.grpArray.TabIndex = 11;
+			this.grpArray.TabStop = false;
+			this.grpArray.Text = "Array Settings";
 			// 
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(6, 44);
+			this.label3.Location = new System.Drawing.Point(6, 22);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(23, 13);
+			this.label3.Size = new System.Drawing.Size(27, 13);
 			this.label3.TabIndex = 1;
-			this.label3.Text = "Qty";
-			// 
-			// numQty
-			// 
-			this.numQty.Location = new System.Drawing.Point(34, 42);
-			this.numQty.Name = "numQty";
-			this.numQty.Size = new System.Drawing.Size(66, 20);
-			this.numQty.TabIndex = 2;
-			// 
-			// label4
-			// 
-			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(3, 71);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(49, 13);
-			this.label4.TabIndex = 3;
-			this.label4.Text = "Equation";
-			// 
-			// txtEquation
-			// 
-			this.txtEquation.Enabled = false;
-			this.txtEquation.Location = new System.Drawing.Point(58, 68);
-			this.txtEquation.Name = "txtEquation";
-			this.txtEquation.Size = new System.Drawing.Size(91, 20);
-			this.txtEquation.TabIndex = 4;
+			this.label3.Text = "Qty*";
 			// 
 			// chkValidate
 			// 
 			this.chkValidate.AutoSize = true;
-			this.chkValidate.Location = new System.Drawing.Point(468, 132);
+			this.chkValidate.Location = new System.Drawing.Point(471, 132);
 			this.chkValidate.Name = "chkValidate";
 			this.chkValidate.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
 			this.chkValidate.Size = new System.Drawing.Size(114, 17);
@@ -252,7 +235,7 @@
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(468, 158);
+			this.label5.Location = new System.Drawing.Point(471, 158);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(41, 13);
 			this.label5.TabIndex = 14;
@@ -260,7 +243,7 @@
 			// 
 			// txtDefault
 			// 
-			this.txtDefault.Location = new System.Drawing.Point(515, 155);
+			this.txtDefault.Location = new System.Drawing.Point(518, 155);
 			this.txtDefault.Name = "txtDefault";
 			this.txtDefault.Size = new System.Drawing.Size(111, 20);
 			this.txtDefault.TabIndex = 15;
@@ -270,9 +253,9 @@
 			this.label6.AutoSize = true;
 			this.label6.Location = new System.Drawing.Point(12, 14);
 			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(69, 13);
+			this.label6.Size = new System.Drawing.Size(73, 13);
 			this.label6.TabIndex = 16;
-			this.label6.Text = "Project name";
+			this.label6.Text = "Project name*";
 			// 
 			// label7
 			// 
@@ -439,7 +422,7 @@
 			// label13
 			// 
 			this.label13.AutoSize = true;
-			this.label13.Location = new System.Drawing.Point(465, 14);
+			this.label13.Location = new System.Drawing.Point(468, 14);
 			this.label13.Name = "label13";
 			this.label13.Size = new System.Drawing.Size(76, 13);
 			this.label13.TabIndex = 29;
@@ -466,7 +449,7 @@
 			this.lstItems.Location = new System.Drawing.Point(243, 30);
 			this.lstItems.Name = "lstItems";
 			this.lstItems.ScrollAlwaysVisible = true;
-			this.lstItems.Size = new System.Drawing.Size(219, 225);
+			this.lstItems.Size = new System.Drawing.Size(222, 225);
 			this.lstItems.TabIndex = 30;
 			// 
 			// numFileLength
@@ -508,7 +491,7 @@
 			// label14
 			// 
 			this.label14.AutoSize = true;
-			this.label14.Location = new System.Drawing.Point(468, 32);
+			this.label14.Location = new System.Drawing.Point(471, 32);
 			this.label14.Name = "label14";
 			this.label14.Size = new System.Drawing.Size(35, 13);
 			this.label14.TabIndex = 34;
@@ -516,16 +499,213 @@
 			// 
 			// txtOffset
 			// 
-			this.txtOffset.Location = new System.Drawing.Point(505, 29);
+			this.txtOffset.Location = new System.Drawing.Point(508, 29);
 			this.txtOffset.Name = "txtOffset";
 			this.txtOffset.Size = new System.Drawing.Size(121, 20);
 			this.txtOffset.TabIndex = 35;
+			// 
+			// txtArrayQty
+			// 
+			this.txtArrayQty.Location = new System.Drawing.Point(35, 19);
+			this.txtArrayQty.Name = "txtArrayQty";
+			this.txtArrayQty.Size = new System.Drawing.Size(114, 20);
+			this.txtArrayQty.TabIndex = 2;
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Location = new System.Drawing.Point(6, 44);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(40, 13);
+			this.label4.TabIndex = 3;
+			this.label4.Text = "Names";
+			// 
+			// txtArrayNames
+			// 
+			this.txtArrayNames.Location = new System.Drawing.Point(9, 61);
+			this.txtArrayNames.Name = "txtArrayNames";
+			this.txtArrayNames.Size = new System.Drawing.Size(140, 20);
+			this.txtArrayNames.TabIndex = 4;
+			// 
+			// grpBool
+			// 
+			this.grpBool.Controls.Add(this.label15);
+			this.grpBool.Controls.Add(this.numBoolFalse);
+			this.grpBool.Controls.Add(this.label16);
+			this.grpBool.Controls.Add(this.numBoolTrue);
+			this.grpBool.Enabled = false;
+			this.grpBool.Location = new System.Drawing.Point(635, 14);
+			this.grpBool.Name = "grpBool";
+			this.grpBool.Size = new System.Drawing.Size(156, 69);
+			this.grpBool.TabIndex = 36;
+			this.grpBool.TabStop = false;
+			this.grpBool.Text = "Bool Settings";
+			// 
+			// label15
+			// 
+			this.label15.AutoSize = true;
+			this.label15.Location = new System.Drawing.Point(6, 16);
+			this.label15.Name = "label15";
+			this.label15.Size = new System.Drawing.Size(58, 13);
+			this.label15.TabIndex = 23;
+			this.label15.Text = "True value";
+			// 
+			// label16
+			// 
+			this.label16.AutoSize = true;
+			this.label16.Location = new System.Drawing.Point(6, 41);
+			this.label16.Name = "label16";
+			this.label16.Size = new System.Drawing.Size(61, 13);
+			this.label16.TabIndex = 23;
+			this.label16.Text = "False value";
+			// 
+			// numBoolTrue
+			// 
+			this.numBoolTrue.Hexadecimal = true;
+			this.numBoolTrue.Location = new System.Drawing.Point(73, 14);
+			this.numBoolTrue.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+			this.numBoolTrue.Name = "numBoolTrue";
+			this.numBoolTrue.Size = new System.Drawing.Size(43, 20);
+			this.numBoolTrue.TabIndex = 24;
+			this.numBoolTrue.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// numBoolFalse
+			// 
+			this.numBoolFalse.Hexadecimal = true;
+			this.numBoolFalse.Location = new System.Drawing.Point(73, 39);
+			this.numBoolFalse.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+			this.numBoolFalse.Name = "numBoolFalse";
+			this.numBoolFalse.Size = new System.Drawing.Size(43, 20);
+			this.numBoolFalse.TabIndex = 24;
+			// 
+			// grpCollection
+			// 
+			this.grpCollection.Controls.Add(this.cboCollType);
+			this.grpCollection.Controls.Add(this.label18);
+			this.grpCollection.Enabled = false;
+			this.grpCollection.Location = new System.Drawing.Point(635, 89);
+			this.grpCollection.Name = "grpCollection";
+			this.grpCollection.Size = new System.Drawing.Size(156, 49);
+			this.grpCollection.TabIndex = 37;
+			this.grpCollection.TabStop = false;
+			this.grpCollection.Text = "Collection Settings";
+			// 
+			// label17
+			// 
+			this.label17.AutoSize = true;
+			this.label17.Location = new System.Drawing.Point(471, 184);
+			this.label17.Name = "label17";
+			this.label17.Size = new System.Drawing.Size(51, 13);
+			this.label17.TabIndex = 38;
+			this.label17.Text = "Comment";
+			// 
+			// txtComment
+			// 
+			this.txtComment.Location = new System.Drawing.Point(528, 181);
+			this.txtComment.Name = "txtComment";
+			this.txtComment.Size = new System.Drawing.Size(101, 20);
+			this.txtComment.TabIndex = 15;
+			// 
+			// label18
+			// 
+			this.label18.AutoSize = true;
+			this.label18.Location = new System.Drawing.Point(6, 22);
+			this.label18.Name = "label18";
+			this.label18.Size = new System.Drawing.Size(35, 13);
+			this.label18.TabIndex = 0;
+			this.label18.Text = "Type*";
+			// 
+			// cboCollType
+			// 
+			this.cboCollType.FormattingEnabled = true;
+			this.cboCollType.Location = new System.Drawing.Point(43, 19);
+			this.cboCollType.Name = "cboCollType";
+			this.cboCollType.Size = new System.Drawing.Size(107, 21);
+			this.cboCollType.TabIndex = 1;
+			// 
+			// grpString
+			// 
+			this.grpString.Controls.Add(this.txtLength);
+			this.grpString.Controls.Add(this.label20);
+			this.grpString.Controls.Add(this.cboEncoding);
+			this.grpString.Controls.Add(this.label19);
+			this.grpString.Controls.Add(this.chkNullTermed);
+			this.grpString.Enabled = false;
+			this.grpString.Location = new System.Drawing.Point(635, 144);
+			this.grpString.Name = "grpString";
+			this.grpString.Size = new System.Drawing.Size(156, 100);
+			this.grpString.TabIndex = 39;
+			this.grpString.TabStop = false;
+			this.grpString.Text = "String Settings";
+			// 
+			// label19
+			// 
+			this.label19.AutoSize = true;
+			this.label19.Location = new System.Drawing.Point(6, 22);
+			this.label19.Name = "label19";
+			this.label19.Size = new System.Drawing.Size(40, 13);
+			this.label19.TabIndex = 0;
+			this.label19.Text = "Length";
+			// 
+			// txtLength
+			// 
+			this.txtLength.Location = new System.Drawing.Point(52, 19);
+			this.txtLength.Name = "txtLength";
+			this.txtLength.Size = new System.Drawing.Size(98, 20);
+			this.txtLength.TabIndex = 1;
+			// 
+			// chkNullTermed
+			// 
+			this.chkNullTermed.AutoSize = true;
+			this.chkNullTermed.Location = new System.Drawing.Point(6, 45);
+			this.chkNullTermed.Name = "chkNullTermed";
+			this.chkNullTermed.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+			this.chkNullTermed.Size = new System.Drawing.Size(96, 17);
+			this.chkNullTermed.TabIndex = 22;
+			this.chkNullTermed.Text = "Null-terminated";
+			this.chkNullTermed.UseVisualStyleBackColor = true;
+			// 
+			// label20
+			// 
+			this.label20.AutoSize = true;
+			this.label20.Location = new System.Drawing.Point(6, 71);
+			this.label20.Name = "label20";
+			this.label20.Size = new System.Drawing.Size(52, 13);
+			this.label20.TabIndex = 0;
+			this.label20.Text = "Encoding";
+			// 
+			// cboEncoding
+			// 
+			this.cboEncoding.FormattingEnabled = true;
+			this.cboEncoding.Items.AddRange(new object[] {
+            "UTF-8"});
+			this.cboEncoding.Location = new System.Drawing.Point(64, 68);
+			this.cboEncoding.Name = "cboEncoding";
+			this.cboEncoding.Size = new System.Drawing.Size(85, 21);
+			this.cboEncoding.TabIndex = 21;
+			this.cboEncoding.Text = "UTF-8";
 			// 
 			// ProjectEditorDialog
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 326);
+			this.ClientSize = new System.Drawing.Size(805, 326);
+			this.Controls.Add(this.grpString);
+			this.Controls.Add(this.label17);
+			this.Controls.Add(this.grpCollection);
+			this.Controls.Add(this.grpBool);
 			this.Controls.Add(this.txtOffset);
 			this.Controls.Add(this.label14);
 			this.Controls.Add(this.checkBox1);
@@ -542,10 +722,11 @@
 			this.Controls.Add(this.txtProjectName);
 			this.Controls.Add(this.label7);
 			this.Controls.Add(this.label6);
+			this.Controls.Add(this.txtComment);
 			this.Controls.Add(this.txtDefault);
 			this.Controls.Add(this.label5);
 			this.Controls.Add(this.chkValidate);
-			this.Controls.Add(this.grpSize);
+			this.Controls.Add(this.grpArray);
 			this.Controls.Add(this.chkArray);
 			this.Controls.Add(this.lblID);
 			this.Controls.Add(this.chkInput);
@@ -557,16 +738,26 @@
 			this.Controls.Add(this.cmdUp);
 			this.Controls.Add(this.cmdRemove);
 			this.Controls.Add(this.cmdAdd);
+			this.MaximizeBox = false;
+			this.MaximumSize = new System.Drawing.Size(1000, 365);
+			this.MinimumSize = new System.Drawing.Size(780, 365);
 			this.Name = "ProjectEditorDialog";
 			this.Text = "Project Editor - <project name>";
-			this.grpSize.ResumeLayout(false);
-			this.grpSize.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.numQty)).EndInit();
+			this.grpArray.ResumeLayout(false);
+			this.grpArray.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numDefTrue)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numDefFalse)).EndInit();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numFileLength)).EndInit();
+			this.grpBool.ResumeLayout(false);
+			this.grpBool.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numBoolTrue)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numBoolFalse)).EndInit();
+			this.grpCollection.ResumeLayout(false);
+			this.grpCollection.PerformLayout();
+			this.grpString.ResumeLayout(false);
+			this.grpString.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -584,11 +775,7 @@
 		private System.Windows.Forms.CheckBox chkInput;
 		private System.Windows.Forms.Label lblID;
 		private System.Windows.Forms.CheckBox chkArray;
-		private System.Windows.Forms.GroupBox grpSize;
-		private System.Windows.Forms.CheckBox chkDynamic;
-		private System.Windows.Forms.TextBox txtEquation;
-		private System.Windows.Forms.Label label4;
-		private System.Windows.Forms.NumericUpDown numQty;
+		private System.Windows.Forms.GroupBox grpArray;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.CheckBox chkValidate;
 		private System.Windows.Forms.Label label5;
@@ -616,5 +803,24 @@
 		private System.Windows.Forms.CheckBox checkBox1;
 		private System.Windows.Forms.Label label14;
 		private System.Windows.Forms.TextBox txtOffset;
+		private System.Windows.Forms.TextBox txtArrayNames;
+		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.TextBox txtArrayQty;
+		private System.Windows.Forms.GroupBox grpBool;
+		private System.Windows.Forms.Label label15;
+		private System.Windows.Forms.NumericUpDown numBoolFalse;
+		private System.Windows.Forms.Label label16;
+		private System.Windows.Forms.NumericUpDown numBoolTrue;
+		private System.Windows.Forms.GroupBox grpCollection;
+		private System.Windows.Forms.ComboBox cboCollType;
+		private System.Windows.Forms.Label label18;
+		private System.Windows.Forms.Label label17;
+		private System.Windows.Forms.TextBox txtComment;
+		private System.Windows.Forms.GroupBox grpString;
+		private System.Windows.Forms.TextBox txtLength;
+		private System.Windows.Forms.Label label20;
+		private System.Windows.Forms.ComboBox cboEncoding;
+		private System.Windows.Forms.Label label19;
+		private System.Windows.Forms.CheckBox chkNullTermed;
 	}
 }

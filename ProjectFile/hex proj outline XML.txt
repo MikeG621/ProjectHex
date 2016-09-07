@@ -34,7 +34,7 @@ tree structure of a project:
 /* Types:
  * Bool - OPTIONAL: false (default=0), true (default=1) [redefines numerical value stored 0-255 (-1 converted to 255)]. Initialized to FALSE, Length=1
  * Byte - Initialized to 0, Length=1
- * Collection - <definition> node, REQUIRED: id (definition.ID), qty (default=1). DISABLED: length, default
+ * Collection - <definition> node, REQUIRED: id (definition.ID). OPTIONAL qty (default=1). DISABLED: length, default
  * <definition> - REQUIRED: id, qty. OPTIONAL: length (const). DISABLED: offset, default, condition
  * Error - not initialized directly, added as a placeholder during LoadProject
  * Int - Initialized to 0, Length=4
@@ -55,7 +55,7 @@ tree structure of a project:
  */
  
  /* ***New "id" concept***
-  * instead of using dynamic indexes based on the colleciton index (which can change during Proj/Type editing), define an "itemid" attribute on items that are used as dynamics inputs
+  * instead of using dynamic indexes based on the collection index (which can change during Proj/Type editing), define an "itemid" attribute on items that are used as dynamics inputs
   * structure and definitions will keep track of their own next-itemid's, much like the nextid node for type indexes.
   * Like type indexes, id's will increase and never be reused.
   * Should create a new method to retrieve items via id.
