@@ -205,9 +205,9 @@ namespace Idmr.ProjectHex
 			if (_projectPath == "")
 			{
 				SaveFileDialog save = new SaveFileDialog();
-				save.DefaultExt = ".xml";
+				save.DefaultExt = ".prj";
 				save.FileName = Name;
-				save.Filter = "XML Project files (.xml)|*.xml";
+				save.Filter = "Project files (.prj)|*.prj";
 				DialogResult res = save.ShowDialog();
 				if (res == DialogResult.OK) _projectPath = save.FileName;
 				else throw new SaveFileException("Project location has not been set.");
@@ -615,7 +615,7 @@ namespace Idmr.ProjectHex
 		
 		#region public props
 		/// <summary>Gets a listing of all installed project files.</summary>
-		static public string[] ProjectFileList { get { return Directory.GetFiles(Directory.GetParent(Application.ExecutablePath) + "\\Projects\\", "*.xml"); } }
+		static public string[] ProjectFileList { get { return Directory.GetFiles(Directory.GetParent(Application.ExecutablePath) + "\\Projects\\", "*.prj"); } }
 		/// <summary>Gets the path to the project.</summary>
 		public string ProjectPath { get { return _projectPath; } }
 		/// <summary>Gets or sets the name of the project.</summary>

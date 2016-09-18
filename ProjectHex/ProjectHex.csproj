@@ -116,9 +116,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Projects\TIEmission.xml">
+    <None Include="Projects\TIEmission.prj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
