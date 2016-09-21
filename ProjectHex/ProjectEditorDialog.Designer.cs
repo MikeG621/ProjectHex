@@ -65,7 +65,7 @@
 			this.label13 = new System.Windows.Forms.Label();
 			this.lstItems = new System.Windows.Forms.ListBox();
 			this.numFileLength = new System.Windows.Forms.NumericUpDown();
-			this.checkBox1 = new System.Windows.Forms.CheckBox();
+			this.chkFixedLength = new System.Windows.Forms.CheckBox();
 			this.label14 = new System.Windows.Forms.Label();
 			this.txtOffset = new System.Windows.Forms.TextBox();
 			this.grpBool = new System.Windows.Forms.GroupBox();
@@ -86,15 +86,15 @@
 			this.chkNullTermed = new System.Windows.Forms.CheckBox();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.miFile = new System.Windows.Forms.ToolStripMenuItem();
-			this.miTools = new System.Windows.Forms.ToolStripMenuItem();
 			this.miNew = new System.Windows.Forms.ToolStripMenuItem();
 			this.miOpen = new System.Windows.Forms.ToolStripMenuItem();
 			this.miSave = new System.Windows.Forms.ToolStripMenuItem();
 			this.miSaveAs = new System.Windows.Forms.ToolStripMenuItem();
-			this.miClose = new System.Windows.Forms.ToolStripMenuItem();
-			this.pnlSettings = new System.Windows.Forms.Panel();
 			this.miApply = new System.Windows.Forms.ToolStripMenuItem();
+			this.miClose = new System.Windows.Forms.ToolStripMenuItem();
+			this.miTools = new System.Windows.Forms.ToolStripMenuItem();
 			this.miType = new System.Windows.Forms.ToolStripMenuItem();
+			this.pnlSettings = new System.Windows.Forms.Panel();
 			this.opnProject = new System.Windows.Forms.OpenFileDialog();
 			this.savProject = new System.Windows.Forms.SaveFileDialog();
 			this.grpArray.SuspendLayout();
@@ -329,12 +329,16 @@
 			// 
 			this.cboDefEncoding.FormattingEnabled = true;
 			this.cboDefEncoding.Items.AddRange(new object[] {
-            "UTF-8"});
+            "ASCII",
+            "UTF8",
+            "Unicode",
+            "BigEndianUnicode",
+            "UTF32"});
 			this.cboDefEncoding.Location = new System.Drawing.Point(93, 19);
 			this.cboDefEncoding.Name = "cboDefEncoding";
 			this.cboDefEncoding.Size = new System.Drawing.Size(97, 21);
 			this.cboDefEncoding.TabIndex = 21;
-			this.cboDefEncoding.Text = "UTF-8";
+			this.cboDefEncoding.Text = "ASCII";
 			// 
 			// chkDefNull
 			// 
@@ -496,16 +500,17 @@
             0,
             0});
 			// 
-			// checkBox1
+			// chkFixedLength
 			// 
-			this.checkBox1.AutoSize = true;
-			this.checkBox1.Location = new System.Drawing.Point(12, 81);
-			this.checkBox1.Name = "checkBox1";
-			this.checkBox1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-			this.checkBox1.Size = new System.Drawing.Size(72, 17);
-			this.checkBox1.TabIndex = 33;
-			this.checkBox1.Text = "Fixed Len";
-			this.checkBox1.UseVisualStyleBackColor = true;
+			this.chkFixedLength.AutoSize = true;
+			this.chkFixedLength.Location = new System.Drawing.Point(12, 81);
+			this.chkFixedLength.Name = "chkFixedLength";
+			this.chkFixedLength.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+			this.chkFixedLength.Size = new System.Drawing.Size(72, 17);
+			this.chkFixedLength.TabIndex = 33;
+			this.chkFixedLength.Text = "Fixed Len";
+			this.chkFixedLength.UseVisualStyleBackColor = true;
+			this.chkFixedLength.CheckedChanged += new System.EventHandler(this.chkFixedLength_CheckedChanged);
 			// 
 			// label14
 			// 
@@ -717,14 +722,6 @@
 			this.miFile.Size = new System.Drawing.Size(37, 20);
 			this.miFile.Text = "&File";
 			// 
-			// miTools
-			// 
-			this.miTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.miType});
-			this.miTools.Name = "miTools";
-			this.miTools.Size = new System.Drawing.Size(47, 20);
-			this.miTools.Text = "&Tools";
-			// 
 			// miNew
 			// 
 			this.miNew.Name = "miNew";
@@ -754,12 +751,33 @@
 			this.miSaveAs.Size = new System.Drawing.Size(193, 22);
 			this.miSaveAs.Text = "Save &as...";
 			// 
+			// miApply
+			// 
+			this.miApply.Name = "miApply";
+			this.miApply.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
+			this.miApply.Size = new System.Drawing.Size(193, 22);
+			this.miApply.Text = "A&pply";
+			// 
 			// miClose
 			// 
 			this.miClose.Name = "miClose";
 			this.miClose.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
 			this.miClose.Size = new System.Drawing.Size(193, 22);
 			this.miClose.Text = "&Close";
+			// 
+			// miTools
+			// 
+			this.miTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miType});
+			this.miTools.Name = "miTools";
+			this.miTools.Size = new System.Drawing.Size(47, 20);
+			this.miTools.Text = "&Tools";
+			// 
+			// miType
+			// 
+			this.miType.Name = "miType";
+			this.miType.Size = new System.Drawing.Size(142, 22);
+			this.miType.Text = "&Type Editor...";
 			// 
 			// pnlSettings
 			// 
@@ -787,19 +805,6 @@
 			this.pnlSettings.Size = new System.Drawing.Size(336, 313);
 			this.pnlSettings.TabIndex = 41;
 			// 
-			// miApply
-			// 
-			this.miApply.Name = "miApply";
-			this.miApply.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-			this.miApply.Size = new System.Drawing.Size(193, 22);
-			this.miApply.Text = "A&pply";
-			// 
-			// miType
-			// 
-			this.miType.Name = "miType";
-			this.miType.Size = new System.Drawing.Size(152, 22);
-			this.miType.Text = "&Type Editor...";
-			// 
 			// opnProject
 			// 
 			this.opnProject.DefaultExt = "prj";
@@ -817,7 +822,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 337);
 			this.Controls.Add(this.pnlSettings);
-			this.Controls.Add(this.checkBox1);
+			this.Controls.Add(this.chkFixedLength);
 			this.Controls.Add(this.numFileLength);
 			this.Controls.Add(this.lstItems);
 			this.Controls.Add(this.label12);
@@ -897,7 +902,7 @@
 		private System.Windows.Forms.Label label13;
 		private System.Windows.Forms.ListBox lstItems;
 		private System.Windows.Forms.NumericUpDown numFileLength;
-		private System.Windows.Forms.CheckBox checkBox1;
+		private System.Windows.Forms.CheckBox chkFixedLength;
 		private System.Windows.Forms.Label label14;
 		private System.Windows.Forms.TextBox txtOffset;
 		private System.Windows.Forms.TextBox txtArrayNames;
