@@ -39,6 +39,8 @@ namespace Idmr.ProjectHex
 			this.menuMain = new System.Windows.Forms.MenuStrip();
 			this.miFile = new System.Windows.Forms.ToolStripMenuItem();
 			this.miOpen = new System.Windows.Forms.ToolStripMenuItem();
+			this.miTools = new System.Windows.Forms.ToolStripMenuItem();
+			this.miProjectEditor = new System.Windows.Forms.ToolStripMenuItem();
 			this.tsMainContainer = new System.Windows.Forms.ToolStripContainer();
 			this.tsMain = new System.Windows.Forms.ToolStrip();
 			this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
@@ -70,8 +72,6 @@ namespace Idmr.ProjectHex
 			this.label3 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.label9 = new System.Windows.Forms.Label();
-			this.miTools = new System.Windows.Forms.ToolStripMenuItem();
-			this.miProjectEditor = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuMain.SuspendLayout();
 			this.tsMainContainer.ContentPanel.SuspendLayout();
 			this.tsMainContainer.SuspendLayout();
@@ -102,15 +102,31 @@ namespace Idmr.ProjectHex
 			this.miFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.miOpen});
 			this.miFile.Name = "miFile";
-			this.miFile.Size = new System.Drawing.Size(35, 20);
+			this.miFile.Size = new System.Drawing.Size(37, 20);
 			this.miFile.Text = "&File";
 			// 
 			// miOpen
 			// 
 			this.miOpen.Name = "miOpen";
-			this.miOpen.Size = new System.Drawing.Size(152, 22);
+			this.miOpen.Size = new System.Drawing.Size(103, 22);
 			this.miOpen.Text = "&Open";
 			this.miOpen.Click += new System.EventHandler(this.miOpen_Click);
+			// 
+			// miTools
+			// 
+			this.miTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miProjectEditor});
+			this.miTools.Name = "miTools";
+			this.miTools.Size = new System.Drawing.Size(47, 20);
+			this.miTools.Text = "&Tools";
+			// 
+			// miProjectEditor
+			// 
+			this.miProjectEditor.Name = "miProjectEditor";
+			this.miProjectEditor.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+			this.miProjectEditor.Size = new System.Drawing.Size(185, 22);
+			this.miProjectEditor.Text = "Project &Editor";
+			this.miProjectEditor.Click += new System.EventHandler(this.miProjectEditor_Click);
 			// 
 			// tsMainContainer
 			// 
@@ -138,13 +154,13 @@ namespace Idmr.ProjectHex
 			this.tsMain.Location = new System.Drawing.Point(0, 0);
 			this.tsMain.Name = "tsMain";
 			this.tsMain.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-			this.tsMain.Size = new System.Drawing.Size(81, 25);
+			this.tsMain.Size = new System.Drawing.Size(89, 25);
 			this.tsMain.TabIndex = 0;
 			// 
 			// toolStripLabel1
 			// 
 			this.toolStripLabel1.Name = "toolStripLabel1";
-			this.toolStripLabel1.Size = new System.Drawing.Size(78, 22);
+			this.toolStripLabel1.Size = new System.Drawing.Size(86, 22);
 			this.toolStripLabel1.Text = "toolStripLabel1";
 			// 
 			// rtMain
@@ -410,21 +426,6 @@ namespace Idmr.ProjectHex
 			this.label9.Size = new System.Drawing.Size(65, 13);
 			this.label9.TabIndex = 7;
 			this.label9.Text = "Project Tree";
-			// 
-			// miTools
-			// 
-			this.miTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.miProjectEditor});
-			this.miTools.Name = "miTools";
-			this.miTools.Size = new System.Drawing.Size(44, 20);
-			this.miTools.Text = "&Tools";
-			// 
-			// miProjectEditor
-			// 
-			this.miProjectEditor.Name = "miProjectEditor";
-			this.miProjectEditor.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-			this.miProjectEditor.Size = new System.Drawing.Size(177, 22);
-			this.miProjectEditor.Text = "Project &Editor";
 			// 
 			// MainForm
 			// 

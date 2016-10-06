@@ -6,10 +6,12 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [FIX] added defaultValue null check in ctor
+ * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [ADD] SetBytes
  * [ADD] min/max
@@ -53,9 +55,9 @@ namespace Idmr.ProjectHex
 			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to <b>-128</b> and <b>127</b>, respectively.</remarks>
 			public SByteVar(VarCollection parent, string minValue, string maxValue, string defaultValue) : base(parent, defaultValue)
 			{
-				if (minValue != null && minValue != "") _minValue = SByte.Parse(minValue);
-				if (maxValue != null && maxValue != "") _maxValue = SByte.Parse(maxValue);
-				SByte.Parse(defaultValue);
+				if (minValue != null && minValue != "") _minValue = sbyte.Parse(minValue);
+				if (maxValue != null && maxValue != "") _maxValue = sbyte.Parse(maxValue);
+				if (defaultValue != null) sbyte.Parse(defaultValue);
 				_type = VarType.SByte;
 			}
 			#endregion constructors
@@ -88,7 +90,7 @@ namespace Idmr.ProjectHex
 			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <b>-128</b> and <b>127</b>.</exception>
 			public sbyte Value
 			{
-				get { return SByte.Parse(_value.ToString()); }
+				get { return sbyte.Parse(_value.ToString()); }
 				set
 				{
 					if (value < _minValue || value > _maxValue)
@@ -108,7 +110,7 @@ namespace Idmr.ProjectHex
 
 			/// <summary>Gets or sets the minimum allowable value.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Defaults to <see cref="Double.MinValue"/>.<br/>
+			/// <remarks>Defaults to <see cref="double.MinValue"/>.<br/>
 			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public sbyte MinimumValue
 			{
@@ -131,7 +133,7 @@ namespace Idmr.ProjectHex
 
 			/// <summary>Gets or sets the maximum allowable value.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Defaults to <see cref="SByte.MaxValue"/>.<br/>
+			/// <remarks>Defaults to <see cref="sbyte.MaxValue"/>.<br/>
 			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public sbyte MaximumValue
 			{

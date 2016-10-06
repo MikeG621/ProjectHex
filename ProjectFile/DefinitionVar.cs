@@ -6,17 +6,18 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
- 
+
 /* CHANGELOG
+ * [UPD] changed type class references to normal type
  * v0.1.4, 130910
  * [UPD] License
  * v0.1.3, 130701
  * [ADD] Serializable
  * v0.1.1, 130421
  */
- 
+
 using System;
 
 namespace Idmr.ProjectHex
@@ -47,12 +48,12 @@ namespace Idmr.ProjectHex
 				bool loading = _parent.isLoading;
 				_parent.isLoading = true;
 				Name = name;
-				try { Values = new VarCollection(this, Int32.Parse(count)); }
+				try { Values = new VarCollection(this, int.Parse(count)); }
 				catch (FormatException x) { throw new FormatException("'count' is not a valid integer", x); }
-				catch (OverflowException x) { throw new ArgumentOutOfRangeException("'count' must be between zero and " + Int32.MaxValue, x); }
-				try { _id = Int32.Parse(id); }
+				catch (OverflowException x) { throw new ArgumentOutOfRangeException("'count' must be between zero and " + int.MaxValue, x); }
+				try { _id = int.Parse(id); }
 				catch (FormatException x) { throw new FormatException("'id' is not a valid integer", x); }
-				catch (OverflowException x) { throw new OverflowException("'id' must be lower than " + Int32.MaxValue, x); }
+				catch (OverflowException x) { throw new OverflowException("'id' must be lower than " + int.MaxValue, x); }
 				_parent.isLoading = loading;
 			}
 			
@@ -76,7 +77,7 @@ namespace Idmr.ProjectHex
 
 			/// <summary>Gets or sets the length definition of the item.</summary>
 			/// <exception cref="ArgumentException">Value is dynamic.<br/><b>-or-</b><br/>Calculation error with static equation.</exception>
-			/// <exception cref="ArgumentOutOfRangeException">Value is less than <b>1</b> and not <b>-1</b>.<br/><b>-or</b></br>Value is greater than <see cref="Int32.MaxValue"/>.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">Value is less than <b>1</b> and not <b>-1</b>.<br/><b>-or</b></br>Value is greater than <see cref="int.MaxValue"/>.</exception>
 			/// <exception cref="FormatException">Value is not a valid integer.</exception>
 			/// <remarks>Dynamic values are not permitted. Equations are not permitted.<br/>
 			/// Default value is <b>"-1"</b>. An empty or <b>null</b> value returns to the default.</remarks>
@@ -85,14 +86,14 @@ namespace Idmr.ProjectHex
 				get { return base.RawLength; }
 				set
 				{
-					string msg = "RawLength must be non-negative and less than " + Int32.MaxValue;
+					string msg = "RawLength must be non-negative and less than " + int.MaxValue;
 					if (value == "-1" || value == null || value == "")
 					{
 						_length = "-1";
 						return;
 					}
 					if (isDynamicText(value) || firstOperation(value) != value.Length) throw new ArgumentException("Length must be constant");
-					try { if (Int32.Parse(value) < 1) throw new ArgumentOutOfRangeException(msg); }
+					try { if (int.Parse(value) < 1) throw new ArgumentOutOfRangeException(msg); }
 					catch (FormatException x) { throw new FormatException("Value is not a valid integer", x); }
 					catch (OverflowException x) { throw new ArgumentOutOfRangeException(msg, x); }
 					_length = value;
@@ -133,10 +134,10 @@ namespace Idmr.ProjectHex
 				get { return null; }
 				set { throw new InvalidOperationException(_type.ToString() +_disableAttributeMsg + "'default'"); }
 			}
-			
+
 			/// <summary>Gets or sets the quantity definition for <see cref="Values"/>.</summary>
 			/// <exception cref="ArgumentNullException">Value is <b>null</b> or empty.</exception>
-			/// <exception cref="ArgumentOutOfRangeException">Value is not between zero and <see cref="Int32.MaxValue"/>.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">Value is not between zero and <see cref="int.MaxValue"/>.</exception>
 			/// <exception cref="ArgumentException">Value is not a constant.</exception>
 			/// <exception cref="FormatException">Value is not a valid integer.</exception>
 			/// <remarks>Values are based on <see cref="Values.Count"/>. If <see cref="Values"/> expands, the new items will be <see cref="VarType.Var"/>. When truncating, items will be lost starting from the last index.<br/>
@@ -146,13 +147,13 @@ namespace Idmr.ProjectHex
 				get { return Values.Count.ToString(); }
 				set
 				{
-					string msg = "Quantity must be positive and less than " + Int32.MaxValue;
+					string msg = "Quantity must be positive and less than " + int.MaxValue;
 					if (value == null || value == "") throw new ArgumentNullException(msg);
 					if (isDynamicText(value) || firstOperation(value) != value.Length) throw new ArgumentException("Quantity must be constant");
-					try { if (Int32.Parse(value) <= 0) throw new ArgumentOutOfRangeException(msg); }
+					try { if (int.Parse(value) <= 0) throw new ArgumentOutOfRangeException(msg); }
 					catch (FormatException x) { throw new FormatException("Value is not a valid integer", x); }
 					catch (OverflowException x) { throw new ArgumentOutOfRangeException(msg, x); }
-					Values.SetCount(Int32.Parse(value), true);
+					Values.SetCount(int.Parse(value), true);
 				}
 			}
 			

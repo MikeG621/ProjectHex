@@ -6,10 +6,11 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [ADD] SetBytes
  * [ADD] IsChild implementation
@@ -51,7 +52,7 @@ namespace Idmr.ProjectHex
 				_type = VarType.Bool;
 				bool loading = _parent.isLoading;
 				_parent.isLoading = true;
-				try { TrueValue = System.Byte.Parse(trueValue); }
+				try { TrueValue = byte.Parse(trueValue); }
 				catch (ArgumentNullException) { /* do nothing */ }
 				catch (FormatException) { /* do nothing */ }
 				catch (OverflowException x)
@@ -59,7 +60,7 @@ namespace Idmr.ProjectHex
 					if (trueValue == "-1") TrueValue = 255;
 					else throw x;
 				}
-				try { FalseValue = System.Byte.Parse(falseValue); }
+				try { FalseValue = byte.Parse(falseValue); }
 				catch (ArgumentNullException) { /* do nothing */ }
 				catch (FormatException) { /* do nothing */ }
 				catch (OverflowException x)
@@ -116,7 +117,7 @@ namespace Idmr.ProjectHex
 				_type = VarType.Bool;
 				bool loading = _parent.isLoading;
 				_parent.isLoading = true;
-				try { TrueValue = System.Byte.Parse(trueValue); }
+				try { TrueValue = byte.Parse(trueValue); }
 				catch (FormatException) { /* do nothing */ }
 				catch (ArgumentNullException) { /* do nothing */ }
 				catch (OverflowException x)
@@ -124,7 +125,7 @@ namespace Idmr.ProjectHex
 					if (trueValue == "-1") TrueValue = 255;
 					else throw x;
 				}
-				try { FalseValue = System.Byte.Parse(falseValue); }
+				try { FalseValue = byte.Parse(falseValue); }
 				catch (FormatException) { /* do nothing */ }
 				catch (ArgumentNullException) { /* do nothing */ }
 				catch (OverflowException x)

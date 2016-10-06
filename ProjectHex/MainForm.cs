@@ -17,7 +17,9 @@ namespace Idmr.ProjectHex
 {
 	public partial class MainForm : Form
 	{
-		BinaryFile _binary;
+		BinaryFile _binary = new BinaryFile();
+		ProjectEditorDialog _projectEditor = null;
+
 		public MainForm()
 		{
 			InitializeComponent();
@@ -26,7 +28,7 @@ namespace Idmr.ProjectHex
 		private void opnFile_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			_binary = new BinaryFile(opnFile.FileName);
-			this.Text = "ProjectHex - " + _binary.Project.Name + " - " + _binary.FilePath;
+			Text = "ProjectHex - " + _binary.Project.Name + " - " + _binary.FilePath;
 		}
 
 		private void miOpen_Click(object sender, EventArgs e)
@@ -34,5 +36,10 @@ namespace Idmr.ProjectHex
 			opnFile.ShowDialog();
 		}
 
+		private void miProjectEditor_Click(object sender, EventArgs e)
+		{
+			if (_projectEditor == null) _projectEditor = new ProjectEditorDialog(_binary.Project);
+			_projectEditor.Show();
+		}
 	}
 }

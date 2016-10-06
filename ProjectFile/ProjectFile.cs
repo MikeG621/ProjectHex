@@ -6,10 +6,11 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [UPD] changed type class references to normal type
  * [NEW] Save
  * [NEW] numerical type min/max read
  * [UPD] Tag no longer initialized during load
@@ -22,7 +23,7 @@
  * [ADD] Serializable
  * v0.1.1, 130421
  */
- 
+
 using System;
 using System.IO;
 using System.Windows.Forms;
@@ -138,8 +139,8 @@ namespace Idmr.ProjectHex
 			settings.IgnoreComments = true;
 			settings.IgnoreWhitespace = true;
 			XmlReader reader = XmlReader.Create(_projectPath, settings);
-			try
-			{
+			//try
+			//{
 				reader.ReadToFollowing("project");
 				reader.Read();
 				while (true)
@@ -192,8 +193,8 @@ namespace Idmr.ProjectHex
 				}
 				_types.isLoading = false;
 				reader.Close();
-			}
-			catch (Exception x) { System.Diagnostics.Debug.WriteLine("Load Project: " + x.Message); reader.Close(); throw; }
+			//}
+			//catch (Exception x) { System.Diagnostics.Debug.WriteLine("Load Project: " + x.Message); reader.Close(); throw; }
 		}
 
 		/// <summary>Save the project definition in it's current location.</summary>
@@ -598,12 +599,12 @@ namespace Idmr.ProjectHex
 				int marker = input.IndexOf("$");
 				string left = input.Substring(0, marker);
 				string middle = input.Substring(marker + 1, firstOperation(input.Substring(marker + 1)));
-				if (Int32.Parse(middle) >= vars.Count)
+				if (int.Parse(middle) >= vars.Count)
 					throw new ArgumentOutOfRangeException("Marker of $" + middle + " is outside the range of the collection");
 				string right = "";
 				try { right = input.Substring(left.Length + middle.Length + 1); }
 				catch (ArgumentOutOfRangeException) { /* do nothing */ }
-				middle = vars[Int32.Parse(middle)].RawValue.ToString();
+				middle = vars[int.Parse(middle)].RawValue.ToString();
 				return ParseDynamicValues(vars, left + middle + right);
 			}
 			return input;
@@ -738,6 +739,8 @@ namespace Idmr.ProjectHex
 				vars[i].Comment = structure["comment"];
 				vars[i].RawCondition = structure["condition"];
 				vars[i].RawQuantity = structure["qty"];
+				if (vars[i].Type != VarType.Collection && structure["itemid"] != null)
+					vars[i]._id = int.Parse(structure["itemid"]);
 				if (vars[i].Type == VarType.Collection && vars[i].RawQuantity == "")
 					vars[i].RawQuantity = "1";
 				if (vars[i].RawQuantity != "")

@@ -6,10 +6,12 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [FIX] added defaultValue null check in ctor
+ * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [ADD] SetBytes
  * [ADD] IsChild implementation
@@ -54,9 +56,9 @@ namespace Idmr.ProjectHex
 			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to <b>0</b> and <b>255</b>, respectively.</remarks>
 			public ByteVar(VarCollection parent, string minValue, string maxValue, string defaultValue) : base(parent, defaultValue)
 			{
-				if (minValue != null && minValue != "") _minValue = Byte.Parse(minValue);
-				if (maxValue != null && maxValue != "") _maxValue = Byte.Parse(maxValue);
-				Byte.Parse(defaultValue);
+				if (minValue != null && minValue != "") _minValue = byte.Parse(minValue);
+				if (maxValue != null && maxValue != "") _maxValue = byte.Parse(maxValue);
+				if (defaultValue != null) byte.Parse(defaultValue);
 				_type = VarType.Byte;
 			}
 			#endregion constructors
@@ -68,7 +70,7 @@ namespace Idmr.ProjectHex
 			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <b>0</b> and <b>255</b>.</exception>
 			public byte Value
 			{
-				get { return Byte.Parse(_value.ToString()); }
+				get { return byte.Parse(_value.ToString()); }
 				set
 				{
 					if (value < _minValue || value > _maxValue)

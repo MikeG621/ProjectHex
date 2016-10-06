@@ -6,10 +6,11 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [NEW] Save
  * [NEW] working on this[].set
@@ -166,7 +167,7 @@ namespace Idmr.ProjectHex
 		void loadBinary()
 		{
 			FileStream fs = File.OpenRead(_path);
-			if (fs.Length > Int32.MaxValue)
+			if (fs.Length > int.MaxValue)
 				throw new OverflowException("Binary exceeds maximum allowable file size");
 			_raw.Clear();
 			_raw.AddRange(new BinaryReader(fs).ReadBytes((int)fs.Length));

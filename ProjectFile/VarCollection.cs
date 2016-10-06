@@ -6,10 +6,11 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [UPD] Populate() implements StringVar.Encoding
  * [UPD] Add(StringVar) modified the ctor call
@@ -25,7 +26,7 @@
  * [UPD] Populate() for StringVars, added stringlength
  * v0.1.1, 130421
  */
- 
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -446,7 +447,7 @@ namespace Idmr.ProjectHex
 								}
 								break;
 							case VarType.String:
-								int stringLength = Int32.Parse(Equation.Evaluate(ParseDynamicValues(this, this[i].RawLength)));
+								int stringLength = int.Parse(Equation.Evaluate(ParseDynamicValues(this, this[i].RawLength)));
 								Encoding enc = ((StringVar)this[i]).Encoding;
 								if (this[i].Quantity == 0 && stringLength != 0) this[i].RawValue = enc.GetString(rawData, pos, stringLength);
 								else if (this[i].Quantity != 0)
@@ -514,7 +515,7 @@ namespace Idmr.ProjectHex
 				}
 				//System.Diagnostics.Debug.WriteLine("copied");
 				if (definition != null && definition.RawLength != "-1")
-					pos = startingOffset + Int32.Parse(definition.RawLength);
+					pos = startingOffset + int.Parse(definition.RawLength);
 				_isLoading = loading;
 				return pos;
 			}

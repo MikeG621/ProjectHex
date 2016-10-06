@@ -6,10 +6,12 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [FIX] added defaultValue null check in ctor
+ * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [ADD] SetBytes
  * [ADD] min/max
@@ -32,8 +34,8 @@ namespace Idmr.ProjectHex
 		[Serializable]
 		public class SingleVar : Var
 		{
-			float _minValue = Single.MinValue;
-			float _maxValue = Single.MaxValue;
+			float _minValue = float.MinValue;
+			float _maxValue = float.MaxValue;
 			
 			#region constructors
 			/// <summary>Initializes a new item.</summary>
@@ -48,14 +50,14 @@ namespace Idmr.ProjectHex
 			/// <param name="minValue">The lower bound of the item.</param>
 			/// <param name="maxValue">The upper bound of the item.</param>
 			/// <param name="defaultValue">The starting value of the item</param>
-			/// <exception cref="ArgumentOutOfRangeException"><i>minValue</i>, <i>maxValue</i> or <i>defaultValue</i> fall outside the range of <see cref="Single"/>.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>minValue</i>, <i>maxValue</i> or <i>defaultValue</i> fall outside the range of <see cref="float"/>.</exception>
 			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.<br>
-			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to the limits of <see cref="Single"/>.</remarks>
+			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to the limits of <see cref="float"/>.</remarks>
 			public SingleVar(VarCollection parent, string minValue, string maxValue, string defaultValue) : base(parent, defaultValue)
 			{
-				if (minValue != null && minValue != "") _minValue = Single.Parse(minValue);
-				if (maxValue != null && maxValue != "") _maxValue = Single.Parse(maxValue);
-				Single.Parse(defaultValue);
+				if (minValue != null && minValue != "") _minValue = float.Parse(minValue);
+				if (maxValue != null && maxValue != "") _maxValue = float.Parse(maxValue);
+				if (defaultValue != null) float.Parse(defaultValue);
 				_type = VarType.Single;
 			}
 			#endregion constructors
@@ -85,10 +87,10 @@ namespace Idmr.ProjectHex
 			/// <exception cref="ArgumentNullException"><see cref="RawValue"/> is <b>null</b> or an empty string.</exception>
 			/// <exception cref="ArgumentOutOfRangeException"><i>value</i> falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
 			/// <exception cref="FormatException"><see cref="RawValue"/> is not a valid float.</exception>
-			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <see cref="Single.MinValue"/> and <see cref="Single.MaxValue"/>.</exception>
+			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <see cref="float.MinValue"/> and <see cref="float.MaxValue"/>.</exception>
 			public float Value
 			{
-				get { return Single.Parse(_value.ToString()); }
+				get { return float.Parse(_value.ToString()); }
 				set
 				{
 					if (value < _minValue || value > _maxValue)
@@ -108,7 +110,7 @@ namespace Idmr.ProjectHex
 
 			/// <summary>Gets or sets the minimum allowable value.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Defaults to <see cref="Single.MinValue"/>.<br/>
+			/// <remarks>Defaults to <see cref="float.MinValue"/>.<br/>
 			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public float MinimumValue
 			{
@@ -127,11 +129,11 @@ namespace Idmr.ProjectHex
 
 			/// <summary>Gets if the minimum value has been changed.</summary>
 			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
-			public bool UseMinValue { get { return (_minValue != Single.MinValue); } }
+			public bool UseMinValue { get { return (_minValue != float.MinValue); } }
 
 			/// <summary>Gets or sets the maximum allowable value.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Defaults to <see cref="Single.MaxValue"/>.<br/>
+			/// <remarks>Defaults to <see cref="float.MaxValue"/>.<br/>
 			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public float MaximumValue
 			{
@@ -149,7 +151,7 @@ namespace Idmr.ProjectHex
 			}
 			/// <summary>Gets if the maximum value has been changed.</summary>
 			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
-			public bool UseMaxValue { get { return (_maxValue != Single.MaxValue); } }
+			public bool UseMaxValue { get { return (_maxValue != float.MaxValue); } }
 			
 			#region operators
 			/// <summary>Converts a single-precision value to a boolean value.</summary>

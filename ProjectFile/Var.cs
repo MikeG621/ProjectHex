@@ -6,10 +6,11 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [NEW] GetBytes, SetBytes
  * [UPD] _isArrayChild changed to IsChild
@@ -328,8 +329,8 @@ namespace Idmr.ProjectHex
 						try { eval = Equation.Evaluate(value); }
 						catch (ArgumentException) { throw; }
 						catch (FormatException) { throw; }
-						catch (OverflowException x) { throw new ArgumentOutOfRangeException("Value must be positive and less than " + Int32.MaxValue, x); }
-						if (Int32.Parse(eval) < 1)
+						catch (OverflowException x) { throw new ArgumentOutOfRangeException("Value must be positive and less than " + int.MaxValue, x); }
+						if (int.Parse(eval) < 1)
 							throw new ArgumentException("Value must be positive", "RawLength.value");
 						_length = eval;
 					}
@@ -337,8 +338,8 @@ namespace Idmr.ProjectHex
 				}
 			}
 			/// <summary>Gets or sets the offset definition of the item</summary>
-			/// <exception cref="ArgumentException">Static equation does not properly evaluate to an <see cref="Int64"/>.</exception>
-			/// <exception cref="ArgumentOutOfRangeException">Dynamics do not calculate to a non-negative value within the range of <see cref="Int64"/>.<br/><b>-or-</b><br/>Dynamic markers fall outside the range of the parent Collection</exception>
+			/// <exception cref="ArgumentException">Static equation does not properly evaluate to an <see cref="long"/>.</exception>
+			/// <exception cref="ArgumentOutOfRangeException">Dynamics do not calculate to a non-negative value within the range of <see cref="long"/>.<br/><b>-or-</b><br/>Dynamic markers fall outside the range of the parent Collection</exception>
 			/// <exception cref="FormatException">Illegal characters present in <i>value</i>.</exception>
 			/// <exception cref="InvalidOperationException">Parent <see cref="Var"/> controls value.</exception>
 			/// <remarks>Dynamic values are permitted. Static equations are solved and saved as the resultant.<br/>
@@ -358,10 +359,10 @@ namespace Idmr.ProjectHex
 						try { eval = Equation.Evaluate(value); }
 						catch (ArgumentException x) { throw new ArgumentException(x.Message.Replace("Error", "Error setting RawOffset"), x); }
 						catch (FormatException) { throw; }
-						try { if (Int64.Parse(eval) < -1) throw new ArgumentOutOfRangeException("Value must be non-negative", "RawOffset.value"); }
+						try { if (long.Parse(eval) < -1) throw new ArgumentOutOfRangeException("Value must be non-negative", "RawOffset.value"); }
 						catch (ArgumentOutOfRangeException) { throw; }
 						catch (FormatException x) { throw new ArgumentException("Value does not evaluate to a valid Int64", x); }
-						catch (OverflowException x) { throw new ArgumentOutOfRangeException("Value must be non-negative and less than " + Int64.MaxValue, x); }
+						catch (OverflowException x) { throw new ArgumentOutOfRangeException("Value must be non-negative and less than " + long.MaxValue, x); }
 						_offset = eval;
 					}
 					else _offset = value;
@@ -393,9 +394,9 @@ namespace Idmr.ProjectHex
 							eval = eval.Replace("Error", "Error setting RawQuantity");
 							throw new ArgumentException(eval, "RawQuantity.value");
 						}
-						if (Int64.Parse(eval) < 0)
+						if (long.Parse(eval) < 0)
 							throw new ArgumentException("Value must be non-negative", "RawQuantity.value");
-						eval = Int64.Parse(eval).ToString();
+						eval = long.Parse(eval).ToString();
 						_quantity = (eval != "0" ? eval : "");
 					}
 					else _quantity = value;
@@ -479,7 +480,7 @@ namespace Idmr.ProjectHex
 			{
 				get
 				{
-					if (!HasDynamicLength && Values == null) return Int32.Parse(RawLength);
+					if (!HasDynamicLength && Values == null) return int.Parse(RawLength);
 					if (HasDynamicLength && !_binaryAssigned)
 						throw new InvalidOperationException(_noBinaryMsg);
 					if (Values != null)
@@ -491,13 +492,13 @@ namespace Idmr.ProjectHex
 						}
 						else
 						{
-							if (!_parent.parentVar.HasDynamicLength) return Int32.Parse(_parent.parentVar.RawLength);
+							if (!_parent.parentVar.HasDynamicLength) return int.Parse(_parent.parentVar.RawLength);
 							if (!_binaryAssigned)
 								throw new InvalidOperationException(_noBinaryMsg);
-							return Int32.Parse(Equation.Evaluate(ParseDynamicValues(_parent.parentVar._parent, _parent.parentVar.RawLength)));
+							return int.Parse(Equation.Evaluate(ParseDynamicValues(_parent.parentVar._parent, _parent.parentVar.RawLength)));
 						}
 					}
-					return Int32.Parse(Equation.Evaluate(ParseDynamicValues(_parent, RawLength)));
+					return int.Parse(Equation.Evaluate(ParseDynamicValues(_parent, RawLength)));
 				}
 			}
 			
@@ -524,19 +525,19 @@ namespace Idmr.ProjectHex
 			/// <exception cref="ArgumentOutOfRangeException">Dynamic markers within <see cref="RawOffset"/> fall outside the range of the parent Collection.</exception>
 			/// <exception cref="InvalidOperationException">No <see cref="BinaryFile"/> has been loaded into the Project.</exception>
 			public int FileOffset { get { return LocalOffset + (_parent.parentVar != null ? _parent.parentVar.FileOffset : 0); } }
-			
+
 			/// <summary>Gets the calculated offset within the parent <see cref="VarCollection"/></summary>
 			/// <exception cref="ArgumentOutOfRangeException">Dynamic markers within <see cref="RawOffset"/> fall outside the range of the parent Collection.</exception>
-			/// <exception cref="FormatException"><see cref="RawOffset"/> does not evaluate to a valid <see cref="Int64"/>.</exception>
+			/// <exception cref="FormatException"><see cref="RawOffset"/> does not evaluate to a valid <see cref="long"/>.</exception>
 			/// <exception cref="InvalidOperationException">No <see cref="BinaryFile"/> has been loaded into the Project.</exception>
-			/// <exception cref="OverflowException"><see cref="RawOffset"/> calculates to a value outside the range of <see cref="Int64"/>.</exception>
+			/// <exception cref="OverflowException"><see cref="RawOffset"/> calculates to a value outside the range of <see cref="long"/>.</exception>
 			/// <remarks>For a static <see cref="RawOffset"/> value, simply returns the parsed value.<br/>
 			/// Dynamic and consecutive (<b>-1</b>) values will be calculated from the beginning of the parent Collection.</remarks>
 			public int LocalOffset
 			{
 				get
 				{
-					if (!HasDynamicOffset && _offset != "-1") return Int32.Parse(_offset);
+					if (!HasDynamicOffset && _offset != "-1") return int.Parse(_offset);
 					if (!_binaryAssigned)
 						throw new InvalidOperationException(_noBinaryMsg);
 					if (_offset == "-1")
@@ -549,7 +550,7 @@ namespace Idmr.ProjectHex
 						_tag = tag;
 						return offset;
 					}
-					try { return Int32.Parse(Equation.Evaluate(ParseDynamicValues(_parent, _offset))); }
+					try { return int.Parse(Equation.Evaluate(ParseDynamicValues(_parent, _offset))); }
 					catch (FormatException) { throw; }
 					catch (OverflowException) { throw; }
 				}
@@ -565,10 +566,10 @@ namespace Idmr.ProjectHex
 				get
 				{
 					if (_quantity == "") return 0;
-					if (!HasDynamicQuantity) return Int32.Parse(_quantity);
+					if (!HasDynamicQuantity) return int.Parse(_quantity);
 					if (!_binaryAssigned)
 						throw new InvalidOperationException(_noBinaryMsg);
-					return Int32.Parse(Equation.Evaluate(ParseDynamicValues(_parent, _quantity)));
+					return int.Parse(Equation.Evaluate(ParseDynamicValues(_parent, _quantity)));
 				}
 			}
 

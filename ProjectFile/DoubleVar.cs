@@ -6,10 +6,12 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [FIX] added defaultValue null check in ctor
+ * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [ADD] SetBytes
  * [ADD] min/max
@@ -32,8 +34,8 @@ namespace Idmr.ProjectHex
 		[Serializable]
 		public class DoubleVar : Var
 		{
-			double _minValue = Double.MinValue;
-			double _maxValue = Double.MaxValue;
+			double _minValue = double.MinValue;
+			double _maxValue = double.MaxValue;
 			
 			#region constructors
 			/// <summary>Initializes a new item.</summary>
@@ -52,9 +54,9 @@ namespace Idmr.ProjectHex
 			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.</remarks>
 			public DoubleVar(VarCollection parent, string minValue, string maxValue, string defaultValue) : base(parent, defaultValue)
 			{
-				if (minValue != null && minValue != "") _minValue = Double.Parse(minValue);
-				if (maxValue != null && maxValue != "") _maxValue = Double.Parse(maxValue);
-				Double.Parse(defaultValue);
+				if (minValue != null && minValue != "") _minValue = double.Parse(minValue);
+				if (maxValue != null && maxValue != "") _maxValue = double.Parse(maxValue);
+				if (defaultValue != null) double.Parse(defaultValue);
 				_type = VarType.Double;
 			}
 			#endregion constructors
@@ -79,15 +81,15 @@ namespace Idmr.ProjectHex
 				if (buffer.Length != 8) throw new ArgumentException("'buffer' must have a length of 8.");
 				Value = BitConverter.ToDouble(buffer, 0);
 			}
-			
+
 			/// <summary>Gets or sets the final value.</summary>
 			/// <exception cref="ArgumentNullException"><see cref="RawValue"/> is <b>null</b> or an empty string.</exception>
 			/// <exception cref="ArgumentOutOfRangeException"><i>value</i> falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
 			/// <exception cref="FormatException"><see cref="RawValue"/> is not a valid double.</exception>
-			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <see cref="Double.MinValue"/> and <see cref="Double.MaxValue"/>.</exception>
+			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <see cref="double.MinValue"/> and <see cref="double.MaxValue"/>.</exception>
 			public double Value
 			{
-				get { return Double.Parse(_value.ToString()); }
+				get { return double.Parse(_value.ToString()); }
 				set
 				{
 					if (value < _minValue || value > _maxValue)
@@ -107,7 +109,7 @@ namespace Idmr.ProjectHex
 
 			/// <summary>Gets or sets the minimum allowable value.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Defaults to <see cref="Double.MinValue"/>.<br/>
+			/// <remarks>Defaults to <see cref="double.MinValue"/>.<br/>
 			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public double MinimumValue
 			{
@@ -126,11 +128,11 @@ namespace Idmr.ProjectHex
 
 			/// <summary>Gets if the minimum value has been changed.</summary>
 			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
-			public bool UseMinValue { get { return (_minValue != Double.MinValue); } }
+			public bool UseMinValue { get { return (_minValue != double.MinValue); } }
 
 			/// <summary>Gets or sets the maximum allowable value.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Defaults to <see cref="Double.MaxValue"/>.<br/>
+			/// <remarks>Defaults to <see cref="double.MaxValue"/>.<br/>
 			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public double MaximumValue
 			{
@@ -148,7 +150,7 @@ namespace Idmr.ProjectHex
 			}
 			/// <summary>Gets if the maximum value has been changed.</summary>
 			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
-			public bool UseMaxValue { get { return (_maxValue != Double.MaxValue); } }
+			public bool UseMaxValue { get { return (_maxValue != double.MaxValue); } }
 			
 			#region operators
 			/// <summary>Converts a double-precision value to a boolean value.</summary>

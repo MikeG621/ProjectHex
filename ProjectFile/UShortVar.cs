@@ -6,10 +6,12 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [FIX] added defaultValue null check in ctor
+ * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [ADD] SetBytes
  * [ADD] min/max
@@ -33,7 +35,7 @@ namespace Idmr.ProjectHex
 		public class UShortVar : Var
 		{
 			ushort _minValue = 0;
-			ushort _maxValue = UInt16.MaxValue;
+			ushort _maxValue = ushort.MaxValue;
 			#region constructors
 			/// <summary>Initializes a new item.</summary>
 			/// <param name="parent">The <see cref="VarCollection"/> containing the item.</param>
@@ -47,14 +49,14 @@ namespace Idmr.ProjectHex
 			/// <param name="minValue">The lower bound of the item.</param>
 			/// <param name="maxValue">The upper bound of the item.</param>
 			/// <param name="defaultValue">The starting value of the item</param>
-			/// <exception cref="ArgumentOutOfRangeException"><i>minValue</i>, <i>maxValue</i> or <i>defaultValue</i> fall outside the range of <see cref="UInt16"/>.</exception>
+			/// <exception cref="ArgumentOutOfRangeException"><i>minValue</i>, <i>maxValue</i> or <i>defaultValue</i> fall outside the range of <see cref="ushort"/>.</exception>
 			/// <remarks><see cref="RawValue"/> initializes to <b>0</b>.<br>
-			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to the limits of <see cref="UInt16"/>.</remarks>
+			/// If <i>minValue</i> or <i>maxValue</i> are empty or <b>null</b>, they default to the limits of <see cref="ushort"/>.</remarks>
 			public UShortVar(VarCollection parent, string minValue, string maxValue, string defaultValue) : base(parent, defaultValue)
 			{
-				if (minValue != null && minValue != "") _minValue = UInt16.Parse(minValue);
-				if (maxValue != null && maxValue != "") _maxValue = UInt16.Parse(maxValue);
-				UInt16.Parse(defaultValue);
+				if (minValue != null && minValue != "") _minValue = ushort.Parse(minValue);
+				if (maxValue != null && maxValue != "") _maxValue = ushort.Parse(maxValue);
+				if (defaultValue != null) ushort.Parse(defaultValue);
 				_type = VarType.UShort;
 			}
 			#endregion constructors
@@ -84,10 +86,10 @@ namespace Idmr.ProjectHex
 			/// <exception cref="ArgumentNullException"><see cref="RawValue"/> is <b>null</b> or an empty string.</exception>
 			/// <exception cref="ArgumentOutOfRangeException"><i>value</i> falls outside <see cref="MinimumValue"/> to <see cref="MaximumValue"/>.</exception>
 			/// <exception cref="FormatException"><see cref="RawValue"/> is not a valid ushort.</exception>
-			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <b>0</b> and <see cref="Int16.MaxValue"/>.</exception>
+			/// <exception cref="OverflowException"><see cref="RawValue"/> does not fall between <b>0</b> and <see cref="short.MaxValue"/>.</exception>
 			public ushort Value
 			{
-				get { return UInt16.Parse(_value.ToString()); }
+				get { return ushort.Parse(_value.ToString()); }
 				set
 				{
 					if (value < _minValue || value > _maxValue)
@@ -107,7 +109,7 @@ namespace Idmr.ProjectHex
 
 			/// <summary>Gets or sets the minimum allowable value.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Defaults to <see cref="UInt16.MinValue"/>.<br/>
+			/// <remarks>Defaults to <see cref="ushort.MinValue"/>.<br/>
 			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public ushort MinimumValue
 			{
@@ -130,7 +132,7 @@ namespace Idmr.ProjectHex
 
 			/// <summary>Gets or sets the maximum allowable value.</summary>
 			/// <exception cref="InvalidOperationException">Attribute is controlled by parent</exception>
-			/// <remarks>Defaults to <see cref="UInt16.MaxValue"/>.<br/>
+			/// <remarks>Defaults to <see cref="ushort.MaxValue"/>.<br/>
 			/// If part of an array, gets the parent's attribute. Attempting to set results in an exception.</remarks>
 			public ushort MaximumValue
 			{
@@ -148,7 +150,7 @@ namespace Idmr.ProjectHex
 			}
 			/// <summary>Gets if the maximum value has been changed.</summary>
 			/// <remarks>Always returns <b>false</b> if part of an array.</remarks>
-			public bool UseMaxValue { get { return (_maxValue != UInt16.MaxValue); } }
+			public bool UseMaxValue { get { return (_maxValue != ushort.MaxValue); } }
 			
 			#region operators
 			/// <summary>Converts an unsigned short to a boolean value.</summary>

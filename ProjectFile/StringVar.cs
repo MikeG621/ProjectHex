@@ -164,7 +164,7 @@ namespace Idmr.ProjectHex
 							eval = eval.Replace("Error", "Error setting RawLength");
 							throw new ArgumentException(eval, "RawLength.value");
 						}
-						if (Int32.Parse(eval) < 0)
+						if (int.Parse(eval) < 0)
 							throw new ArgumentOutOfRangeException("RawLength must not be negative");
 						_length = eval;
 					}
