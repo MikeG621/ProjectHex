@@ -83,7 +83,6 @@ namespace Idmr.ProjectHex
 			numFileLength.Enabled = chkFixedLength.Checked;
 			if (chkFixedLength.Checked) numFileLength.Focus();
 		}
-		#endregion
 
 		private void miOpen_Click(object sender, EventArgs e)
 		{
@@ -94,5 +93,22 @@ namespace Idmr.ProjectHex
 				loadProject();
 			}
 		}
+
+		private void lstItems_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1) return;
+			ProjectFile.Var v = _project.Properties[lstItems.SelectedIndex];
+			if (v.RawOffset != "-1") txtOffset.Text = v.RawOffset;
+			else txtOffset.Text = "";
+			cboType.SelectedIndex = (int)v.Type;
+			txtName.Text = v.Name;
+			chkInput.Checked = (v.ID != -1);
+			lblID.Text = "ID: " + (chkInput.Checked ? v.ID.ToString() : "0");
+			chkValidate.Checked = v.IsValidated;
+			if (v.DefaultValue != null) txtDefault.Text = v.DefaultValue.ToString();
+			else txtDefault.Text = "";
+			txtComment.Text = v.Comment;
+		}
+		#endregion
 	}
 }

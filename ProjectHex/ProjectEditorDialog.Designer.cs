@@ -170,6 +170,22 @@ namespace Idmr.ProjectHex
 			// cboType
 			// 
 			this.cboType.FormattingEnabled = true;
+			this.cboType.Items.AddRange(new object[] {
+            "Error",
+            "Undefined",
+            "Bool",
+            "Byte",
+            "Signed Byte",
+            "Short",
+            "Unsigned Short",
+            "Integer",
+            "Unsigned Int",
+            "Long",
+            "Unsigned Long",
+            "String",
+            "Collection",
+            "Single",
+            "Double"});
 			this.cboType.Location = new System.Drawing.Point(43, 46);
 			this.cboType.Name = "cboType";
 			this.cboType.Size = new System.Drawing.Size(121, 21);
@@ -485,6 +501,7 @@ namespace Idmr.ProjectHex
 			this.lstItems.ScrollAlwaysVisible = true;
 			this.lstItems.Size = new System.Drawing.Size(222, 225);
 			this.lstItems.TabIndex = 30;
+			this.lstItems.SelectedIndexChanged += new System.EventHandler(this.lstItems_SelectedIndexChanged);
 			// 
 			// numFileLength
 			// 

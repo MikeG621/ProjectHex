@@ -79,12 +79,12 @@ namespace Idmr.ProjectHex
 			String,
 			/// <summary>Multiple child objects.</summary>
 			Collection,
-			/// <summary>Template collection.</summary>
-			Definition,
 			/// <summary>Signed 32-bit floating-point value.</summary>
 			Single,
 			/// <summary>Signed 64-bit floating-point value.</summary>
-			Double
+			Double,
+			/// <summary>Template collection.</summary>
+			Definition
 		}
 
 		#region constructors
