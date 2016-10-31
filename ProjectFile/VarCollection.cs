@@ -41,7 +41,7 @@ namespace Idmr.ProjectHex
 		public class VarCollection : ResizableCollection<Var>
 		{
 			ProjectFile _parentFile;
-			ProjectFile.Var _parentVar;
+			Var _parentVar;
 			internal string[] _names = null;	// names attribute is stored here before Binary is loaded
 
 			#region constructors
@@ -92,26 +92,26 @@ namespace Idmr.ProjectHex
 			/// <summary>Provides the index of the item with the provided ID.</summary>
 			/// <param name="id">The ID to search for.</param>
 			/// <returns>The index of the item with the same ID value if found, otherwise <b>-1</b>.</returns>
-			/// <remarks>Intended to be used when searching <see cref="ProjectFile.Types"/>.</remarks>
+			/// <remarks>Intended to be used when searching <see cref="Types"/>.</remarks>
 			public int GetIndexByID(int id)
 			{
 				for (int i = 0; i < Count; i++)
 					if (_items[i].ID == id) return i;
 				return -1;
 			}
-			
+
 			/// <summary>Provides the item with the provided ID.</summary>
 			/// <param name="id">The ID to search for.</param>
 			/// <returns>The matching item, otherwise <b>null</b>.</returns>
-			/// <remarks>Intended to be used when searching <see cref="ProjectFile.Types"/>.</remarks>
+			/// <remarks>Intended to be used when searching <see cref="Types"/>.</remarks>
 			public Var GetItemByID(int id)
 			{
 				for (int i = 0; i < Count; i++)
 					if (_items[i].ID == id) return _items[i];
 				return null;
 			}
-			
-			/// <summary>Finds the index of the item with the specified <see cref="Idmr.Common.FixedSizeCollection{T}.Tag"/> value.</summary>
+
+			/// <summary>Finds the index of the item with the specified <see cref="FixedSizeCollection{T}.Tag"/> value.</summary>
 			/// <param name="tag">User-defined data.</param>
 			/// <returns>The index of the first matching item, otherwise <b>-1</b>.</returns>
 			public int GetIndexByTag(object tag)
@@ -120,8 +120,8 @@ namespace Idmr.ProjectHex
 					if (_items[i].Tag != null && _items[i].Tag.ToString() == tag.ToString()) return i;
 				return -1;
 			}
-			
-			/// <summary>Finds the item with the specified <see cref="Idmr.Common.FixedSizeCollection{T}.Tag"/> value.</summary>
+
+			/// <summary>Finds the item with the specified <see cref="FixedSizeCollection{T}.Tag"/> value.</summary>
 			/// <param name="tag">User-defined data.</param>
 			/// <returns>The first matching item, otherwise <b>null</b>.</returns>
 			public Var GetItemByTag(object tag)
@@ -312,7 +312,7 @@ namespace Idmr.ProjectHex
 				int id = -1;
 				int count = Count;
 				int pos = startingOffset;
-				ProjectFile.Var definition = null;
+				Var definition = null;
 				if (parentVar != null && parentVar.Type == VarType.Collection)
 				{
 					id = parentVar.ID;
@@ -560,6 +560,16 @@ namespace Idmr.ProjectHex
 				}
 			}
 
+			/// <summary>Gets or sets the list of names to be used for children.</summary>
+			public string[] Names
+			{
+				get { return _names; }
+				set
+				{
+					// TODO: work in checks
+					_names = value;
+				}
+			}
 			#endregion public properties
 			
 			static string indexCheck(VarCollection vars, int index, string label, bool checkChildren)
@@ -607,7 +617,7 @@ namespace Idmr.ProjectHex
 			
 			/// <summary>Gets or sets the parent object.</summary>
 			/// <remarks>Propogates value through child <see cref="Var.Values"/> entries.</remarks>
-			internal ProjectFile.Var parentVar
+			internal Var parentVar
 			{
 				get { return _parentVar; }
 				set

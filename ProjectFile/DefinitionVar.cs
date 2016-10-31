@@ -30,7 +30,7 @@ namespace Idmr.ProjectHex
 		{
 			#region constructors
 			/// <summary>Initializes a new type definition.</summary>
-			/// <param name="parent">The <see cref="VarCollection"/> that contains the item, should always be <see cref="ProjectFile.Types"/>.</param>
+			/// <param name="parent">The <see cref="VarCollection"/> that contains the item, should always be <see cref="Types"/>.</param>
 			/// <param name="name">The name of the type.</param>
 			/// <param name="count">The total number of items in the definition.</param>
 			/// <param name="id">The ID number to be used with dynamics.</param>

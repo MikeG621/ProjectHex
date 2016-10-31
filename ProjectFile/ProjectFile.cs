@@ -139,6 +139,7 @@ namespace Idmr.ProjectHex
 			settings.IgnoreComments = true;
 			settings.IgnoreWhitespace = true;
 			XmlReader reader = XmlReader.Create(_projectPath, settings);
+			// DEBUG: LoadProject try block disabled
 			//try
 			//{
 				reader.ReadToFollowing("project");

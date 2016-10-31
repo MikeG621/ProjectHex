@@ -38,7 +38,7 @@ namespace Idmr.ProjectHex
 
 		private void miProjectEditor_Click(object sender, EventArgs e)
 		{
-			if (_projectEditor == null) _projectEditor = new ProjectEditorDialog(_binary.Project);
+			if (_projectEditor == null || !_projectEditor.IsHandleCreated) _projectEditor = new ProjectEditorDialog(_binary.Project);
 			_projectEditor.Show();
 		}
 	}

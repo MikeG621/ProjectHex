@@ -188,8 +188,9 @@ namespace Idmr.ProjectHex
             "Double"});
 			this.cboType.Location = new System.Drawing.Point(43, 46);
 			this.cboType.Name = "cboType";
-			this.cboType.Size = new System.Drawing.Size(121, 21);
+			this.cboType.Size = new System.Drawing.Size(133, 21);
 			this.cboType.TabIndex = 6;
+			this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
 			// 
 			// label2
 			// 
@@ -204,7 +205,7 @@ namespace Idmr.ProjectHex
 			// 
 			this.txtName.Location = new System.Drawing.Point(43, 73);
 			this.txtName.Name = "txtName";
-			this.txtName.Size = new System.Drawing.Size(121, 20);
+			this.txtName.Size = new System.Drawing.Size(133, 20);
 			this.txtName.TabIndex = 7;
 			// 
 			// chkInput
@@ -237,6 +238,7 @@ namespace Idmr.ProjectHex
 			this.chkArray.TabIndex = 10;
 			this.chkArray.Text = "Array";
 			this.chkArray.UseVisualStyleBackColor = true;
+			this.chkArray.CheckedChanged += new System.EventHandler(this.chkArray_CheckedChanged);
 			// 
 			// grpArray
 			// 
@@ -247,7 +249,7 @@ namespace Idmr.ProjectHex
 			this.grpArray.Enabled = false;
 			this.grpArray.Location = new System.Drawing.Point(6, 218);
 			this.grpArray.Name = "grpArray";
-			this.grpArray.Size = new System.Drawing.Size(155, 87);
+			this.grpArray.Size = new System.Drawing.Size(349, 87);
 			this.grpArray.TabIndex = 11;
 			this.grpArray.TabStop = false;
 			this.grpArray.Text = "Array Settings";
@@ -256,7 +258,7 @@ namespace Idmr.ProjectHex
 			// 
 			this.txtArrayNames.Location = new System.Drawing.Point(9, 61);
 			this.txtArrayNames.Name = "txtArrayNames";
-			this.txtArrayNames.Size = new System.Drawing.Size(140, 20);
+			this.txtArrayNames.Size = new System.Drawing.Size(334, 20);
 			this.txtArrayNames.TabIndex = 4;
 			// 
 			// label4
@@ -272,7 +274,7 @@ namespace Idmr.ProjectHex
 			// 
 			this.txtArrayQty.Location = new System.Drawing.Point(35, 19);
 			this.txtArrayQty.Name = "txtArrayQty";
-			this.txtArrayQty.Size = new System.Drawing.Size(114, 20);
+			this.txtArrayQty.Size = new System.Drawing.Size(135, 20);
 			this.txtArrayQty.TabIndex = 2;
 			// 
 			// label3
@@ -308,8 +310,9 @@ namespace Idmr.ProjectHex
 			// 
 			this.txtDefault.Location = new System.Drawing.Point(53, 145);
 			this.txtDefault.Name = "txtDefault";
-			this.txtDefault.Size = new System.Drawing.Size(111, 20);
+			this.txtDefault.Size = new System.Drawing.Size(123, 20);
 			this.txtDefault.TabIndex = 15;
+			this.txtDefault.Leave += new System.EventHandler(this.txtDefault_Leave);
 			// 
 			// label6
 			// 
@@ -335,6 +338,7 @@ namespace Idmr.ProjectHex
 			this.txtProjectName.Name = "txtProjectName";
 			this.txtProjectName.Size = new System.Drawing.Size(121, 20);
 			this.txtProjectName.TabIndex = 17;
+			this.txtProjectName.Leave += new System.EventHandler(this.txtProjectName_Leave);
 			// 
 			// txtWildcard
 			// 
@@ -342,6 +346,7 @@ namespace Idmr.ProjectHex
 			this.txtWildcard.Name = "txtWildcard";
 			this.txtWildcard.Size = new System.Drawing.Size(121, 20);
 			this.txtWildcard.TabIndex = 18;
+			this.txtWildcard.Leave += new System.EventHandler(this.txtWildcard_Leave);
 			// 
 			// label9
 			// 
@@ -366,6 +371,7 @@ namespace Idmr.ProjectHex
 			this.cboDefEncoding.Size = new System.Drawing.Size(97, 21);
 			this.cboDefEncoding.TabIndex = 21;
 			this.cboDefEncoding.Text = "ASCII";
+			this.cboDefEncoding.Leave += new System.EventHandler(this.cboDefEncoding_Leave);
 			// 
 			// chkDefNull
 			// 
@@ -377,6 +383,7 @@ namespace Idmr.ProjectHex
 			this.chkDefNull.TabIndex = 22;
 			this.chkDefNull.Text = "String null-terminated";
 			this.chkDefNull.UseVisualStyleBackColor = true;
+			this.chkDefNull.Leave += new System.EventHandler(this.chkDefNull_Leave);
 			// 
 			// label10
 			// 
@@ -413,6 +420,7 @@ namespace Idmr.ProjectHex
             0,
             0,
             0});
+			this.numDefTrue.Leave += new System.EventHandler(this.numDefTrue_Leave);
 			// 
 			// numDefFalse
 			// 
@@ -426,6 +434,7 @@ namespace Idmr.ProjectHex
 			this.numDefFalse.Name = "numDefFalse";
 			this.numDefFalse.Size = new System.Drawing.Size(43, 20);
 			this.numDefFalse.TabIndex = 24;
+			this.numDefFalse.Leave += new System.EventHandler(this.numDefFalse_Leave);
 			// 
 			// groupBox1
 			// 
@@ -459,6 +468,7 @@ namespace Idmr.ProjectHex
 			this.txtProjectComments.Name = "txtProjectComments";
 			this.txtProjectComments.Size = new System.Drawing.Size(199, 66);
 			this.txtProjectComments.TabIndex = 27;
+			this.txtProjectComments.Leave += new System.EventHandler(this.txtProjectComments_Leave);
 			// 
 			// label12
 			// 
@@ -481,21 +491,6 @@ namespace Idmr.ProjectHex
 			// lstItems
 			// 
 			this.lstItems.FormattingEnabled = true;
-			this.lstItems.Items.AddRange(new object[] {
-            "0: short Magic = -1*",
-            "2: short NumFlightGroups ($1)",
-            "4: short NumMessages ($2)",
-            "6: short NumGlobalGoals = 3 ($3)*",
-            "10: byte Officers",
-            "13: bool CapturedOnEject",
-            "24: string EndOfMissionMessages[6]",
-            "410: string IffNames[4]",
-            "458: collection<1> FlightGroups[$1]",
-            "collection<2> Messages[$2]",
-            "collection<4> GlobalGoals[$3]",
-            "collection<5> Briefing",
-            "collection<6> PreMissionQuestions[10]",
-            "collection<7> PostMissionQuestions[10]"});
 			this.lstItems.Location = new System.Drawing.Point(234, 47);
 			this.lstItems.Name = "lstItems";
 			this.lstItems.ScrollAlwaysVisible = true;
@@ -527,6 +522,7 @@ namespace Idmr.ProjectHex
             0,
             0,
             0});
+			this.numFileLength.Leave += new System.EventHandler(this.numFileLength_Leave);
 			// 
 			// chkFixedLength
 			// 
@@ -553,8 +549,9 @@ namespace Idmr.ProjectHex
 			// 
 			this.txtOffset.Location = new System.Drawing.Point(43, 19);
 			this.txtOffset.Name = "txtOffset";
-			this.txtOffset.Size = new System.Drawing.Size(121, 20);
+			this.txtOffset.Size = new System.Drawing.Size(133, 20);
 			this.txtOffset.TabIndex = 35;
+			this.txtOffset.Leave += new System.EventHandler(this.txtOffset_Leave);
 			// 
 			// grpBool
 			// 
@@ -563,9 +560,9 @@ namespace Idmr.ProjectHex
 			this.grpBool.Controls.Add(this.label16);
 			this.grpBool.Controls.Add(this.numBoolTrue);
 			this.grpBool.Enabled = false;
-			this.grpBool.Location = new System.Drawing.Point(170, 4);
+			this.grpBool.Location = new System.Drawing.Point(188, 4);
 			this.grpBool.Name = "grpBool";
-			this.grpBool.Size = new System.Drawing.Size(156, 69);
+			this.grpBool.Size = new System.Drawing.Size(167, 69);
 			this.grpBool.TabIndex = 36;
 			this.grpBool.TabStop = false;
 			this.grpBool.Text = "Bool Settings";
@@ -624,9 +621,9 @@ namespace Idmr.ProjectHex
 			this.grpCollection.Controls.Add(this.cboCollType);
 			this.grpCollection.Controls.Add(this.label18);
 			this.grpCollection.Enabled = false;
-			this.grpCollection.Location = new System.Drawing.Point(170, 79);
+			this.grpCollection.Location = new System.Drawing.Point(188, 73);
 			this.grpCollection.Name = "grpCollection";
-			this.grpCollection.Size = new System.Drawing.Size(156, 49);
+			this.grpCollection.Size = new System.Drawing.Size(167, 49);
 			this.grpCollection.TabIndex = 37;
 			this.grpCollection.TabStop = false;
 			this.grpCollection.Text = "Collection Settings";
@@ -636,7 +633,7 @@ namespace Idmr.ProjectHex
 			this.cboCollType.FormattingEnabled = true;
 			this.cboCollType.Location = new System.Drawing.Point(43, 19);
 			this.cboCollType.Name = "cboCollType";
-			this.cboCollType.Size = new System.Drawing.Size(107, 21);
+			this.cboCollType.Size = new System.Drawing.Size(118, 21);
 			this.cboCollType.TabIndex = 1;
 			// 
 			// label18
@@ -661,7 +658,7 @@ namespace Idmr.ProjectHex
 			// 
 			this.txtComment.Location = new System.Drawing.Point(63, 171);
 			this.txtComment.Name = "txtComment";
-			this.txtComment.Size = new System.Drawing.Size(101, 20);
+			this.txtComment.Size = new System.Drawing.Size(113, 20);
 			this.txtComment.TabIndex = 15;
 			// 
 			// grpString
@@ -672,9 +669,9 @@ namespace Idmr.ProjectHex
 			this.grpString.Controls.Add(this.label19);
 			this.grpString.Controls.Add(this.chkNullTermed);
 			this.grpString.Enabled = false;
-			this.grpString.Location = new System.Drawing.Point(170, 134);
+			this.grpString.Location = new System.Drawing.Point(188, 122);
 			this.grpString.Name = "grpString";
-			this.grpString.Size = new System.Drawing.Size(156, 100);
+			this.grpString.Size = new System.Drawing.Size(167, 100);
 			this.grpString.TabIndex = 39;
 			this.grpString.TabStop = false;
 			this.grpString.Text = "String Settings";
@@ -683,7 +680,7 @@ namespace Idmr.ProjectHex
 			// 
 			this.txtLength.Location = new System.Drawing.Point(52, 19);
 			this.txtLength.Name = "txtLength";
-			this.txtLength.Size = new System.Drawing.Size(98, 20);
+			this.txtLength.Size = new System.Drawing.Size(109, 20);
 			this.txtLength.TabIndex = 1;
 			// 
 			// label20
@@ -699,10 +696,14 @@ namespace Idmr.ProjectHex
 			// 
 			this.cboEncoding.FormattingEnabled = true;
 			this.cboEncoding.Items.AddRange(new object[] {
-            "UTF-8"});
+            "ASCII",
+            "UTF8",
+            "Unicode",
+            "BigEndianUnicode",
+            "UTF32"});
 			this.cboEncoding.Location = new System.Drawing.Point(64, 68);
 			this.cboEncoding.Name = "cboEncoding";
-			this.cboEncoding.Size = new System.Drawing.Size(85, 21);
+			this.cboEncoding.Size = new System.Drawing.Size(97, 21);
 			this.cboEncoding.TabIndex = 21;
 			this.cboEncoding.Text = "UTF-8";
 			// 
@@ -733,7 +734,7 @@ namespace Idmr.ProjectHex
             this.miTools});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(800, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(832, 24);
 			this.menuStrip1.TabIndex = 40;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -831,7 +832,7 @@ namespace Idmr.ProjectHex
 			this.pnlSettings.Controls.Add(this.txtComment);
 			this.pnlSettings.Location = new System.Drawing.Point(462, 27);
 			this.pnlSettings.Name = "pnlSettings";
-			this.pnlSettings.Size = new System.Drawing.Size(336, 313);
+			this.pnlSettings.Size = new System.Drawing.Size(358, 313);
 			this.pnlSettings.TabIndex = 41;
 			// 
 			// opnProject
@@ -849,7 +850,7 @@ namespace Idmr.ProjectHex
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 337);
+			this.ClientSize = new System.Drawing.Size(832, 337);
 			this.Controls.Add(this.pnlSettings);
 			this.Controls.Add(this.chkFixedLength);
 			this.Controls.Add(this.numFileLength);
@@ -869,9 +870,10 @@ namespace Idmr.ProjectHex
 			this.Controls.Add(this.menuStrip1);
 			this.MaximizeBox = false;
 			this.MaximumSize = new System.Drawing.Size(1000, 376);
-			this.MinimumSize = new System.Drawing.Size(780, 376);
+			this.MinimumSize = new System.Drawing.Size(840, 376);
 			this.Name = "ProjectEditorDialog";
 			this.Text = "Project Editor - <project name>";
+			this.Resize += new System.EventHandler(this.ProjectEditorDialog_Resize);
 			this.grpArray.ResumeLayout(false);
 			this.grpArray.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numDefTrue)).EndInit();
