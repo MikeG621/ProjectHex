@@ -9,10 +9,15 @@
  * Version: 0.1
  */
 
+/* CHANGELOG
+ * [UPD] init default encoding
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Idmr.ProjectHex
@@ -49,7 +54,16 @@ namespace Idmr.ProjectHex
 				numFileLength.Value = _project.Length;
 			}
 			else chkFixedLength.Checked = false;
-			// TODO: default string encoding
+			if (ProjectFile.StringVar.DefaultEncoding == Encoding.ASCII)
+				cboDefEncoding.SelectedIndex = 0;
+			else if (ProjectFile.StringVar.DefaultEncoding == Encoding.UTF8)
+				cboDefEncoding.SelectedIndex = 1;
+			else if (ProjectFile.StringVar.DefaultEncoding == Encoding.Unicode)
+				cboDefEncoding.SelectedIndex = 2;
+			else if (ProjectFile.StringVar.DefaultEncoding == Encoding.BigEndianUnicode)
+				cboDefEncoding.SelectedIndex = 3;
+			else if (ProjectFile.StringVar.DefaultEncoding == Encoding.UTF32)
+				cboDefEncoding.SelectedIndex = 4;
 			chkDefNull.Checked = ProjectFile.StringVar.DefaultNullTermed;
 			numDefTrue.Value = ProjectFile.BoolVar.DefaultTrueValue;
 			numDefFalse.Value = ProjectFile.BoolVar.DefaultFalseValue;
@@ -205,6 +219,11 @@ namespace Idmr.ProjectHex
 		{
 			if (_project == null) return;
 			ProjectFile.StringVar.DefaultNullTermed = chkDefNull.Checked;
+		}
+
+		private void miType_Click(object sender, EventArgs e)
+		{
+
 		}
 
 		private void numDefTrue_Leave(object sender, EventArgs e)

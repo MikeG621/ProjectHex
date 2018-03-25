@@ -705,7 +705,7 @@ namespace Idmr.ProjectHex
 			this.cboEncoding.Name = "cboEncoding";
 			this.cboEncoding.Size = new System.Drawing.Size(97, 21);
 			this.cboEncoding.TabIndex = 21;
-			this.cboEncoding.Text = "UTF-8";
+			this.cboEncoding.Text = "ASCII";
 			// 
 			// label19
 			// 
@@ -806,8 +806,9 @@ namespace Idmr.ProjectHex
 			// miType
 			// 
 			this.miType.Name = "miType";
-			this.miType.Size = new System.Drawing.Size(142, 22);
+			this.miType.Size = new System.Drawing.Size(152, 22);
 			this.miType.Text = "&Type Editor...";
+			this.miType.Click += new System.EventHandler(this.miType_Click);
 			// 
 			// pnlSettings
 			// 

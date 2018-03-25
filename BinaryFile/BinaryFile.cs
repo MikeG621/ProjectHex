@@ -10,6 +10,7 @@
  */
 
 /* CHANGELOG
+ * [FIX] absent Vars no longer assigned to jump table
  * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [NEW] Save
@@ -183,7 +184,7 @@ namespace Idmr.ProjectHex
 		{
 			for (int i = 0; i < vars.Count; i++)
 			{
-				_jumpTable[vars[i].FileOffset] = vars[i];
+				if (vars[i].IsPresent) _jumpTable[vars[i].FileOffset] = vars[i];
 				if (vars[i].Values != null)
 					assignToJump(vars[i].Values);
 			}
