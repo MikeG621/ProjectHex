@@ -54,16 +54,7 @@ namespace Idmr.ProjectHex
 				numFileLength.Value = _project.Length;
 			}
 			else chkFixedLength.Checked = false;
-			if (ProjectFile.StringVar.DefaultEncoding == Encoding.ASCII)
-				cboDefEncoding.SelectedIndex = 0;
-			else if (ProjectFile.StringVar.DefaultEncoding == Encoding.UTF8)
-				cboDefEncoding.SelectedIndex = 1;
-			else if (ProjectFile.StringVar.DefaultEncoding == Encoding.Unicode)
-				cboDefEncoding.SelectedIndex = 2;
-			else if (ProjectFile.StringVar.DefaultEncoding == Encoding.BigEndianUnicode)
-				cboDefEncoding.SelectedIndex = 3;
-			else if (ProjectFile.StringVar.DefaultEncoding == Encoding.UTF32)
-				cboDefEncoding.SelectedIndex = 4;
+			cboDefEncoding.SelectedIndex = getValueFromEncoding(ProjectFile.StringVar.DefaultEncoding);
 			chkDefNull.Checked = ProjectFile.StringVar.DefaultNullTermed;
 			numDefTrue.Value = ProjectFile.BoolVar.DefaultTrueValue;
 			numDefFalse.Value = ProjectFile.BoolVar.DefaultFalseValue;
@@ -100,13 +91,56 @@ namespace Idmr.ProjectHex
 				line += "[" + item.RawQuantity + "]";
 			return line;
 		}
-		#endregion
+
+		/// <summary>Convert <i>enc</i> into the appropriate index for a ComboBox</summary>
+		/// <param name="enc">Encoding value from a <see cref="ProjectFile.StringVar"/></param>
+		/// <returns>0-4 on match, otherwise -1</returns>
+		int getValueFromEncoding(Encoding enc)
+		{
+			if (enc == Encoding.ASCII)
+				return 0;
+			else if (enc == Encoding.UTF8)
+				return 1;
+			else if (enc == Encoding.Unicode)
+				return 2;
+			else if (enc == Encoding.BigEndianUnicode)
+				return 3;
+			else if (enc == Encoding.UTF32)
+				return 4;
+			else return -1;
+		}
+		/// <summary>Convert a ComboBox index to the appropriate Encoding</summary>
+		/// <param name="value">ComboBox index</param>
+		/// <returns>The correct Encoding. If there's no match (-1), returns <see cref="Encoding.UTF8"/></returns>
+		Encoding getEncodingFromValue(int value)
+		{
+			if (value == 0)
+				return Encoding.ASCII;
+			//else if (value == 1)
+				//return Encoding.UTF8;
+			else if (value == 2)
+				return Encoding.Unicode;
+			else if (value == 3)
+				return Encoding.BigEndianUnicode;
+			else if (value == 4)
+				return Encoding.UTF32;
+			else return Encoding.UTF8;
+		}
+
+		void markModified() { if (!Text.Contains("*")) Text += "*"; }
+		#endregion methods
+
+		private void ProjectEditorDialog_Resize(object sender, EventArgs e)
+		{
+			pnlSettings.Left = Width - 386;
+			lstItems.Width = Width - 626;
+		}
 
 		#region controls
-		private void chkFixedLength_CheckedChanged(object sender, EventArgs e)
+		#region menu
+		private void miNew_Click(object sender, EventArgs e)
 		{
-			numFileLength.Enabled = chkFixedLength.Checked;
-			if (chkFixedLength.Checked) numFileLength.Focus();
+			// TODO: miNew
 		}
 
 		private void miOpen_Click(object sender, EventArgs e)
@@ -117,6 +151,66 @@ namespace Idmr.ProjectHex
 				_project = new ProjectFile(opnProject.FileName);
 				loadProject();
 			}
+		}
+
+		private void miSave_Click(object sender, EventArgs e)
+		{
+			if (Text.Contains("*"))
+			{
+				_project.SaveProject();	// if FileName isn't defined, SaveProject will call a save dialog
+				Text = Text.Replace("*", "");
+			}
+		}
+
+		private void miSaveAs_Click(object sender, EventArgs e)
+		{
+			DialogResult res = savProject.ShowDialog();
+			if (res == DialogResult.OK)
+			{
+				_project.SaveProject(savProject.FileName);
+				if (Text.Contains("*")) Text = Text.Replace("*", "");
+			}
+		}
+
+		private void miApply_Click(object sender, EventArgs e)
+		{
+			// TODO: miApply
+		}
+
+		private void miClose_Click(object sender, EventArgs e)
+		{
+			// TODO: miClose
+		}
+
+		private void miType_Click(object sender, EventArgs e)
+		{
+			//TODO: launch Type Editor
+		}
+		#endregion menu
+		private void chkFixedLength_CheckedChanged(object sender, EventArgs e)
+		{
+			numFileLength.Enabled = chkFixedLength.Checked;
+			if (chkFixedLength.Checked) numFileLength.Focus();
+		}
+
+		private void cmdAdd_Click(object sender, EventArgs e)
+		{
+			// TODO: cmdAdd
+		}
+
+		private void cmdRemove_Click(object sender, EventArgs e)
+		{
+			// TODO: cmdRemove
+		}
+
+		private void cmdUp_Click(object sender, EventArgs e)
+		{
+			// TODO: cmdUp
+		}
+
+		private void cmdDown_Click(object sender, EventArgs e)
+		{
+			// TODO: cmdDown
 		}
 
 		private void lstItems_SelectedIndexChanged(object sender, EventArgs e)
@@ -151,45 +245,21 @@ namespace Idmr.ProjectHex
 			{
 				txtLength.Text = v.RawLength;
 				chkNullTermed.Checked = ((ProjectFile.StringVar)v).NullTermed;
-				// TODO: encoding
+				cboEncoding.SelectedIndex = getValueFromEncoding(((ProjectFile.StringVar)v).Encoding);
 			}
 			_loading = false;
 		}
 
-		private void cboType_SelectedIndexChanged(object sender, EventArgs e)
+		private void numFileLength_Leave(object sender, EventArgs e)
 		{
-			grpBool.Enabled = (cboType.SelectedIndex == (int)ProjectFile.VarType.Bool);
-			grpString.Enabled = (cboType.SelectedIndex == (int)ProjectFile.VarType.String);
-			bool isCollection = (cboType.SelectedIndex == (int)ProjectFile.VarType.Collection);
-			grpCollection.Enabled = isCollection;
-			chkInput.Enabled = !isCollection;
-			txtDefault.Enabled = !isCollection;
-			if (cboType.SelectedIndex == (int)ProjectFile.VarType.Error || cboType.SelectedIndex == (int)ProjectFile.VarType.Undefined)
-			{
-				if (!Text.Contains("*ERROR*")) Text += " *ERROR*";
-			}
-			// TODO: else scan for any Undefined or Error types before clearing alert
+			if (_project == null || !chkFixedLength.Checked) return;
+			_project.Length = (long)numFileLength.Value;
 		}
 
-		private void chkArray_CheckedChanged(object sender, EventArgs e)
+		private void txtProjectComments_Leave(object sender, EventArgs e)
 		{
-			grpArray.Enabled = chkArray.Checked;
-			if (_loading || _project == null || lstItems.SelectedIndex == -1) return;
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
-		}
-
-		private void ProjectEditorDialog_Resize(object sender, EventArgs e)
-		{
-			pnlSettings.Left = Width - 386;
-			lstItems.Width = Width - 626;
-		}
-		
-
-		private void txtDefault_Leave(object sender, EventArgs e)
-		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			_project.Properties[lstItems.SelectedIndex].DefaultValue = txtDefault.Text;
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+			if (_project == null) return;
+			_project.Comment = txtProjectComments.Text;
 		}
 
 		private void txtProjectName_Leave(object sender, EventArgs e)
@@ -204,26 +274,17 @@ namespace Idmr.ProjectHex
 			_project.Wildcard = txtWildcard.Text;
 		}
 
-		private void numFileLength_Leave(object sender, EventArgs e)
-		{
-			if (_project == null || !chkFixedLength.Checked) return;
-			_project.Length = (long)numFileLength.Value;
-		}
-
+		#region project defaults
 		private void cboDefEncoding_Leave(object sender, EventArgs e)
 		{
-			// TODO default string encoding
+			if (_project == null) return;
+			ProjectFile.StringVar.DefaultEncoding = getEncodingFromValue(cboDefEncoding.SelectedIndex);
 		}
 
 		private void chkDefNull_Leave(object sender, EventArgs e)
 		{
 			if (_project == null) return;
 			ProjectFile.StringVar.DefaultNullTermed = chkDefNull.Checked;
-		}
-
-		private void miType_Click(object sender, EventArgs e)
-		{
-
 		}
 
 		private void numDefTrue_Leave(object sender, EventArgs e)
@@ -237,11 +298,29 @@ namespace Idmr.ProjectHex
 			if (_project == null) return;
 			ProjectFile.BoolVar.DefaultFalseValue = (byte)numDefFalse.Value;
 		}
+		#endregion project defaults
 
-		private void txtProjectComments_Leave(object sender, EventArgs e)
+		#region general items
+		private void cboType_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (_project == null) return;
-			_project.Comment = txtProjectComments.Text;
+			grpBool.Enabled = (cboType.SelectedIndex == (int)ProjectFile.VarType.Bool);
+			grpString.Enabled = (cboType.SelectedIndex == (int)ProjectFile.VarType.String);
+			bool isCollection = (cboType.SelectedIndex == (int)ProjectFile.VarType.Collection);
+			grpCollection.Enabled = isCollection;
+			chkInput.Enabled = !isCollection;
+			txtDefault.Enabled = !isCollection;
+			if (cboType.SelectedIndex == (int)ProjectFile.VarType.Error || cboType.SelectedIndex == (int)ProjectFile.VarType.Undefined)
+			{
+				if (!Text.Contains("!ERROR!")) Text += " !ERROR!";
+			}
+			// TODO: else scan for any Undefined or Error types before clearing alert
+		}
+
+		private void txtDefault_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			_project.Properties[lstItems.SelectedIndex].DefaultValue = txtDefault.Text;
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
 		}
 
 		private void txtOffset_Leave(object sender, EventArgs e)
@@ -250,6 +329,14 @@ namespace Idmr.ProjectHex
 			_project.Properties[lstItems.SelectedIndex].RawOffset = txtOffset.Text;
 			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
 		}
-		#endregion
+
+		private void chkArray_CheckedChanged(object sender, EventArgs e)
+		{
+			grpArray.Enabled = chkArray.Checked;
+			if (_loading || _project == null || lstItems.SelectedIndex == -1) return;
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+		}
+		#endregion general item
+		#endregion controls
 	}
 }

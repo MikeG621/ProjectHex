@@ -19,8 +19,12 @@ namespace Idmr.ProjectHex
 {
 	public partial class TypeEditorDialog : Form
 	{
-		public TypeEditorDialog()
+		ProjectFile _project = null;
+
+		public TypeEditorDialog(ProjectFile project)
 		{
+			_project = project;
+
 			InitializeComponent();
 		}
 	}

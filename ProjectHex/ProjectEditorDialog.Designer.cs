@@ -130,6 +130,7 @@ namespace Idmr.ProjectHex
 			this.cmdAdd.TabIndex = 1;
 			this.cmdAdd.Text = "&Add item";
 			this.cmdAdd.UseVisualStyleBackColor = true;
+			this.cmdAdd.Click += new System.EventHandler(this.cmdAdd_Click);
 			// 
 			// cmdRemove
 			// 
@@ -139,6 +140,7 @@ namespace Idmr.ProjectHex
 			this.cmdRemove.TabIndex = 2;
 			this.cmdRemove.Text = "&Remove item";
 			this.cmdRemove.UseVisualStyleBackColor = true;
+			this.cmdRemove.Click += new System.EventHandler(this.cmdRemove_Click);
 			// 
 			// cmdUp
 			// 
@@ -148,6 +150,7 @@ namespace Idmr.ProjectHex
 			this.cmdUp.TabIndex = 3;
 			this.cmdUp.Text = "Move item &Up";
 			this.cmdUp.UseVisualStyleBackColor = true;
+			this.cmdUp.Click += new System.EventHandler(this.cmdUp_Click);
 			// 
 			// cmdDown
 			// 
@@ -157,6 +160,7 @@ namespace Idmr.ProjectHex
 			this.cmdDown.TabIndex = 4;
 			this.cmdDown.Text = "Move item &Dn";
 			this.cmdDown.UseVisualStyleBackColor = true;
+			this.cmdDown.Click += new System.EventHandler(this.cmdDown_Click);
 			// 
 			// label1
 			// 
@@ -757,6 +761,7 @@ namespace Idmr.ProjectHex
 			this.miNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
 			this.miNew.Size = new System.Drawing.Size(193, 22);
 			this.miNew.Text = "&New";
+			this.miNew.Click += new System.EventHandler(this.miNew_Click);
 			// 
 			// miOpen
 			// 
@@ -772,6 +777,7 @@ namespace Idmr.ProjectHex
 			this.miSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
 			this.miSave.Size = new System.Drawing.Size(193, 22);
 			this.miSave.Text = "&Save";
+			this.miSave.Click += new System.EventHandler(this.miSave_Click);
 			// 
 			// miSaveAs
 			// 
@@ -780,6 +786,7 @@ namespace Idmr.ProjectHex
             | System.Windows.Forms.Keys.S)));
 			this.miSaveAs.Size = new System.Drawing.Size(193, 22);
 			this.miSaveAs.Text = "Save &as...";
+			this.miSaveAs.Click += new System.EventHandler(this.miSaveAs_Click);
 			// 
 			// miApply
 			// 
@@ -787,6 +794,7 @@ namespace Idmr.ProjectHex
 			this.miApply.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
 			this.miApply.Size = new System.Drawing.Size(193, 22);
 			this.miApply.Text = "A&pply";
+			this.miApply.Click += new System.EventHandler(this.miApply_Click);
 			// 
 			// miClose
 			// 
@@ -794,6 +802,7 @@ namespace Idmr.ProjectHex
 			this.miClose.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
 			this.miClose.Size = new System.Drawing.Size(193, 22);
 			this.miClose.Text = "&Close";
+			this.miClose.Click += new System.EventHandler(this.miClose_Click);
 			// 
 			// miTools
 			// 

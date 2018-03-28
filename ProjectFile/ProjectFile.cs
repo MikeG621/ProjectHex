@@ -139,9 +139,8 @@ namespace Idmr.ProjectHex
 			settings.IgnoreComments = true;
 			settings.IgnoreWhitespace = true;
 			XmlReader reader = XmlReader.Create(_projectPath, settings);
-			// DEBUG: LoadProject try block disabled
-			//try
-			//{
+			try
+			{
 				reader.ReadToFollowing("project");
 				reader.Read();
 				while (true)
@@ -194,8 +193,8 @@ namespace Idmr.ProjectHex
 				}
 				_types.isLoading = false;
 				reader.Close();
-			//}
-			//catch (Exception x) { System.Diagnostics.Debug.WriteLine("Load Project: " + x.Message); reader.Close(); throw; }
+			}
+			catch (Exception x) { System.Diagnostics.Debug.WriteLine("Load Project: " + x.Message); reader.Close(); throw; }
 		}
 
 		/// <summary>Save the project definition in it's current location.</summary>

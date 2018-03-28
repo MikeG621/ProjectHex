@@ -7,5 +7,7 @@ namespace Idmr.ProjectHex.classes
 {
 	class Settings
 	{
+		// TODO: Settings
+		// save confirmation
 	}
 }
