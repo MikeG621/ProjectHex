@@ -79,7 +79,7 @@ namespace Idmr.ProjectHex
 			if (item.RawOffset != "-1") line += item.RawOffset + ": ";
 			line += item.Type.ToString().ToLower();
 			if (item.Type == ProjectFile.VarType.Collection)
-				line += "<" + item.ID + ">";
+				line += "<" + item.ID + ">";	// TODO: should probably replace this with the name
 			line += " " + item.Name;
 			if (item.DefaultValue != null)
 				line += " = " + item.DefaultValue;
@@ -197,17 +197,14 @@ namespace Idmr.ProjectHex
 		{
 			// TODO: cmdAdd
 		}
-
 		private void cmdRemove_Click(object sender, EventArgs e)
 		{
 			// TODO: cmdRemove
 		}
-
 		private void cmdUp_Click(object sender, EventArgs e)
 		{
 			// TODO: cmdUp
 		}
-
 		private void cmdDown_Click(object sender, EventArgs e)
 		{
 			// TODO: cmdDown
@@ -261,13 +258,11 @@ namespace Idmr.ProjectHex
 			if (_project == null) return;
 			_project.Comment = txtProjectComments.Text;
 		}
-
 		private void txtProjectName_Leave(object sender, EventArgs e)
 		{
 			if (_project == null) return;
 			_project.Name = txtProjectName.Text;
 		}
-
 		private void txtWildcard_Leave(object sender, EventArgs e)
 		{
 			if (_project == null) return;
@@ -292,7 +287,6 @@ namespace Idmr.ProjectHex
 			if (_project == null) return;
 			ProjectFile.BoolVar.DefaultTrueValue = (byte)numDefTrue.Value;
 		}
-
 		private void numDefFalse_Leave(object sender, EventArgs e)
 		{
 			if (_project == null) return;
@@ -316,27 +310,122 @@ namespace Idmr.ProjectHex
 			// TODO: else scan for any Undefined or Error types before clearing alert
 		}
 
-		private void txtDefault_Leave(object sender, EventArgs e)
-		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			_project.Properties[lstItems.SelectedIndex].DefaultValue = txtDefault.Text;
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
-		}
-
-		private void txtOffset_Leave(object sender, EventArgs e)
-		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			_project.Properties[lstItems.SelectedIndex].RawOffset = txtOffset.Text;
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
-		}
-
 		private void chkArray_CheckedChanged(object sender, EventArgs e)
 		{
 			grpArray.Enabled = chkArray.Checked;
 			if (_loading || _project == null || lstItems.SelectedIndex == -1) return;
 			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
 		}
+		private void chkInput_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			//TODO: chkInput, needs to calc new ID and update
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+		}
+		private void chkValidate_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			_project.Properties[lstItems.SelectedIndex].IsValidated = chkValidate.Checked;
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+		}
+
+		private void txtComment_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			_project.Properties[lstItems.SelectedIndex].Comment = txtComment.Text;
+		}
+		private void txtDefault_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			_project.Properties[lstItems.SelectedIndex].DefaultValue = txtDefault.Text;
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+		}
+		private void txtName_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			_project.Properties[lstItems.SelectedIndex].Name = txtName.Text;
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+		}
+		private void txtOffset_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			_project.Properties[lstItems.SelectedIndex].RawOffset = txtOffset.Text;
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+		}
 		#endregion general item
+		#region type-specific stuff
+		private void cboCollType_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			//TODO: cboCollType, work out how to back out the ID from the index
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+		}
+		private void cboEncoding_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			try { ((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).Encoding = getEncodingFromValue(cboEncoding.SelectedIndex); }
+			catch (Exception x)
+			{
+				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				cboEncoding.SelectedIndex = getValueFromEncoding(((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).Encoding);
+			}
+		}
+
+		private void chkNullTermed_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			try { ((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).NullTermed = chkNullTermed.Checked; }
+			catch (InvalidOperationException x)
+			{
+				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				chkNullTermed.Checked = ((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).NullTermed;
+			}
+		}
+
+		private void numBoolTrue_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			try { ((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).TrueValue = (byte)numBoolTrue.Value; }
+			catch (InvalidOperationException x)
+			{
+				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				numBoolTrue.Value = ((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).TrueValue;
+			}
+			// not doing validation here, waiting for Save/Apply, that way it doesn't puke and require an intermediary value if swapping
+		}
+		private void numBoolFalse_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			try { ((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).FalseValue = (byte)numBoolFalse.Value; }
+			catch (InvalidOperationException x)
+			{
+				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				numBoolFalse.Value = ((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).FalseValue;
+			}
+		}
+
+		private void txtArrayNames_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			//TODO: txtArrayNames, will need validation
+		}
+		private void txtArrayQty_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			//TODO: txtArrayQty, will need validation
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+		}
+		private void txtLength_Leave(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			try { ((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).RawLength = txtLength.Text; }
+			catch (Exception x)
+			{
+				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				txtLength.Text = _project.Properties[lstItems.SelectedIndex].RawLength;
+			}
+		}
+		#endregion type-specific stuff
 		#endregion controls
 	}
 }

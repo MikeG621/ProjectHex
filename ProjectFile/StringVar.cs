@@ -10,6 +10,7 @@
  */
 
 /* CHANGELOG
+ * [ADD] added a NullReference catch on RawLength, would throw if it was set with no Binary
  * v0.1.5, 150705
  * [ADD] IsChild implementation
  * [REM] unused ctors
@@ -174,6 +175,7 @@ namespace Idmr.ProjectHex
 					catch (InvalidOperationException) { return; }
 					catch (ArgumentOutOfRangeException) { throw; }
 					catch (ArgumentException) { throw; }
+					catch (NullReferenceException) { return; }
 				}
 			}
 			

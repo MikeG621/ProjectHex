@@ -211,6 +211,7 @@ namespace Idmr.ProjectHex
 			this.txtName.Name = "txtName";
 			this.txtName.Size = new System.Drawing.Size(133, 20);
 			this.txtName.TabIndex = 7;
+			this.txtName.Leave += new System.EventHandler(this.txtName_Leave);
 			// 
 			// chkInput
 			// 
@@ -222,6 +223,7 @@ namespace Idmr.ProjectHex
 			this.chkInput.TabIndex = 8;
 			this.chkInput.Text = "Used as input";
 			this.chkInput.UseVisualStyleBackColor = true;
+			this.chkInput.Leave += new System.EventHandler(this.chkInput_Leave);
 			// 
 			// lblID
 			// 
@@ -264,6 +266,7 @@ namespace Idmr.ProjectHex
 			this.txtArrayNames.Name = "txtArrayNames";
 			this.txtArrayNames.Size = new System.Drawing.Size(334, 20);
 			this.txtArrayNames.TabIndex = 4;
+			this.txtArrayNames.Leave += new System.EventHandler(this.txtArrayNames_Leave);
 			// 
 			// label4
 			// 
@@ -280,6 +283,7 @@ namespace Idmr.ProjectHex
 			this.txtArrayQty.Name = "txtArrayQty";
 			this.txtArrayQty.Size = new System.Drawing.Size(135, 20);
 			this.txtArrayQty.TabIndex = 2;
+			this.txtArrayQty.Leave += new System.EventHandler(this.txtArrayQty_Leave);
 			// 
 			// label3
 			// 
@@ -300,6 +304,7 @@ namespace Idmr.ProjectHex
 			this.chkValidate.TabIndex = 13;
 			this.chkValidate.Text = "Used for validation";
 			this.chkValidate.UseVisualStyleBackColor = true;
+			this.chkValidate.Leave += new System.EventHandler(this.chkValidate_Leave);
 			// 
 			// label5
 			// 
@@ -592,6 +597,7 @@ namespace Idmr.ProjectHex
 			this.numBoolFalse.Name = "numBoolFalse";
 			this.numBoolFalse.Size = new System.Drawing.Size(43, 20);
 			this.numBoolFalse.TabIndex = 24;
+			this.numBoolFalse.Leave += new System.EventHandler(this.numBoolFalse_Leave);
 			// 
 			// label16
 			// 
@@ -619,6 +625,7 @@ namespace Idmr.ProjectHex
             0,
             0,
             0});
+			this.numBoolTrue.Leave += new System.EventHandler(this.numBoolTrue_Leave);
 			// 
 			// grpCollection
 			// 
@@ -639,6 +646,7 @@ namespace Idmr.ProjectHex
 			this.cboCollType.Name = "cboCollType";
 			this.cboCollType.Size = new System.Drawing.Size(118, 21);
 			this.cboCollType.TabIndex = 1;
+			this.cboCollType.Leave += new System.EventHandler(this.cboCollType_Leave);
 			// 
 			// label18
 			// 
@@ -664,6 +672,7 @@ namespace Idmr.ProjectHex
 			this.txtComment.Name = "txtComment";
 			this.txtComment.Size = new System.Drawing.Size(113, 20);
 			this.txtComment.TabIndex = 15;
+			this.txtComment.Leave += new System.EventHandler(this.txtComment_Leave);
 			// 
 			// grpString
 			// 
@@ -686,6 +695,7 @@ namespace Idmr.ProjectHex
 			this.txtLength.Name = "txtLength";
 			this.txtLength.Size = new System.Drawing.Size(109, 20);
 			this.txtLength.TabIndex = 1;
+			this.txtLength.Leave += new System.EventHandler(this.txtLength_Leave);
 			// 
 			// label20
 			// 
@@ -710,6 +720,7 @@ namespace Idmr.ProjectHex
 			this.cboEncoding.Size = new System.Drawing.Size(97, 21);
 			this.cboEncoding.TabIndex = 21;
 			this.cboEncoding.Text = "ASCII";
+			this.cboEncoding.Leave += new System.EventHandler(this.cboEncoding_Leave);
 			// 
 			// label19
 			// 
@@ -730,6 +741,7 @@ namespace Idmr.ProjectHex
 			this.chkNullTermed.TabIndex = 22;
 			this.chkNullTermed.Text = "Null-terminated";
 			this.chkNullTermed.UseVisualStyleBackColor = true;
+			this.chkNullTermed.Leave += new System.EventHandler(this.chkNullTermed_Leave);
 			// 
 			// menuStrip1
 			// 
@@ -815,7 +827,7 @@ namespace Idmr.ProjectHex
 			// miType
 			// 
 			this.miType.Name = "miType";
-			this.miType.Size = new System.Drawing.Size(152, 22);
+			this.miType.Size = new System.Drawing.Size(142, 22);
 			this.miType.Text = "&Type Editor...";
 			this.miType.Click += new System.EventHandler(this.miType_Click);
 			// 
