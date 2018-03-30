@@ -25,6 +25,11 @@ namespace Idmr.ProjectHex
 			InitializeComponent();
 		}
 
+		public void ApplyProject(ProjectFile project)
+		{
+			System.Diagnostics.Debug.WriteLine("tried to apply " + project.Name + " to active binary");
+		}
+
 		private void opnFile_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			_binary = new BinaryFile(opnFile.FileName);
@@ -38,7 +43,7 @@ namespace Idmr.ProjectHex
 
 		private void miProjectEditor_Click(object sender, EventArgs e)
 		{
-			if (_projectEditor == null || !_projectEditor.IsHandleCreated) _projectEditor = new ProjectEditorDialog(_binary.Project);
+			if (_projectEditor == null || !_projectEditor.IsHandleCreated) _projectEditor = new ProjectEditorDialog(_binary.Project, this);
 			_projectEditor.Show();
 		}
 	}
