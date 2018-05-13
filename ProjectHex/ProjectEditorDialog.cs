@@ -138,15 +138,27 @@ namespace Idmr.ProjectHex
 			if (!Text.Contains("*") && oldValue.ToString() != newValue.ToString()) Text += "*";
 			return newValue;
 		}
+
+		/// <summary>Scans <see cref="ProjectFile.Properties"/> for <see cref="ProjectFile.VarType.Error"/> and <see cref="ProjectFile.VarType.Undefined"/> and adjusts the title text accordingly.</summary>
+		void checkTypes()
+		{
+			string err = " !ERROR!";
+			bool error = false;
+			foreach (ProjectFile.Var prop in _project.Properties)
+				if (prop.Type == ProjectFile.VarType.Error || prop.Type == ProjectFile.VarType.Undefined)
+					error = true;
+			if (!error) Text = Text.Replace(err, "");
+			else if (!Text.Contains(err)) Text += err;
+		}
 		#endregion methods
 
+		#region controls
 		private void ProjectEditorDialog_Resize(object sender, EventArgs e)
 		{
 			pnlSettings.Left = Width - 386;
 			lstItems.Width = Width - 626;
 		}
 
-		#region controls
 		#region menu
 		private void miNew_Click(object sender, EventArgs e)
 		{
@@ -333,11 +345,9 @@ namespace Idmr.ProjectHex
 			grpCollection.Enabled = isCollection;
 			chkInput.Enabled = !isCollection;
 			txtDefault.Enabled = !isCollection;
-			if (cboType.SelectedIndex == (int)ProjectFile.VarType.Error || cboType.SelectedIndex == (int)ProjectFile.VarType.Undefined)
-			{
-				if (!Text.Contains("!ERROR!")) Text += " !ERROR!";
-			}
-			// TODO: else scan for any Undefined or Error types before clearing alert
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			//TODO: convert types and save
+			checkTypes();
 		}
 
 		private void chkArray_CheckedChanged(object sender, EventArgs e)
