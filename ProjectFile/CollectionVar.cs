@@ -101,6 +101,11 @@ namespace Idmr.ProjectHex
 				return newVar;
 			}
 
+			public void ChangeID(int newID)
+			{
+				_id = newID;
+			}
+
 			/// <summary>Disabled</summary>
 			/// <exception cref="InvalidOperationException">Collection items do not contain a value</exception>
 			/// <remarks>Always returns <b>null</b></remarks>

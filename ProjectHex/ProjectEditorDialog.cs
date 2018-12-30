@@ -35,6 +35,8 @@ namespace Idmr.ProjectHex
 			_parent = parent;
 
 			InitializeComponent();
+
+			startup();
 		}
 
 		public ProjectEditorDialog(string projectFile, MainForm parent)
@@ -43,6 +45,8 @@ namespace Idmr.ProjectHex
 			_parent = parent;
 
 			InitializeComponent();
+
+			startup();
 		}
 
 		public ProjectFile LoadedProject {  get { return _project; } }
@@ -150,6 +154,11 @@ namespace Idmr.ProjectHex
 			if (!error) Text = Text.Replace(err, "");
 			else if (!Text.Contains(err)) Text += err;
 		}
+
+		void startup()
+		{
+			// placeholder
+		}
 		#endregion methods
 
 		#region controls
@@ -224,7 +233,8 @@ namespace Idmr.ProjectHex
 
 		private void miType_Click(object sender, EventArgs e)
 		{
-			//TODO: launch Type Editor
+			TypeEditorDialog dlgType = new TypeEditorDialog(_project);
+			dlgType.ShowDialog();
 		}
 		#endregion menu
 		private void chkFixedLength_CheckedChanged(object sender, EventArgs e)
@@ -254,22 +264,20 @@ namespace Idmr.ProjectHex
 		{
 			if (lstItems.SelectedIndex == -1 || _project.Properties == null) return;
 			ProjectFile.Var v = _project.Properties[lstItems.SelectedIndex];
-			if (v.RawOffset != "-1") txtOffset.Text = v.RawOffset;
-			else txtOffset.Text = "";
+			txtOffset.Text = (v.RawOffset != "-1" ? v.RawOffset : "");
 			cboType.SelectedIndex = (int)v.Type;
 			txtName.Text = v.Name;
 			chkInput.Checked = (v.ID != -1 && v.Type != ProjectFile.VarType.Collection);
 			lblID.Text = "ID: " + (chkInput.Checked ? v.ID.ToString() : "0");
 			chkValidate.Checked = v.IsValidated;
-			if (v.DefaultValue != null) txtDefault.Text = v.DefaultValue.ToString();
-			else txtDefault.Text = "";
+			txtDefault.Text = (v.DefaultValue != null ? v.DefaultValue.ToString() : "");
 			txtComment.Text = v.Comment;
 			if (v.Values != null)
 			{
 				chkArray.Checked = true;
 				txtArrayQty.Text = v.RawQuantity;
-				if (v.Values.Names != null) txtArrayNames.Text = string.Join(",", v.Values.Names);
-				else txtArrayNames.Text = "";
+				txtArrayNames.Text = (v.Values.Names != null ? string.Join(",", v.Values.Names) : "");
+				txtArrayNames.Enabled = !v.HasDynamicQuantity;
 			}
 			else chkArray.Checked = false;
 			if (v.Type == ProjectFile.VarType.Bool)
@@ -356,11 +364,20 @@ namespace Idmr.ProjectHex
 			if (_loading || _project == null || lstItems.SelectedIndex == -1) return;
 			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
 		}
+		private void chkInput_CheckedChanged(object sender, EventArgs e)
+		{
+			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			lblID.Text = "ID: " + (chkInput.Checked ? _project.Properties[lstItems.SelectedIndex].ID.ToString() : "0");
+		}
 		private void chkInput_Leave(object sender, EventArgs e)
 		{
 			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			//TODO: chkInput, needs to calc new ID and update
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+			ProjectFile.Var v = _project.Properties[lstItems.SelectedIndex];
+			int oldID = v.ID;
+			if ((oldID == -1 && !chkInput.Checked) || (oldID != -1 && chkInput.Checked)) return;
+			if (chkInput.Checked) _project.Properties.AssignNextID(v);
+			else _project.Properties.RemoveID(v);
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(v);
 		}
 		private void chkValidate_Leave(object sender, EventArgs e)
 		{
@@ -377,7 +394,8 @@ namespace Idmr.ProjectHex
 		private void txtDefault_Leave(object sender, EventArgs e)
 		{
 			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			_project.Properties[lstItems.SelectedIndex].DefaultValue = update(_project.Properties[lstItems.SelectedIndex].DefaultValue, txtDefault.Text);
+			string old = (_project.Properties[lstItems.SelectedIndex].DefaultValue != null ? _project.Properties[lstItems.SelectedIndex].DefaultValue.ToString() : "");
+			_project.Properties[lstItems.SelectedIndex].DefaultValue = update(old, txtDefault.Text);
 			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
 		}
 		private void txtName_Leave(object sender, EventArgs e)
@@ -397,7 +415,19 @@ namespace Idmr.ProjectHex
 		private void cboCollType_Leave(object sender, EventArgs e)
 		{
 			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			//TODO: cboCollType, work out how to back out the ID from the index
+			int newType = -1;
+			for (int i = 0; i < _project.Types.Count; i++)
+				if (_project.Types[i].Name == cboCollType.Text)
+				{
+					newType = i;
+					break;
+				}
+			if (newType == -1)
+			{
+				cboCollType.SelectedIndex = _project.Types.GetIndexByID(_project.Properties[lstItems.SelectedIndex].ID);
+				return;
+			}
+			((ProjectFile.CollectionVar)_project.Properties[lstItems.SelectedIndex]).ChangeID(update(_project.Properties[lstItems.SelectedIndex].ID, _project.Types[newType].ID));
 			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
 		}
 		private void cboEncoding_Leave(object sender, EventArgs e)
@@ -447,13 +477,64 @@ namespace Idmr.ProjectHex
 		private void txtArrayNames_Leave(object sender, EventArgs e)
 		{
 			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			//TODO: txtArrayNames, will need validation
+			ProjectFile.Var v = _project.Properties[lstItems.SelectedIndex];
+			string[] oldNames = v.Values.Names;
+			try
+			{
+				string[] names = txtArrayNames.Text.Split(',');
+				for (int i = 0; i < v.Quantity; i++)
+				{
+					try { v.Values.Names[i] = update(v.Values.Names[i], names[i]); }
+					catch
+					{
+						v.Values.Names[i] = update(v.Values.Names[i], i.ToString());
+						System.Diagnostics.Debug.WriteLine("Names assignment count mismatch: " + v.ToString() + "[" + i + "]");
+					}
+				}
+			}
+			catch (Exception x)
+			{
+				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				v.Values.Names = oldNames;
+			}
+			txtArrayNames.Text = (v.Values.Names != null ? string.Join(",", v.Values.Names) : "");
 		}
 		private void txtArrayQty_Leave(object sender, EventArgs e)
 		{
 			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			//TODO: txtArrayQty, will need validation
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+			ProjectFile.Var v = _project.Properties[lstItems.SelectedIndex];
+			string[] oldNames = v.Values.Names;
+			try
+			{
+				v.RawQuantity = update(v.RawQuantity, txtArrayQty.Text);
+				if (v.HasDynamicQuantity)
+				{
+					v.Values.Names = null;
+					txtArrayNames.Text = "";
+				}
+				else if (oldNames != null)
+				{
+					v.Values.Names = new string[v.Quantity];
+					for (int i = 0; i < v.Values.Names.Length; i++)
+					{
+						try { v.Values.Names[i] = oldNames[i]; }
+						catch
+						{
+							v.Values.Names[i] = i.ToString();
+							System.Diagnostics.Debug.WriteLine("Names truncated: " + v.ToString() + "[" + i + "]");
+						}
+					}
+				}
+			}
+			catch (Exception x)
+			{
+				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				txtArrayQty.Text = v.RawQuantity;
+				v.Values.Names = oldNames;
+			}
+			txtArrayNames.Enabled = !v.HasDynamicQuantity;
+			txtArrayNames.Text = (v.Values.Names != null ? string.Join(",", v.Values.Names) : "");
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(v);
 		}
 		private void txtLength_Leave(object sender, EventArgs e)
 		{
@@ -466,6 +547,7 @@ namespace Idmr.ProjectHex
 			}
 		}
 		#endregion type-specific stuff
+
 		#endregion controls
 	}
 }

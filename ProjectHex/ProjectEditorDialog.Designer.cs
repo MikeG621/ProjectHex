@@ -223,6 +223,7 @@ namespace Idmr.ProjectHex
 			this.chkInput.TabIndex = 8;
 			this.chkInput.Text = "Used as input";
 			this.chkInput.UseVisualStyleBackColor = true;
+			this.chkInput.CheckedChanged += new System.EventHandler(this.chkInput_CheckedChanged);
 			this.chkInput.Leave += new System.EventHandler(this.chkInput_Leave);
 			// 
 			// lblID
@@ -273,9 +274,9 @@ namespace Idmr.ProjectHex
 			this.label4.AutoSize = true;
 			this.label4.Location = new System.Drawing.Point(6, 44);
 			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(40, 13);
+			this.label4.Size = new System.Drawing.Size(127, 13);
 			this.label4.TabIndex = 3;
-			this.label4.Text = "Names";
+			this.label4.Text = "Names (comma-delimited)";
 			// 
 			// txtArrayQty
 			// 

@@ -169,10 +169,11 @@ namespace Idmr.ProjectHex
 						if (_name == "") throw new XmlException("Missing \"project > name\"");
 						_properties.isLoading = true;
 						_properties.Tag = "properties";
+						_properties.NextID = int.Parse(reader["nextid"]);
 						readVars(_properties, reader.ReadSubtree(), validationOnly);
 						_properties.isLoading = false;
 						reader.Read();	// </structure>
-						break;	// structure node must be last in project node
+						break;	// structure node must be last in the main project portion
 					}
 				}
 				if (validationOnly || _types == null) { reader.Close(); return; }

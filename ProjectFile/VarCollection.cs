@@ -42,10 +42,12 @@ namespace Idmr.ProjectHex
 		{
 			ProjectFile _parentFile;
 			Var _parentVar;
-			internal string[] _names = null;	// names attribute is stored here before Binary is loaded
+			internal string[] _names = null;    // names attribute is stored here before Binary is loaded
+			int _nextID;
 
 			#region constructors
 			/// <summary>Creates an empty Collection.</summary>
+			/// <param name="parent">The parent project</param>
 			/// <remarks>No limit to collection size, initial capacity is 25.</remarks>
 			internal VarCollection(ProjectFile parent)
 			{
@@ -55,8 +57,10 @@ namespace Idmr.ProjectHex
 			}
 
 			/// <summary>Creates an empty Collection.</summary>
-			/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than zero.</exception>
-			/// <remarks>No limit to collection size, initial capacity is set to <i>quantity</i>.</remarks>
+			/// <param name="parent">The parent project</param>
+			/// <param name="quantity">The initial capacity of the collection</param>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="quantity"/> is less than zero.</exception>
+			/// <remarks>No limit to collection size.</remarks>
 			internal VarCollection(ProjectFile parent, int quantity)
 			{
 				parentFile = parent;
@@ -66,6 +70,7 @@ namespace Idmr.ProjectHex
 			}
 
 			/// <summary>Creates an empty Collection.</summary>
+			/// <param name="parent">The parent Var, whether for Collection or Arrays</param>
 			/// <remarks>No limit to collection size, initial capacity is 25.</remarks>
 			internal VarCollection(Var parent)
 			{
@@ -76,8 +81,10 @@ namespace Idmr.ProjectHex
 			}
 
 			/// <summary>Creates an empty Collection</summary>
-			/// <exception cref="ArgumentOutOfRangeException"><i>quantity</i> is less than zero.</exception>
-			/// <remarks>No limit to collection size, initial capacity is set to <i>quantity</i></remarks>
+			/// <param name="parent">The parent Var, whether for Collection or Arrays</param>
+			/// <param name="quantity">The initial capacity of the collection</param>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="quantity"/> is less than zero.</exception>
+			/// <remarks>No limit to collection size</remarks>
 			internal VarCollection(Var parent, int quantity)
 			{
 				parentVar = parent;
@@ -519,14 +526,34 @@ namespace Idmr.ProjectHex
 				_isLoading = loading;
 				return pos;
 			}
+
+			/// <summary>Assign <see cref="NextID"/> to <paramref name="v"/>'s <see cref="Var.ID"/> value.</summary>
+			/// <param name="v">The selected Var</param>
+			/// <exception cref="InvalidOperationException">Was called on a collection other than the project Properties</exception>
+			/// <remarks>To be used with Properties</remarks>
+			public void AssignNextID(Var v)
+			{
+				if (Tag.ToString() != "properties") throw new InvalidOperationException("Only available for the Properties collection.");
+				v._id = _nextID;
+				_nextID++;
+			}
+			/// <summary>Reset the <see cref="Var.ID"/> value of <paramref name="v"/>.</summary>
+			/// <param name="v">The selected Var</param>
+			/// <exception cref="InvalidOperationException">Was called on a collection other than the project Properties</exception>
+			/// <remarks>To be used with Properties</remarks>
+			public void RemoveID(Var v)
+			{
+				if (Tag.ToString() != "properties") throw new InvalidOperationException("Only available for the Properties collection.");
+				v._id = -1;
+			}
 			#endregion public methods
 
 			#region public properties
 			/// <summary>A single item within the collection</summary>
-			/// <param name="label">The identifying string of the item in the form of "<see cref="Var.Type">Type</see>:<see cref="Var.Name"/></b>"</param>
-			/// <exception cref="ArgumentException"><i>label</i> not found</exception>
-			/// <returns>The item matching <i>label</i>, otherwise <b>null</b></returns>
-			/// <remarks><i>label</i> is the same format as <see cref="Var.ToString()"/></remarks>
+			/// <param name="label">The identifying string of the item in the form of "<b><see cref="Var.Type"/>:<see cref="Var.Name"/></b>"</param>
+			/// <exception cref="ArgumentException"><paramref name="label"/> not found</exception>
+			/// <returns>The item matching <paramref name="label"/>, otherwise <b>null</b></returns>
+			/// <remarks><paramref name="label"/> is the same format as <see cref="Var.ToString()"/></remarks>
 			public Var this[string label]
 			{
 				get
@@ -566,12 +593,21 @@ namespace Idmr.ProjectHex
 				get { return _names; }
 				set
 				{
-					// TODO: work in checks
+					// TODO: work in Names.set checks
+					// if RawQuantity is dynamic, should disable this
 					_names = value;
 				}
 			}
+
+			/// <summary>Gets the next available ID number</summary>
+			/// <remarks>Used in <see cref="Properties"/> to keep track of Vars used as input</remarks>
+			public int NextID
+			{
+				get { return _nextID; }
+				internal set { _nextID = value; }
+			}
 			#endregion public properties
-			
+
 			static string indexCheck(VarCollection vars, int index, string label, bool checkChildren)
 			{
 				for(int i = 0; i < vars.Count; i++)

@@ -108,10 +108,10 @@ namespace Idmr.ProjectHex
 				return Type + ":" + (_parent.parentVar != null ? _parent.parentVar.ToString().Substring(_parent.parentVar.ToString().IndexOf(':') + 1) + "." : "") + Name;
 			}
 
-			/// <summary>Gets if the item contains the specified <i>index</i> as a dynamic variable</summary>
+			/// <summary>Gets if the item contains the specified <paramref name="index"/> as a dynamic variable</summary>
 			/// <param name="index">The dynamic variable to search for.</param>
-			/// <exception cref="ArgumentOutOfRangeException"><i>index</i> falls outside the range of the parent <see cref="VarCollection"/></exception>
-			/// <returns><b>true</b> if the dynamic marker for the specified <i>index</i> is found, otherwise <b>false</b>.</returns>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/>falls outside the range of the parent <see cref="VarCollection"/></exception>
+			/// <returns><b>true</b> if the dynamic marker for the specified <paramref name="index"/> is found, otherwise <b>false</b>.</returns>
 			public bool ContainsDynamicMarker(int index)
 			{
 				if (!IsDynamic) return false;
