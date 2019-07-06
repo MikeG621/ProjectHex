@@ -11,6 +11,7 @@
 
 /* CHANGELOG
  * [UPD] removed "~" from isValid(), since it's removed in formatTnput() anyway
+ * [FIX] exponents were really being treated as bitwise NOT, added # (POUnd, POWer...) operator for it
  * v0.1.5, 150705
  * [ADD] support for "<>", "~=" notation for "not equal"
  * [ADD] support for "**" notation for exponents
@@ -28,7 +29,7 @@ namespace Idmr.ProjectHex
 	{
 		/// <summary>Determines if the input is formatted properly.</summary>
 		/// <param name="cond">Conditional to be evaluated.</param>
-		/// <exception cref="ArgumentNullException"><i>cond</i> is <b>null</b> or empty.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="cond"/> is <b>null</b> or empty.</exception>
 		/// <returns><b>false</b> if illegal characters are detected, otherwise <b>true</b>.</returns>
 		public static bool IsValid(string cond)
 		{
@@ -36,12 +37,12 @@ namespace Idmr.ProjectHex
 			catch (ArgumentNullException) { throw; }
 		}
 
-		/// <exception cref="ArgumentNullException"><i>cond</i> is <b>null</b> or empty.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="cond"/> is <b>null</b> or empty.</exception>
 		static bool isValid(ref string cond)
 		{
 			try { formatInput(ref cond); }
 			catch (ArgumentNullException) { throw; }
-			string allowed = "0123456789+-*/%<>&^|().,=!TF";
+			string allowed = "0123456789+-*/%#<>&^|().,=!TF";
 			for (int i = 0; i < cond.Length; i++)
 				if (allowed.IndexOf(cond[i]) == -1) return false;
 			// reject isolated '='
@@ -49,19 +50,19 @@ namespace Idmr.ProjectHex
 			return true;
 		}
 
-		// TODO: This mentions exponents, but "^" is done as bitwise NOT
 		/// <summary>Computes a given conditional and returns the result as a boolean.</summary>
-		/// <remarks>Operation support: "+ - * / % () {} [] &lt;&lt; &gt;&gt; & (^ **) |", decimals.<br/>
-		/// Condition support: "&lt; &gt; &lt;= &gt;= == (!= ~= <>) && ||"<br/>
+		/// <remarks>Operation support: "+ - * / % # ^^ ** () {} [] &lt;&lt; &gt;&gt; & ^ |", decimals.<br/>
+		/// Condition support: "&lt; &gt; &lt;= &gt;= == (!= ~= <> NE) && ||"<br/>
 		/// Bit-wise operations (&lt;&lt; &gt;&gt; & ^ |) do not support decimals. Using these operations will round as necessary during calculation.<br/>
-		/// Boolean values may be included in <i>cond</i> as <b>true/T/yes</b> and <b>false/F/no</b> (case-insensitive).<br/>
+		/// Boolean values may be included in <paramref name="cond"/> as <b>true/T/yes</b> and <b>false/F/no</b> (case-insensitive).<br/>
 		/// Bitshift operators can be used in conjunction with &lt; and &gt; conditionals with or without parenthesis, however the use of parenthesis provides better performance and clarity (ie, "(x>>y)>z" is preferred over "x>>y>z" although both yield the same result).<br/>
-		/// If <i>cond</i> evaluates to a numerical value instead of <b>true</b>/<b>false</b>, non-zero results will return <b>true</b>.<br/>
-		/// For exponents, both "<b>^</b>" and "<b>**</b>" are acceptable notations. For "not equal", "<b>!=</b>", "<b>~=</b>" and "<b>&lt;&gt;</b>" are acceptable notations.</remarks>
+		/// If <paramref name="cond"/> evaluates to a numerical value instead of <b>true</b>/<b>false</b>, non-zero results will return <b>true</b>.<br/>
+		/// For exponents, the "<b>#</b>" operator is used due to "<b>^</b>" being used for bitwise NOT. "<b>^^</b>" and "<b>**</b>" are also acceptable notations. Care must be taken for nested exponents, as "x # y # z" will evaluate to (x#y)#z.<br/>
+		/// For "not equal", "<b>!=</b>", "<b>~=</b>", "<b>&lt;&gt;</b>" and "<b>NE</b>" (case-insensitive) are acceptable notations.</remarks>
 		/// <param name="cond">Conditional to be evaluated</param>
-		/// <exception cref="ArgumentException"><i>cond</i> contains logical errors.</exception>
+		/// <exception cref="ArgumentException"><paramref name="cond"/> contains logical errors.</exception>
 		/// <exception cref="FormatException">Illegal characters present.</exception>
-		/// <exception cref="ArgumentNullException"><i>cond</i> is <b>null</b> or empty.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="cond"/> is <b>null</b> or empty.</exception>
 		/// <returns>Calculated result.</returns>
 		public static bool Evaluate(string cond)
 		{
@@ -74,7 +75,7 @@ namespace Idmr.ProjectHex
 			return (result != "F" && result != "0");
 		}
 
-		/// <exception cref="ArgumentNullException"><i>cond</i> is <b>null</b> or empty.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="cond"/> is <b>null</b> or empty.</exception>
 		static void formatInput(ref string cond)
 		{
 			if (cond == "" || cond == null) throw new ArgumentNullException("Error: Conditional is empty");
@@ -83,10 +84,12 @@ namespace Idmr.ProjectHex
 			cond = cond.Replace('[', '(');
 			cond = cond.Replace('}', ')');
 			cond = cond.Replace(']', ')');
-			cond = cond.Replace("**", "^");
+			cond = cond.Replace("**", "#");
+			cond = cond.Replace("^^", "#");
 			cond = cond.Replace("~=", "!=");
 			cond = cond.Replace("<>", "!=");
 			cond = cond.ToUpper();
+			cond = cond.Replace("NE", "!=");
 			cond = cond.Replace("TRUE", "T");
 			cond = cond.Replace("FALSE", "F");
 			cond = cond.Replace("YES", "T");

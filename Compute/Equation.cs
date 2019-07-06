@@ -6,10 +6,11 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [FIX] exponents were really being treated as bitwise NOT, added # (POUnd, POWer...) operator for it
  * v0.1.5, 150705
  * [UPD] formatInput exception changed to ArgumentNull
  * [ADD] checks to isValid for "||" and "&&"
@@ -28,7 +29,7 @@ namespace Idmr.ProjectHex
 	{
 		/// <summary>Determines if the input is formatted properly.</summary>
 		/// <param name="eq">Equation to be evaluated.</param>
-		/// <exception cref="ArgumentNullException"><i>eq</i> is <b>null</b> or empty.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="eq"/> is <b>null</b> or empty.</exception>
 		/// <returns><b>false</b> if illegal characters are detected, otherwise <b>true</b>.</returns>
 		public static bool IsValid(string eq)
 		{
@@ -36,12 +37,12 @@ namespace Idmr.ProjectHex
 			catch (ArgumentNullException) { throw; }
 		}
 
-		/// <exception cref="ArgumentNullException"><i>eq</i> is <b>null</b> or empty.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="eq"/> is <b>null</b> or empty.</exception>
 		static bool isValid(ref string eq)
 		{
 			try { formatInput(ref eq); }
 			catch (ArgumentNullException) { throw; }
-			string allowed = "0123456789+-*/%<>&^|().,";
+			string allowed = "0123456789+-*/%#<>&^|().,";
 			for (int i = 0; i < eq.Length; i++)
 				if (allowed.IndexOf(eq[i]) == -1) return false;
 			// reject isloated '<' and '>'
@@ -49,15 +50,14 @@ namespace Idmr.ProjectHex
 			return true;
 		}
 
-		// TODO: This mentions exponents, but "^" is done as bitwise NOT
 		/// <summary>Computes a given equation and returns the result as a string.</summary>
-		/// <remarks>Supports: "+ - * / % () {} [] &lt;&lt; &gt;&gt; & ^ |", decimals.<br/>
+		/// <remarks>Supports: "+ - * / % # ^^ ** () {} [] &lt;&lt; &gt;&gt; & ^ |", decimals.<br/>
 		/// Bit-wise operations (&lt;&lt; &gt;&gt; & ^ |) do not support decimals. Using these operations will round as necessary during calculation.<br/>
-		/// For exponents, both "^" and "**" are acceptable notations.</remarks>
+		/// For exponents, the "<b>#</b>" operator is used due to "<b>^</b>" being used for bitwise NOT. "<b>^^</b>" and "<b>**</b>" are also acceptable notations. Care must be taken for nested exponents, as "x # y # z" will evaluate to (x#y)#z.</remarks>
 		/// <param name="eq">Equation to be evaluated</param>
-		/// <exception cref="ArgumentException"><i>eq</i> contains logical errors.</exception>
+		/// <exception cref="ArgumentException"><paramref name="eq"/> contains logical errors.</exception>
 		/// <exception cref="FormatException">Illegal characters present.</exception>
-		/// <exception cref="ArgumentNullException"><i>eq</i> is <b>null</b> or empty.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="eq"/> is <b>null</b> or empty.</exception>
 		/// <returns>Calculated result.</returns>
 		public static string Evaluate(string eq)
 		{
@@ -70,7 +70,7 @@ namespace Idmr.ProjectHex
 			return result;
 		}
 
-		/// <exception cref="ArgumentNullException"><i>eq</i> is <b>null</b> or empty.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="eq"/> is <b>null</b> or empty.</exception>
 		static void formatInput(ref string eq)
 		{
 			if (eq == "" || eq == null) throw new ArgumentNullException("Error: Equation is empty");
@@ -79,13 +79,14 @@ namespace Idmr.ProjectHex
 			eq = eq.Replace('[', '(');
 			eq = eq.Replace('}', ')');
 			eq = eq.Replace(']', ')');
-			eq = eq.Replace("**", "^");
+			eq = eq.Replace("**", "#");
+			eq = eq.Replace("^^", "#");
 		}
 		
 		/// <exception cref="ArgumentException">Bracket mismatch<br/><b>-or-</b><br/>Empty term</exception>
 		static double calculate(string eq)
 		{
-			// OoO: (), * / %, + -, << >>, &, ^, |
+			// OoO: (), #, * / %, + -, << >>, &, ^, |
 			if (eq == "") throw new ArgumentException("Empty term found");
 			if (eq.IndexOf("(") != -1)
 			{
@@ -102,35 +103,35 @@ namespace Idmr.ProjectHex
 				string[] bitOr = eq.Split('|');
 				long integerResult = (long)calculate(bitOr[0]);
 				for (int i = 1; i < bitOr.Length; i++) integerResult |= (long)calculate(bitOr[i]);
-				return (double)integerResult;
+				return integerResult;
 			}
 			else if (eq.IndexOf('^') != -1)
 			{
 				string[] bitNot = eq.Split('^');
 				long integerResult = (long)calculate(bitNot[0]);
 				for (int i = 1; i < bitNot.Length; i++) integerResult ^= (long)calculate(bitNot[i]);
-				return (double)integerResult;
+				return integerResult;
 			}
 			else if (eq.IndexOf('&') != -1)
 			{
 				string[] bitAnd = eq.Split('&');
 				long integerResult = (long)calculate(bitAnd[0]);
 				for (int i = 1; i < bitAnd.Length; i++) integerResult &= (long)calculate(bitAnd[i]);
-				return (double)integerResult;
+				return integerResult;
 			}
 			else if (eq.IndexOf("<<") != -1)
 			{
 				string[] bitLeft = eq.Split('<');
 				long integerResult = (long)calculate(bitLeft[0]);
 				for (int i = 2; i < bitLeft.Length; i += 2) integerResult <<= (int)calculate(bitLeft[i]);
-				return (double)integerResult;
+				return integerResult;
 			}
 			else if (eq.IndexOf(">>") != -1)
 			{
 				string[] bitRight = eq.Split('>');
 				long integerResult = (long)calculate(bitRight[0]);
 				for (int i = 2; i < bitRight.Length; i += 2) integerResult >>= (int)calculate(bitRight[i]);
-				return (double)integerResult;
+				return integerResult;
 			}
 			else if (eq.IndexOf('+') != -1)
 			{
@@ -164,6 +165,13 @@ namespace Idmr.ProjectHex
 				string[] mod = eq.Split('%');
 				result = calculate(mod[0]);
 				for (int i = 1; i < mod.Length; i++) result %= calculate(mod[i]);
+				return result;
+			}
+			else if (eq.IndexOf('#') != -1)
+			{
+				string[] pow = eq.Split('#');
+				result = calculate(pow[0]);
+				for (int i = 1; i < pow.Length; i++) result = Math.Pow(result, calculate(pow[i]));
 				return result;
 			}
 			else return double.Parse(eq);
