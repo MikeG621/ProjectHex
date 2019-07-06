@@ -49,6 +49,7 @@ namespace Idmr.ProjectHex
 			return true;
 		}
 
+		// TODO: This mentions exponents, but "^" is done as bitwise NOT
 		/// <summary>Computes a given equation and returns the result as a string.</summary>
 		/// <remarks>Supports: "+ - * / % () {} [] &lt;&lt; &gt;&gt; & ^ |", decimals.<br/>
 		/// Bit-wise operations (&lt;&lt; &gt;&gt; & ^ |) do not support decimals. Using these operations will round as necessary during calculation.<br/>

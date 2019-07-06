@@ -6,10 +6,11 @@
  * License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
  * with this file, You can obtain one at http://mozilla.org/MPL/2.0/
  *
- * Version: 0.1.5
+ * Version: 0.1.5+
  */
 
 /* CHANGELOG
+ * [UPD] removed "~" from isValid(), since it's removed in formatTnput() anyway
  * v0.1.5, 150705
  * [ADD] support for "<>", "~=" notation for "not equal"
  * [ADD] support for "**" notation for exponents
@@ -40,15 +41,15 @@ namespace Idmr.ProjectHex
 		{
 			try { formatInput(ref cond); }
 			catch (ArgumentNullException) { throw; }
-			string allowed = "0123456789+-*/%<>&^|().,=!~TF";
+			string allowed = "0123456789+-*/%<>&^|().,=!TF";
 			for (int i = 0; i < cond.Length; i++)
 				if (allowed.IndexOf(cond[i]) == -1) return false;
 			// reject isolated '='
 			if (cond.IndexOf("=") != -1 && cond.IndexOf("<=") == -1 && cond.IndexOf(">=") == -1 && cond.IndexOf("!=") == -1 && cond.IndexOf("==") == -1) return false;
-			if (cond.IndexOf("~") != -1 && cond.IndexOf("~=") == -1) return false;
 			return true;
 		}
 
+		// TODO: This mentions exponents, but "^" is done as bitwise NOT
 		/// <summary>Computes a given conditional and returns the result as a boolean.</summary>
 		/// <remarks>Operation support: "+ - * / % () {} [] &lt;&lt; &gt;&gt; & (^ **) |", decimals.<br/>
 		/// Condition support: "&lt; &gt; &lt;= &gt;= == (!= ~= <>) && ||"<br/>

@@ -193,8 +193,7 @@ namespace Idmr.ProjectHex
 			public override void SetBytes(byte[] buffer)
 			{
 				if (buffer.Length != 1) throw new ArgumentException("'buffer' must have a length of 1.");
-				if (buffer[0] == TrueValue) _value = true;
-				else _value = false;
+				_value = (buffer[0] == TrueValue);
 			}
 
 			/// <summary>When not specified in the ctor, the initial value for <see cref="TrueValue"/>.</summary>
