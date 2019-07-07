@@ -11,6 +11,7 @@
 
 /* CHANGELOG
  * [UPD] changed type class references to normal type
+ * [UPD] Names set checks and adjustment during SetCount()
  * v0.1.5, 150705
  * [UPD] Populate() implements StringVar.Encoding
  * [UPD] Add(StringVar) modified the ctor call
@@ -259,23 +260,46 @@ namespace Idmr.ProjectHex
 			/// <summary>Expands or contracts the Collection, populating as necessary</summary>
 			/// <param name="value">The new size of the Collection</param>
 			/// <param name="allowTruncate">Controls if the Collection is allowed to get smaller</param>
-			/// <exception cref="InvalidOperationException"><i>value</i> is smaller than <see cref="Count"/> and <i>allowTruncate</i> is <b>false</b></exception>
-			/// <remarks>If the Collection expands, the new items will be <see cref="VarType.Var"/>. When truncating the Collection, items will be lost starting from the last index.</remarks>
+			/// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is negative.</exception>
+			/// <exception cref="InvalidOperationException"><paramref name="value"/> is smaller than <see cref="Count"/> and <paramref name="allowTruncate"/> is <b>false</b></exception>
+			/// <remarks>If the Collection expands, the new items will be <see cref="VarType.Var"/>. When truncating the Collection, items will be lost starting from the last index. <see cref="Names"/> will also expand and contract, new entires will be blank.</remarks>
 			public override void SetCount(int value, bool allowTruncate)
 			{
+				if (value < 0) throw new ArgumentOutOfRangeException("value must not be negative.");
 				if (value == Count) return;
 				else if (value < Count)
 				{
 					if (!allowTruncate) throw new InvalidOperationException("Reducing 'value' will cause data loss");
 					else
 					{
-						if (value == 0) _items.Clear();
+						if (value == 0)
+						{
+							_items.Clear();
+							_names = null;
+						}
 						else
-							while(Count > value) _removeAt(Count - 1);
+						{
+							while (Count > value) _removeAt(Count - 1);
+							if (_names != null)
+							{
+								string[] oldNames = _names;
+								_names = new string[value];
+								for (int i = 0; i < value; i++) _names[i] = oldNames[i];
+							}
+						}
 					}
 				}
 				else
-					while(Count < value) Add(new Var(this));
+				{
+					while (Count < value) Add(new Var(this));
+					if (_names != null)
+					{
+						string[] oldNames = _names;
+						_names = new string[value];
+						for (int i = 0; i < oldNames.Length; i++) _names[i] = oldNames[i];
+						for (int i = oldNames.Length; i < value; i++) _names[i] = "";
+					}
+				}
 				if (!_isLoading) _isModified = true;
 			}
 
@@ -588,13 +612,15 @@ namespace Idmr.ProjectHex
 			}
 
 			/// <summary>Gets or sets the list of names to be used for children.</summary>
+			/// <exception cref="ArgumentException">Array size does not match <see cref="FixedSizeCollection{T}.Count"/>.</exception>
+			/// <exception cref="InvalidOperationException">Attempted to set when dynamic <see cref="Var.Quantity"/> is used.</exception>
 			public string[] Names
 			{
 				get { return _names; }
 				set
 				{
-					// TODO: work in Names.set checks
-					// if RawQuantity is dynamic, should disable this
+					if (_parentVar.HasDynamicQuantity) throw new InvalidOperationException("Dynamic Quantity, cannot set Names.");
+					if (value.Length != Count) throw new ArgumentException("Names count does not match Collection count.");
 					_names = value;
 				}
 			}
