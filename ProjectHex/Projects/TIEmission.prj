@@ -91,8 +91,8 @@
 		<item offset="67" type="byte" name="Yaw" comment="Unk6" />
 		<item offset="68" type="byte" name="Pitch" comment="Unk7" />
 		<item offset="69" type="byte" name="Roll" comment="Unk8" />
-		<item offset="70" type="bool" name="Unk9" />
-		<item offset="71" type="byte" name="Unk10" />
+		<item offset="70" type="bool" name="PermaDeathEnabled" comment="Unk9" />
+		<item offset="71" type="byte" name="PermaDeathID" comment="Unk10" />
 		<item offset="72" type="byte" name="Unk11" />
 		<item offset="73" type="byte" name="ArrivalDifficulty" />
 		<item offset="74" type="collection" id="8" qty="2" name="ArrivalTriggers" />
@@ -107,7 +107,7 @@
 		<item offset="93" type="byte" name="Unk15" />
 		<item offset="94" type="byte" name="Unk16" />
 		<item offset="95" type="byte" name="Unk17" />
-		<item offset="96" type="byte" name="ArrivalMoethership" />
+		<item offset="96" type="byte" name="ArrivalMothership" />
 		<item offset="97" type="bool" name="ArriveViaMothership" />
 		<item offset="98" type="byte" name="DepartureMothership" />
 		<item offset="99" type="bool" name="DepartViaMothership" />

@@ -896,7 +896,7 @@ namespace Idmr.ProjectHex
 			this.MinimumSize = new System.Drawing.Size(840, 376);
 			this.Name = "ProjectEditorDialog";
 			this.Text = "Project Editor - <project name>";
-			this.Resize += new System.EventHandler(this.ProjectEditorDialog_Resize);
+			this.Resize += new System.EventHandler(this.form_Resize);
 			this.grpArray.ResumeLayout(false);
 			this.grpArray.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numDefTrue)).EndInit();

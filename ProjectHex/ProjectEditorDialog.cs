@@ -15,9 +15,6 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
@@ -25,13 +22,12 @@ namespace Idmr.ProjectHex
 {
 	public partial class ProjectEditorDialog : Form
 	{
-		ProjectFile _project = null;
 		bool _loading = false;
-		MainForm _parent;
+		readonly MainForm _parent;
 
 		public ProjectEditorDialog(ProjectFile project, MainForm parent)
 		{
-			_project = project;
+			LoadedProject = project;
 			_parent = parent;
 
 			InitializeComponent();
@@ -41,7 +37,7 @@ namespace Idmr.ProjectHex
 
 		public ProjectEditorDialog(string projectFile, MainForm parent)
 		{
-			_project = new ProjectFile(projectFile);
+			LoadedProject = new ProjectFile(projectFile);
 			_parent = parent;
 
 			InitializeComponent();
@@ -49,34 +45,34 @@ namespace Idmr.ProjectHex
 			startup();
 		}
 
-		public ProjectFile LoadedProject {  get { return _project; } }
+		public ProjectFile LoadedProject { get; private set; } = null;
 
 		#region methods
 		void loadProject()
 		{
 			_loading = true;
-			Text = "Project Editor - " + _project.Name;
-			txtProjectName.Text = _project.Name;
-			txtWildcard.Text = _project.Wildcard;
-			if (_project.Length != -1)
+			Text = "Project Editor - " + LoadedProject.Name;
+			txtProjectName.Text = LoadedProject.Name;
+			txtWildcard.Text = LoadedProject.Wildcard;
+			if (LoadedProject.Length != -1)
 			{
 				chkFixedLength.Checked = true;
-				numFileLength.Value = _project.Length;
+				numFileLength.Value = LoadedProject.Length;
 			}
 			else chkFixedLength.Checked = false;
 			cboDefEncoding.SelectedIndex = getValueFromEncoding(ProjectFile.StringVar.DefaultEncoding);
 			chkDefNull.Checked = ProjectFile.StringVar.DefaultNullTermed;
 			numDefTrue.Value = ProjectFile.BoolVar.DefaultTrueValue;
 			numDefFalse.Value = ProjectFile.BoolVar.DefaultFalseValue;
-			txtProjectComments.Text = _project.Comment;
+			txtProjectComments.Text = LoadedProject.Comment;
 			lstItems.Items.Clear();
-			foreach (ProjectFile.Var v in _project.Properties)
+			foreach (ProjectFile.Var v in LoadedProject.Properties)
 			{
 				string item = formatItem(v);
 				lstItems.Items.Add(item);
 			}
 			cboCollType.Items.Clear();
-			foreach (ProjectFile.DefinitionVar v in _project.Types)
+			foreach (ProjectFile.DefinitionVar v in LoadedProject.Types)
 			{
 				cboCollType.Items.Add(v.Name);
 			}
@@ -148,7 +144,7 @@ namespace Idmr.ProjectHex
 		{
 			string err = " !ERROR!";
 			bool error = false;
-			foreach (ProjectFile.Var prop in _project.Properties)
+			foreach (ProjectFile.Var prop in LoadedProject.Properties)
 				if (prop.Type == ProjectFile.VarType.Error || prop.Type == ProjectFile.VarType.Undefined)
 					error = true;
 			if (!error) Text = Text.Replace(err, "");
@@ -162,7 +158,7 @@ namespace Idmr.ProjectHex
 		#endregion methods
 
 		#region controls
-		private void ProjectEditorDialog_Resize(object sender, EventArgs e)
+		private void form_Resize(object sender, EventArgs e)
 		{
 			pnlSettings.Left = Width - 386;
 			lstItems.Width = Width - 626;
@@ -175,9 +171,9 @@ namespace Idmr.ProjectHex
 			{
 				DialogResult res = MessageBox.Show("Project has been modified, do you wish to save?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 				if (res == DialogResult.Cancel) return;
-				else if (res == DialogResult.Yes) _project.SaveProject(); // if FileName isn't defined, SaveProject will call a save dialog
+				else if (res == DialogResult.Yes) LoadedProject.SaveProject(); // if FileName isn't defined, SaveProject will call a save dialog
 			}
-			_project = new ProjectFile();
+			LoadedProject = new ProjectFile();
 		}
 
 		private void miOpen_Click(object sender, EventArgs e)
@@ -185,7 +181,7 @@ namespace Idmr.ProjectHex
 			DialogResult res = opnProject.ShowDialog();
 			if (res == DialogResult.OK)
 			{
-				_project = new ProjectFile(opnProject.FileName);
+				LoadedProject = new ProjectFile(opnProject.FileName);
 				loadProject();
 			}
 		}
@@ -194,7 +190,7 @@ namespace Idmr.ProjectHex
 		{
 			if (Text.Contains("*"))
 			{
-				_project.SaveProject();	// if FileName isn't defined, SaveProject will call a save dialog
+				LoadedProject.SaveProject();	// if FileName isn't defined, SaveProject will call a save dialog
 				Text = Text.Replace("*", "");
 			}
 		}
@@ -204,7 +200,7 @@ namespace Idmr.ProjectHex
 			DialogResult res = savProject.ShowDialog();
 			if (res == DialogResult.OK)
 			{
-				_project.SaveProject(savProject.FileName);
+				LoadedProject.SaveProject(savProject.FileName);
 				Text = Text.Replace("*", "");
 			}
 		}
@@ -215,9 +211,9 @@ namespace Idmr.ProjectHex
 			{
 				DialogResult res = MessageBox.Show("Project has been modified, must be saved prior to application.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				if (res == DialogResult.Cancel) return;
-				else if (res == DialogResult.OK) _project.SaveProject();
+				else if (res == DialogResult.OK) LoadedProject.SaveProject();
 			}
-			_parent.ApplyProject(_project);
+			_parent.ApplyProject(LoadedProject);
 		}
 
 		private void miClose_Click(object sender, EventArgs e)
@@ -226,14 +222,14 @@ namespace Idmr.ProjectHex
 			{
 				DialogResult res = MessageBox.Show("Project has been modified, do you wish to save?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 				if (res == DialogResult.Cancel) return;
-				else if (res == DialogResult.Yes) _project.SaveProject(); // if FileName isn't defined, SaveProject will call a save dialog
+				else if (res == DialogResult.Yes) LoadedProject.SaveProject(); // if FileName isn't defined, SaveProject will call a save dialog
 			}
 			Close();
 		}
 
 		private void miType_Click(object sender, EventArgs e)
 		{
-			TypeEditorDialog dlgType = new TypeEditorDialog(_project);
+			TypeEditorDialog dlgType = new TypeEditorDialog(LoadedProject);
 			dlgType.ShowDialog();
 		}
 		#endregion menu
@@ -262,8 +258,8 @@ namespace Idmr.ProjectHex
 
 		private void lstItems_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project.Properties == null) return;
-			ProjectFile.Var v = _project.Properties[lstItems.SelectedIndex];
+			if (lstItems.SelectedIndex == -1 || LoadedProject.Properties == null) return;
+			ProjectFile.Var v = LoadedProject.Properties[lstItems.SelectedIndex];
 			txtOffset.Text = (v.RawOffset != "-1" ? v.RawOffset : "");
 			cboType.SelectedIndex = (int)v.Type;
 			txtName.Text = v.Name;
@@ -285,7 +281,7 @@ namespace Idmr.ProjectHex
 				numBoolFalse.Value = ((ProjectFile.BoolVar)v).FalseValue;
 				numBoolTrue.Value = ((ProjectFile.BoolVar)v).TrueValue;
 			}
-			if (v.Type == ProjectFile.VarType.Collection) cboCollType.SelectedIndex = _project.Types.GetIndexByID(v.ID);
+			if (v.Type == ProjectFile.VarType.Collection) cboCollType.SelectedIndex = LoadedProject.Types.GetIndexByID(v.ID);
 			if (v.Type == ProjectFile.VarType.String)
 			{
 				txtLength.Text = v.RawLength;
@@ -297,49 +293,49 @@ namespace Idmr.ProjectHex
 
 		private void numFileLength_Leave(object sender, EventArgs e)
 		{
-			if (_project == null || !chkFixedLength.Checked) return;
-			_project.Length = (long)numFileLength.Value;
+			if (LoadedProject == null || !chkFixedLength.Checked) return;
+			LoadedProject.Length = (long)numFileLength.Value;
 		}
 
 		private void txtProjectComments_Leave(object sender, EventArgs e)
 		{
-			if (_project == null) return;
-			_project.Comment = update(_project.Comment, txtProjectComments.Text);
+			if (LoadedProject == null) return;
+			LoadedProject.Comment = update(LoadedProject.Comment, txtProjectComments.Text);
 		}
 		private void txtProjectName_Leave(object sender, EventArgs e)
 		{
-			if (_project == null || _project.Name == txtProjectName.Text) return;	// making the exception to pre-emptive check due to Name validation within ProjectFile
+			if (LoadedProject == null || LoadedProject.Name == txtProjectName.Text) return;	// making the exception to pre-emptive check due to Name validation within ProjectFile
 			txtProjectName.Text = txtProjectName.Text.Replace("*", "");
-			_project.Name = txtProjectName.Text;
-			Text = "Project Editor - " + _project.Name + "*";
+			LoadedProject.Name = txtProjectName.Text;
+			Text = "Project Editor - " + LoadedProject.Name + "*";
 		}
 		private void txtWildcard_Leave(object sender, EventArgs e)
 		{
-			if (_project == null) return;
-			_project.Wildcard = update(_project.Wildcard, txtWildcard.Text);
+			if (LoadedProject == null) return;
+			LoadedProject.Wildcard = update(LoadedProject.Wildcard, txtWildcard.Text);
 		}
 
 		#region project defaults
 		private void cboDefEncoding_Leave(object sender, EventArgs e)
 		{
-			if (_project == null) return;
+			if (LoadedProject == null) return;
 			ProjectFile.StringVar.DefaultEncoding = update(ProjectFile.StringVar.DefaultEncoding, getEncodingFromValue(cboDefEncoding.SelectedIndex));
 		}
 
 		private void chkDefNull_Leave(object sender, EventArgs e)
 		{
-			if (_project == null) return;
+			if (LoadedProject == null) return;
 			ProjectFile.StringVar.DefaultNullTermed = update(ProjectFile.StringVar.DefaultNullTermed, chkDefNull.Checked);
 		}
 
 		private void numDefTrue_Leave(object sender, EventArgs e)
 		{
-			if (_project == null) return;
+			if (LoadedProject == null) return;
 			ProjectFile.BoolVar.DefaultTrueValue = update(ProjectFile.BoolVar.DefaultTrueValue, (byte)numDefTrue.Value);
 		}
 		private void numDefFalse_Leave(object sender, EventArgs e)
 		{
-			if (_project == null) return;
+			if (LoadedProject == null) return;
 			ProjectFile.BoolVar.DefaultFalseValue = update(ProjectFile.BoolVar.DefaultFalseValue, (byte)numDefFalse.Value);
 		}
 		#endregion project defaults
@@ -353,7 +349,7 @@ namespace Idmr.ProjectHex
 			grpCollection.Enabled = isCollection;
 			chkInput.Enabled = !isCollection;
 			txtDefault.Enabled = !isCollection;
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
 			//TODO: convert types and save
 			checkTypes();
 		}
@@ -361,123 +357,123 @@ namespace Idmr.ProjectHex
 		private void chkArray_CheckedChanged(object sender, EventArgs e)
 		{
 			grpArray.Enabled = chkArray.Checked;
-			if (_loading || _project == null || lstItems.SelectedIndex == -1) return;
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+			if (_loading || LoadedProject == null || lstItems.SelectedIndex == -1) return;
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(LoadedProject.Properties[lstItems.SelectedIndex]);
 		}
 		private void chkInput_CheckedChanged(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			lblID.Text = "ID: " + (chkInput.Checked ? _project.Properties[lstItems.SelectedIndex].ID.ToString() : "0");
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			lblID.Text = "ID: " + (chkInput.Checked ? LoadedProject.Properties[lstItems.SelectedIndex].ID.ToString() : "0");
 		}
 		private void chkInput_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			ProjectFile.Var v = _project.Properties[lstItems.SelectedIndex];
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			ProjectFile.Var v = LoadedProject.Properties[lstItems.SelectedIndex];
 			int oldID = v.ID;
 			if ((oldID == -1 && !chkInput.Checked) || (oldID != -1 && chkInput.Checked)) return;
-			if (chkInput.Checked) _project.Properties.AssignNextID(v);
-			else _project.Properties.RemoveID(v);
+			if (chkInput.Checked) LoadedProject.Properties.AssignNextID(v);
+			else LoadedProject.Properties.RemoveID(v);
 			lstItems.Items[lstItems.SelectedIndex] = formatItem(v);
 		}
 		private void chkValidate_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			_project.Properties[lstItems.SelectedIndex].IsValidated = update(_project.Properties[lstItems.SelectedIndex].IsValidated, chkValidate.Checked);
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			LoadedProject.Properties[lstItems.SelectedIndex].IsValidated = update(LoadedProject.Properties[lstItems.SelectedIndex].IsValidated, chkValidate.Checked);
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(LoadedProject.Properties[lstItems.SelectedIndex]);
 		}
 
 		private void txtComment_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			_project.Properties[lstItems.SelectedIndex].Comment = update(_project.Properties[lstItems.SelectedIndex].Comment, txtComment.Text);
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			LoadedProject.Properties[lstItems.SelectedIndex].Comment = update(LoadedProject.Properties[lstItems.SelectedIndex].Comment, txtComment.Text);
 		}
 		private void txtDefault_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			string old = (_project.Properties[lstItems.SelectedIndex].DefaultValue != null ? _project.Properties[lstItems.SelectedIndex].DefaultValue.ToString() : "");
-			_project.Properties[lstItems.SelectedIndex].DefaultValue = update(old, txtDefault.Text);
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			string old = (LoadedProject.Properties[lstItems.SelectedIndex].DefaultValue != null ? LoadedProject.Properties[lstItems.SelectedIndex].DefaultValue.ToString() : "");
+			LoadedProject.Properties[lstItems.SelectedIndex].DefaultValue = update(old, txtDefault.Text);
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(LoadedProject.Properties[lstItems.SelectedIndex]);
 		}
 		private void txtName_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			_project.Properties[lstItems.SelectedIndex].Name = update(_project.Properties[lstItems.SelectedIndex].Name, txtName.Text);
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			LoadedProject.Properties[lstItems.SelectedIndex].Name = update(LoadedProject.Properties[lstItems.SelectedIndex].Name, txtName.Text);
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(LoadedProject.Properties[lstItems.SelectedIndex]);
 		}
 		private void txtOffset_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			_project.Properties[lstItems.SelectedIndex].RawOffset = update(_project.Properties[lstItems.SelectedIndex].RawOffset, txtOffset.Text);
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			LoadedProject.Properties[lstItems.SelectedIndex].RawOffset = update(LoadedProject.Properties[lstItems.SelectedIndex].RawOffset, txtOffset.Text);
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(LoadedProject.Properties[lstItems.SelectedIndex]);
 		}
 		#endregion general item
 		#region type-specific stuff
 		private void cboCollType_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
 			int newType = -1;
-			for (int i = 0; i < _project.Types.Count; i++)
-				if (_project.Types[i].Name == cboCollType.Text)
+			for (int i = 0; i < LoadedProject.Types.Count; i++)
+				if (LoadedProject.Types[i].Name == cboCollType.Text)
 				{
 					newType = i;
 					break;
 				}
 			if (newType == -1)
 			{
-				cboCollType.SelectedIndex = _project.Types.GetIndexByID(_project.Properties[lstItems.SelectedIndex].ID);
+				cboCollType.SelectedIndex = LoadedProject.Types.GetIndexByID(LoadedProject.Properties[lstItems.SelectedIndex].ID);
 				return;
 			}
-			((ProjectFile.CollectionVar)_project.Properties[lstItems.SelectedIndex]).ChangeID(update(_project.Properties[lstItems.SelectedIndex].ID, _project.Types[newType].ID));
-			lstItems.Items[lstItems.SelectedIndex] = formatItem(_project.Properties[lstItems.SelectedIndex]);
+			((ProjectFile.CollectionVar)LoadedProject.Properties[lstItems.SelectedIndex]).ChangeID(update(LoadedProject.Properties[lstItems.SelectedIndex].ID, LoadedProject.Types[newType].ID));
+			lstItems.Items[lstItems.SelectedIndex] = formatItem(LoadedProject.Properties[lstItems.SelectedIndex]);
 		}
 		private void cboEncoding_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			try { ((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).Encoding = update(((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).Encoding, getEncodingFromValue(cboEncoding.SelectedIndex)); }
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			try { ((ProjectFile.StringVar)LoadedProject.Properties[lstItems.SelectedIndex]).Encoding = update(((ProjectFile.StringVar)LoadedProject.Properties[lstItems.SelectedIndex]).Encoding, getEncodingFromValue(cboEncoding.SelectedIndex)); }
 			catch (Exception x)
 			{
 				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				cboEncoding.SelectedIndex = getValueFromEncoding(((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).Encoding);
+				cboEncoding.SelectedIndex = getValueFromEncoding(((ProjectFile.StringVar)LoadedProject.Properties[lstItems.SelectedIndex]).Encoding);
 			}
 		}
 
 		private void chkNullTermed_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			try { ((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).NullTermed = update(((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).NullTermed, chkNullTermed.Checked); }
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			try { ((ProjectFile.StringVar)LoadedProject.Properties[lstItems.SelectedIndex]).NullTermed = update(((ProjectFile.StringVar)LoadedProject.Properties[lstItems.SelectedIndex]).NullTermed, chkNullTermed.Checked); }
 			catch (InvalidOperationException x)
 			{
 				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				chkNullTermed.Checked = ((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).NullTermed;
+				chkNullTermed.Checked = ((ProjectFile.StringVar)LoadedProject.Properties[lstItems.SelectedIndex]).NullTermed;
 			}
 		}
 
 		private void numBoolTrue_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			try { ((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).TrueValue = update(((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).TrueValue, (byte)numBoolTrue.Value); }
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			try { ((ProjectFile.BoolVar)(LoadedProject.Properties[lstItems.SelectedIndex])).TrueValue = update(((ProjectFile.BoolVar)(LoadedProject.Properties[lstItems.SelectedIndex])).TrueValue, (byte)numBoolTrue.Value); }
 			catch (InvalidOperationException x)
 			{
 				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				numBoolTrue.Value = ((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).TrueValue;
+				numBoolTrue.Value = ((ProjectFile.BoolVar)(LoadedProject.Properties[lstItems.SelectedIndex])).TrueValue;
 			}
 			// not doing validation here, waiting for Save/Apply, that way it doesn't puke and require an intermediary value if swapping
 		}
 		private void numBoolFalse_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			try { ((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).FalseValue = update(((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).FalseValue, (byte)numBoolFalse.Value); }
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			try { ((ProjectFile.BoolVar)(LoadedProject.Properties[lstItems.SelectedIndex])).FalseValue = update(((ProjectFile.BoolVar)(LoadedProject.Properties[lstItems.SelectedIndex])).FalseValue, (byte)numBoolFalse.Value); }
 			catch (InvalidOperationException x)
 			{
 				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				numBoolFalse.Value = ((ProjectFile.BoolVar)(_project.Properties[lstItems.SelectedIndex])).FalseValue;
+				numBoolFalse.Value = ((ProjectFile.BoolVar)(LoadedProject.Properties[lstItems.SelectedIndex])).FalseValue;
 			}
 		}
 
 		private void txtArrayNames_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			ProjectFile.Var v = _project.Properties[lstItems.SelectedIndex];
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			ProjectFile.Var v = LoadedProject.Properties[lstItems.SelectedIndex];
 			string[] oldNames = v.Values.Names;
 			try
 			{
@@ -501,8 +497,8 @@ namespace Idmr.ProjectHex
 		}
 		private void txtArrayQty_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			ProjectFile.Var v = _project.Properties[lstItems.SelectedIndex];
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			ProjectFile.Var v = LoadedProject.Properties[lstItems.SelectedIndex];
 			string[] oldNames = v.Values.Names;
 			try
 			{
@@ -538,12 +534,12 @@ namespace Idmr.ProjectHex
 		}
 		private void txtLength_Leave(object sender, EventArgs e)
 		{
-			if (lstItems.SelectedIndex == -1 || _project == null || _project.Properties == null) return;
-			try { ((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).RawLength = update(((ProjectFile.StringVar)_project.Properties[lstItems.SelectedIndex]).RawLength, txtLength.Text); }
+			if (lstItems.SelectedIndex == -1 || LoadedProject == null || LoadedProject.Properties == null) return;
+			try { ((ProjectFile.StringVar)LoadedProject.Properties[lstItems.SelectedIndex]).RawLength = update(((ProjectFile.StringVar)LoadedProject.Properties[lstItems.SelectedIndex]).RawLength, txtLength.Text); }
 			catch (Exception x)
 			{
 				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				txtLength.Text = _project.Properties[lstItems.SelectedIndex].RawLength;
+				txtLength.Text = LoadedProject.Properties[lstItems.SelectedIndex].RawLength;
 			}
 		}
 		#endregion type-specific stuff
