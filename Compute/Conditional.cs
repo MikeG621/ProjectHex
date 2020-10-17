@@ -12,6 +12,7 @@
 /* CHANGELOG
  * [UPD] removed "~" from isValid(), since it's removed in formatTnput() anyway
  * [FIX] exponents were really being treated as bitwise NOT, added # (POUnd, POWer...) operator for it
+ * [ADD] hex values with "0x" or "0X" prefix supported
  * v0.1.5, 150705
  * [ADD] support for "<>", "~=" notation for "not equal"
  * [ADD] support for "**" notation for exponents
@@ -42,11 +43,13 @@ namespace Idmr.ProjectHex
 		{
 			try { formatInput(ref cond); }
 			catch (ArgumentNullException) { throw; }
-			string allowed = "0123456789+-*/%#<>&^|().,=!TF";
+			string allowed = "0123456789+-*/%#<>&^|().,=!TFX";
 			for (int i = 0; i < cond.Length; i++)
 				if (allowed.IndexOf(cond[i]) == -1) return false;
 			// reject isolated '='
 			if (cond.IndexOf("=") != -1 && cond.IndexOf("<=") == -1 && cond.IndexOf(">=") == -1 && cond.IndexOf("!=") == -1 && cond.IndexOf("==") == -1) return false;
+			// ensure proper number format definition (will be converted back to Lower within Equation)
+			if (cond.IndexOf("X") != -1 && cond.IndexOf("0X") == -1) return false;
 			return true;
 		}
 
@@ -58,7 +61,8 @@ namespace Idmr.ProjectHex
 		/// Bitshift operators can be used in conjunction with &lt; and &gt; conditionals with or without parenthesis, however the use of parenthesis provides better performance and clarity (ie, "(x>>y)>z" is preferred over "x>>y>z" although both yield the same result).<br/>
 		/// If <paramref name="cond"/> evaluates to a numerical value instead of <b>true</b>/<b>false</b>, non-zero results will return <b>true</b>.<br/>
 		/// For exponents, the "<b>#</b>" operator is used due to "<b>^</b>" being used for bitwise NOT. "<b>^^</b>" and "<b>**</b>" are also acceptable notations. Care must be taken for nested exponents, as "x # y # z" will evaluate to (x#y)#z.<br/>
-		/// For "not equal", "<b>!=</b>", "<b>~=</b>", "<b>&lt;&gt;</b>" and "<b>NE</b>" (case-insensitive) are acceptable notations.</remarks>
+		/// For "not equal", "<b>!=</b>", "<b>~=</b>", "<b>&lt;&gt;</b>" and "<b>NE</b>" (case-insensitive) are acceptable notations.<br/>
+		/// Hex values are supported, must use "<b>0x</b>" (case-insensitive) prefix.</remarks>
 		/// <param name="cond">Conditional to be evaluated</param>
 		/// <exception cref="ArgumentException"><paramref name="cond"/> contains logical errors.</exception>
 		/// <exception cref="FormatException">Illegal characters present.</exception>
@@ -108,8 +112,7 @@ namespace Idmr.ProjectHex
 				return calculate(cond.Substring(0, leftIndex) + calculate(cond.Substring(leftIndex + 1, rightIndex - leftIndex - 1)) + cond.Substring(rightIndex + 1));
 			}
 			else if (cond.IndexOf(")") != -1) throw new ArgumentException("Bracket mismatch, opening bracket not found");
-			string left = "";
-			string right = "";
+			string left, right;
 			if (cond.IndexOf("&&") != -1)
 			{
 				left = calculate(cond.Substring(0, cond.IndexOf("&&")));

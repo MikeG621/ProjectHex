@@ -10,6 +10,7 @@
  */
 
 /* CHANGELOG
+ * [FIX] null check for _default prior to getDynamicSplit() call
  * [UPD] changed type class references to normal type
  * v0.1.5, 150705
  * [NEW] GetBytes, SetBytes
@@ -117,7 +118,7 @@ namespace Idmr.ProjectHex
 				if (!IsDynamic) return false;
 				if (index < 0 || index >= _parent.Count)
 					throw new ArgumentOutOfRangeException("'index' is not valid for the parent Collection");
-				return (getDynamicSplit(_default.ToString(), index) != null || getDynamicSplit(_length, index) != null || getDynamicSplit(_offset, index) != null || getDynamicSplit(_quantity, index) != null || getDynamicSplit(_value.ToString(), index) != null || getDynamicSplit(_condition, index) != null);
+				return (_default != null && getDynamicSplit(_default.ToString(), index) != null) || getDynamicSplit(_length, index) != null || getDynamicSplit(_offset, index) != null || getDynamicSplit(_quantity, index) != null || getDynamicSplit(_value.ToString(), index) != null || getDynamicSplit(_condition, index) != null;
 			}
 			
 			/// <summary>Updates the dynamic indexes throughout the item.</summary>
@@ -127,7 +128,7 @@ namespace Idmr.ProjectHex
 			{
 				if (!IsDynamic) return;
 				bool updated = false;
-				string[] temp = getDynamicSplit(_default.ToString(), oldIndex);
+				string[] temp = _default != null ? getDynamicSplit(_default.ToString(), oldIndex) : null;
 				if (temp != null)
 				{
 					_default = temp[0] + "$" + newIndex + temp[2];

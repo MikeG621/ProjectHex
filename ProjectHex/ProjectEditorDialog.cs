@@ -45,7 +45,7 @@ namespace Idmr.ProjectHex
 			startup();
 		}
 
-		public ProjectFile LoadedProject { get; private set; } = null;
+		public ProjectFile LoadedProject { get; private set; } = new ProjectFile();
 
 		#region methods
 		void loadProject()
@@ -79,6 +79,7 @@ namespace Idmr.ProjectHex
 			lstItems.SelectedIndex = 0;
 		}
 
+		/// <summary>Detailed string for the list</summary>
 		string formatItem(ProjectFile.Var item)
 		{
 			string line = "";
@@ -241,11 +242,24 @@ namespace Idmr.ProjectHex
 
 		private void cmdAdd_Click(object sender, EventArgs e)
 		{
-			// TODO: cmdAdd
+			LoadedProject.Properties.Add(ProjectFile.VarType.Undefined);
+			string item = formatItem(LoadedProject.Properties[LoadedProject.Properties.Count - 1]);
+			lstItems.Items.Add(item);
+			update("", "add");
 		}
 		private void cmdRemove_Click(object sender, EventArgs e)
 		{
-			// TODO: cmdRemove
+			if (lstItems.SelectedIndex == -1 || lstItems.Items.Count == 0) return;
+			try
+			{
+				LoadedProject.Properties.RemoveAt(lstItems.SelectedIndex);
+				lstItems.Items.RemoveAt(lstItems.SelectedIndex);
+				update("", "rem");
+			}
+			catch (InvalidOperationException x)
+			{
+				MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 		private void cmdUp_Click(object sender, EventArgs e)
 		{

@@ -11,6 +11,7 @@
 
 /* CHANGELOG
  * [FIX] exponents were really being treated as bitwise NOT, added # (POUnd, POWer...) operator for it
+ * [ADD] hex values with "0x" or "0X" prefix supported
  * v0.1.5, 150705
  * [UPD] formatInput exception changed to ArgumentNull
  * [ADD] checks to isValid for "||" and "&&"
@@ -21,6 +22,7 @@
  */
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Idmr.ProjectHex
 {
@@ -42,18 +44,22 @@ namespace Idmr.ProjectHex
 		{
 			try { formatInput(ref eq); }
 			catch (ArgumentNullException) { throw; }
-			string allowed = "0123456789+-*/%#<>&^|().,";
+			string allowed = "0123456789+-*/%#<>&^|().,x";
+			eq = eq.ToLower();
 			for (int i = 0; i < eq.Length; i++)
 				if (allowed.IndexOf(eq[i]) == -1) return false;
 			// reject isloated '<' and '>'
 			if ((eq.IndexOf("<") != -1 && eq.IndexOf("<<") == -1) || (eq.IndexOf(">") != -1 && eq.IndexOf(">>") == -1) || eq.IndexOf("||") != -1 || eq.IndexOf("&&") != -1) return false;
+			// ensure proper number format definition
+			if (eq.IndexOf("x") != -1 && eq.IndexOf("0x") == -1) return false;
 			return true;
 		}
 
 		/// <summary>Computes a given equation and returns the result as a string.</summary>
 		/// <remarks>Supports: "+ - * / % # ^^ ** () {} [] &lt;&lt; &gt;&gt; & ^ |", decimals.<br/>
 		/// Bit-wise operations (&lt;&lt; &gt;&gt; & ^ |) do not support decimals. Using these operations will round as necessary during calculation.<br/>
-		/// For exponents, the "<b>#</b>" operator is used due to "<b>^</b>" being used for bitwise NOT. "<b>^^</b>" and "<b>**</b>" are also acceptable notations. Care must be taken for nested exponents, as "x # y # z" will evaluate to (x#y)#z.</remarks>
+		/// For exponents, the "<b>#</b>" operator is used due to "<b>^</b>" being used for bitwise NOT. "<b>^^</b>" and "<b>**</b>" are also acceptable notations. Care must be taken for nested exponents, as "x # y # z" will evaluate to (x#y)#z.<br/>
+		/// Hex values are supported, must use "<b>0x</b>" (case-insensitive) prefix.</remarks>
 		/// <param name="eq">Equation to be evaluated</param>
 		/// <exception cref="ArgumentException"><paramref name="eq"/> contains logical errors.</exception>
 		/// <exception cref="FormatException">Illegal characters present.</exception>
@@ -138,7 +144,7 @@ namespace Idmr.ProjectHex
 				string[] plus = eq.Split('+');
 				for (int i = 0; i < plus.Length; i++) result += calculate(plus[i]);
 				return result;
-            }
+			}
 			else if (eq.IndexOf('-') != -1)
 			{
 				string[] minus = eq.Split('-');
@@ -173,6 +179,14 @@ namespace Idmr.ProjectHex
 				result = calculate(pow[0]);
 				for (int i = 1; i < pow.Length; i++) result = Math.Pow(result, calculate(pow[i]));
 				return result;
+			}
+			else if (eq.IndexOf(".") == -1)
+			{
+				// integer or number format
+				int formatted;
+				if (eq.StartsWith("0x") && int.TryParse(eq.Substring(2), System.Globalization.NumberStyles.HexNumber, null, out formatted))
+					return formatted;
+				else return double.Parse(eq);
 			}
 			else return double.Parse(eq);
 		}

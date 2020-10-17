@@ -60,7 +60,7 @@
 		<item offset="0" type="short" name="Length" itemid="0" />
 		<item offset="2" type="string" length="$0" condition="$0>0" name="Text" comment="question, chr(10), answer" />
 	</definition>
-	<definition name="FlightgroupGoal" id="3" count="2" length="2">
+	<definition name="FG Goal" id="3" count="2" length="2">
 		<item offset="0" type="byte" name="Condition" />
 		<item offset="1" type="byte" name="GroupAmount" />
 	</definition>

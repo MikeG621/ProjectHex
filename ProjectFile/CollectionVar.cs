@@ -44,6 +44,7 @@ namespace Idmr.ProjectHex
 				try { _id = int.Parse(id); }
 				catch (FormatException x) { throw new FormatException("'id' is not a valid integer", x); }
 				catch (OverflowException x) { throw new OverflowException("'id' must be lower than " + int.MaxValue, x); }
+				// TODO: redo the read process so the IDs are stored, but the types aren't checked until after the entire thing is read
 				// projects have to be written with child definitions at the top. IDs can be whatever, but new child Collections must be inserted above whatever parent wants to use it
 				// ie: if I have a Square, and I decide that I want to make it out of Lines, the new Line definition must be inserted before Square in _parent
 				if (!parent.isLoading && parent.parentFile.Types.GetIndexByID(_id) == -1)

@@ -10,6 +10,7 @@
  */
 
 /* CHANGELOG
+ * [FIX] blank project now inits _prop and _types
  * [UPD] changed type class references to normal type
  * [NEW] Save
  * [NEW] numerical type min/max read
@@ -89,7 +90,11 @@ namespace Idmr.ProjectHex
 
 		#region constructors
 		/// <summary>Initializes a blank project.</summary>
-		public ProjectFile() { /* do nothing */ }
+		public ProjectFile()
+		{
+			_properties = new VarCollection(this);
+			_types = new VarCollection(this);
+		}
 
 		/// <summary>Initializes a project from file.</summary>
 		/// <param name="projectPath">The full path to the file to load.</param>
@@ -687,6 +692,7 @@ namespace Idmr.ProjectHex
 		
 		static void readVars(VarCollection vars, XmlReader structure, bool validationOnly)
 		{
+			// TODO: validationOnly isn't used here yet
 			structure.ReadToDescendant("item");
 			for (int i = 0; i < vars.Capacity; i++)
 			{
