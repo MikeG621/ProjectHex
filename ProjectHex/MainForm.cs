@@ -11,6 +11,7 @@
 
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace Idmr.ProjectHex
@@ -34,6 +35,46 @@ namespace Idmr.ProjectHex
 		{
 			_binary = new BinaryFile(opnFile.FileName);
 			Text = "ProjectHex - " + _binary.Project.Name + " - " + _binary.FilePath;
+
+			string content = "";
+			FileStream fs = null;
+			try
+			{
+				fs = new FileStream(_binary.FilePath, FileMode.Open, FileAccess.Read);
+				BinaryReader br = new BinaryReader(fs);
+
+				rtMain.Text = "";
+				byte[] line;
+
+				while (fs.Position < fs.Length)
+				{
+					content += fs.Position.ToString("x8") + " ";
+					if (fs.Length - fs.Position > 16) line = br.ReadBytes(16);
+					else line = br.ReadBytes((int)(fs.Length - fs.Position));
+
+					for (int i = 0; i < line.Length; i++)
+					{
+						content += line[i].ToString("x2") + " ";
+					}
+					for (int i = 16; i > line.Length; i--)
+					{
+						content += "   ";	// last line, might be truncated
+					}
+					for (int i = 0; i < line.Length; i++)
+					{
+						if (line[i] > 31) content += (char)line[i];
+						else content += ".";
+					}
+					if (fs.Position != fs.Length) content += "\r\n";
+				}
+
+				fs.Close();
+			}
+			catch
+			{
+				if (fs != null) fs.Close();
+			}
+			rtMain.Text = content;
 		}
 
 		private void miOpen_Click(object sender, EventArgs e)

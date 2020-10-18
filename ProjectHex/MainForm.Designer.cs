@@ -117,7 +117,7 @@ namespace Idmr.ProjectHex
 			this.miTools.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.miProjectEditor});
 			this.miTools.Name = "miTools";
-			this.miTools.Size = new System.Drawing.Size(47, 20);
+			this.miTools.Size = new System.Drawing.Size(46, 20);
 			this.miTools.Text = "&Tools";
 			// 
 			// miProjectEditor
@@ -172,7 +172,7 @@ namespace Idmr.ProjectHex
 			this.rtMain.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
 			this.rtMain.Size = new System.Drawing.Size(614, 477);
 			this.rtMain.TabIndex = 2;
-			this.rtMain.Text = "12345678 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 0123456789abcdef";
+			this.rtMain.Text = "00000000 00                                              .";
 			// 
 			// label1
 			// 
