@@ -10,6 +10,7 @@
  */
 
 /* CHANGELOG
+ * [FIX] CurrentValueAsSByte wouldn't cast by itself
  * [FIX] absent Vars no longer assigned to jump table
  * [UPD] changed type class references to normal type
  * v0.1.5, 150705
@@ -62,17 +63,20 @@ namespace Idmr.ProjectHex
 			_path = binaryPath;
 			System.Diagnostics.Debug.WriteLine("looking for matches...");
 			string[] matches = ProjectFile.GetProjectMatches(_path);
-			System.Diagnostics.Debug.WriteLine("found " + matches.Length + " matches");
-			if (matches.Length == 1) _project = new ProjectFile(matches[0]);
-			else if (matches.Length > 1)
+			if (matches != null)
 			{
-				SelectionDialog dlg = new SelectionDialog(matches);
-				DialogResult result = dlg.ShowDialog();
-				if (result == DialogResult.OK && dlg.SelectedIndex != -1)
-					_project = new ProjectFile(matches[dlg.SelectedIndex]);
-				// else load it as blank
+				System.Diagnostics.Debug.WriteLine("found " + matches.Length + " matches");
+				if (matches.Length == 1) _project = new ProjectFile(matches[0]);
+				else if (matches.Length > 1)
+				{
+					SelectionDialog dlg = new SelectionDialog(matches);
+					DialogResult result = dlg.ShowDialog();
+					if (result == DialogResult.OK && dlg.SelectedIndex != -1)
+						_project = new ProjectFile(matches[dlg.SelectedIndex]);
+					// else load it as blank
+				}
 			}
-			// else zero, and it's already a blank project
+			else System.Diagnostics.Debug.WriteLine("no matches");
 			System.Diagnostics.Debug.WriteLine(_project.Name);
 			loadBinary();
 		}
@@ -236,7 +240,7 @@ namespace Idmr.ProjectHex
 		/// <summary>Gets the unsigned single-byte value at the current <see cref="Position"/></summary>
 		public byte CurrentValueAsByte { get { return (byte)_raw[_position]; } }
 		/// <summary>Gets the signed single-byte value as the current <see cref="Position"/></summary>
-		public sbyte CurrentValueAsSByte { get { return (sbyte)_raw[_position]; } }
+		public sbyte CurrentValueAsSByte { get { return (sbyte)(byte)_raw[_position]; } }
 		/// <summary>Gets the signed two-byte value at the current <see cref="Position"/></summary>
 		/// <exception cref="ArgumentException">The location of <see cref="Position"/> prevents reading the required length</exception>
 		public short CurrentValueAsShort { get { return BitConverter.ToInt16((byte[])_raw.ToArray(typeof(byte)), _position); } }

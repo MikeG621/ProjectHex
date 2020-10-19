@@ -24,6 +24,7 @@ namespace Idmr.ProjectHex
 		public MainForm()
 		{
 			InitializeComponent();
+			rtMain.SelectionStart = 9;
 		}
 
 		public void ApplyProject(ProjectFile project)
@@ -37,42 +38,24 @@ namespace Idmr.ProjectHex
 			Text = "ProjectHex - " + _binary.Project.Name + " - " + _binary.FilePath;
 
 			string content = "";
-			FileStream fs = null;
-			try
+			int position = 0;
+			while (position < _binary.Length)
 			{
-				fs = new FileStream(_binary.FilePath, FileMode.Open, FileAccess.Read);
-				BinaryReader br = new BinaryReader(fs);
+				content += position.ToString("x8") + " ";
+				int lineLength;
+				if (_binary.Length - position > 16) lineLength = 16;
+				else lineLength = _binary.Length - position;
 
-				rtMain.Text = "";
-				byte[] line;
-
-				while (fs.Position < fs.Length)
+				for (int i = 0; i < lineLength; i++)
+					content += _binary[position + i].ToString("x2") + " ";
+				for (int i = 16; i > lineLength; i--)
+					content += "   ";   // last line, might be truncated
+				for (int i = 0; i < lineLength; i++, position++)
 				{
-					content += fs.Position.ToString("x8") + " ";
-					if (fs.Length - fs.Position > 16) line = br.ReadBytes(16);
-					else line = br.ReadBytes((int)(fs.Length - fs.Position));
-
-					for (int i = 0; i < line.Length; i++)
-					{
-						content += line[i].ToString("x2") + " ";
-					}
-					for (int i = 16; i > line.Length; i--)
-					{
-						content += "   ";	// last line, might be truncated
-					}
-					for (int i = 0; i < line.Length; i++)
-					{
-						if (line[i] > 31) content += (char)line[i];
-						else content += ".";
-					}
-					if (fs.Position != fs.Length) content += "\r\n";
+					if (_binary[position] > 32) content += (char)_binary[position];
+					else content += ".";
 				}
-
-				fs.Close();
-			}
-			catch
-			{
-				if (fs != null) fs.Close();
+				if (position != _binary.Length) content += "\r\n";
 			}
 			rtMain.Text = content;
 		}
@@ -86,6 +69,34 @@ namespace Idmr.ProjectHex
 		{
 			if (_projectEditor == null || !_projectEditor.IsHandleCreated) _projectEditor = new ProjectEditorDialog(_binary.Project, this);
 			_projectEditor.Show();
+		}
+
+		private void rtMain_SelectionChanged(object sender, EventArgs e)
+		{
+			//string line = rtMain.Lines[rtMain.SelectionStart / 74];
+			int pos = rtMain.SelectionStart % 74;   // 74 is the full length of a complete line
+			int lineStart = rtMain.SelectionStart - pos;
+			if (pos < 9) pos = 9;
+			if (pos < 57 && pos % 3 == 2) pos++;
+
+			rtMain.SelectionStart = lineStart + pos;
+
+			int offset = rtMain.SelectionStart / 74 * 16 + (pos < 57 ? (pos - 9) / 3 : pos - 57);
+			txtNodeOffset.Text = offset.ToString("x8");
+
+			_binary.Position = offset;
+			lblBool.Text = _binary.CurrentValueAsBool.ToString();
+			lblByte.Text = _binary.CurrentValueAsByte + " (" + _binary.CurrentValueAsSByte + ")";
+			try { lblShort.Text = _binary.CurrentValueAsShort + " (" + _binary.CurrentValueAsUShort + ")"; }
+			catch { lblShort.Text = "EOF"; }
+			try { lblInt.Text = _binary.CurrentValueAsInt + "\r\n(" + _binary.CurrentValueAsUInt + ")"; }
+			catch { lblInt.Text = "EOF"; }
+			try { lblLong.Text = _binary.CurrentValueAsLong + "\r\n(" + _binary.CurrentValueAsULong + ")"; }
+			catch { lblLong.Text = "EOF"; }
+			try { lblSingle.Text = _binary.CurrentValueAsSingle.ToString("E8"); }
+			catch { lblSingle.Text = "EOF"; }
+			try { lblDouble.Text = _binary.CurrentValueAsDouble.ToString("E8"); }
+			catch { lblDouble.Text = "EOF"; }
 		}
 	}
 }

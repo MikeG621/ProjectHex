@@ -93,7 +93,7 @@ namespace Idmr.ProjectHex
             this.miTools});
 			this.menuMain.Location = new System.Drawing.Point(0, 0);
 			this.menuMain.Name = "menuMain";
-			this.menuMain.Size = new System.Drawing.Size(1012, 24);
+			this.menuMain.Size = new System.Drawing.Size(1023, 24);
 			this.menuMain.TabIndex = 0;
 			this.menuMain.Text = "menuStrip1";
 			// 
@@ -173,6 +173,7 @@ namespace Idmr.ProjectHex
 			this.rtMain.Size = new System.Drawing.Size(614, 477);
 			this.rtMain.TabIndex = 2;
 			this.rtMain.Text = "00000000 00                                              .";
+			this.rtMain.SelectionChanged += new System.EventHandler(this.rtMain_SelectionChanged);
 			// 
 			// label1
 			// 
@@ -292,42 +293,42 @@ namespace Idmr.ProjectHex
 			this.groupBox2.Controls.Add(this.label4);
 			this.groupBox2.Controls.Add(this.label3);
 			this.groupBox2.Controls.Add(this.label2);
-			this.groupBox2.Location = new System.Drawing.Point(821, 400);
+			this.groupBox2.Location = new System.Drawing.Point(821, 317);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(191, 115);
+			this.groupBox2.Size = new System.Drawing.Size(202, 198);
 			this.groupBox2.TabIndex = 6;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Current Position As...";
 			// 
 			// lblDouble
 			// 
-			this.lblDouble.Location = new System.Drawing.Point(99, 94);
+			this.lblDouble.Location = new System.Drawing.Point(67, 120);
 			this.lblDouble.Name = "lblDouble";
-			this.lblDouble.Size = new System.Drawing.Size(86, 13);
+			this.lblDouble.Size = new System.Drawing.Size(112, 13);
 			this.lblDouble.TabIndex = 3;
 			this.lblDouble.Text = "0";
 			// 
 			// lblSingle
 			// 
-			this.lblSingle.Location = new System.Drawing.Point(99, 81);
+			this.lblSingle.Location = new System.Drawing.Point(67, 107);
 			this.lblSingle.Name = "lblSingle";
-			this.lblSingle.Size = new System.Drawing.Size(86, 13);
+			this.lblSingle.Size = new System.Drawing.Size(112, 13);
 			this.lblSingle.TabIndex = 3;
 			this.lblSingle.Text = "0";
 			// 
 			// lblLong
 			// 
-			this.lblLong.Location = new System.Drawing.Point(99, 68);
+			this.lblLong.Location = new System.Drawing.Point(67, 81);
 			this.lblLong.Name = "lblLong";
-			this.lblLong.Size = new System.Drawing.Size(86, 13);
+			this.lblLong.Size = new System.Drawing.Size(129, 26);
 			this.lblLong.TabIndex = 3;
 			this.lblLong.Text = "0 (0)";
 			// 
 			// lblInt
 			// 
-			this.lblInt.Location = new System.Drawing.Point(99, 55);
+			this.lblInt.Location = new System.Drawing.Point(67, 55);
 			this.lblInt.Name = "lblInt";
-			this.lblInt.Size = new System.Drawing.Size(86, 13);
+			this.lblInt.Size = new System.Drawing.Size(129, 26);
 			this.lblInt.TabIndex = 3;
 			this.lblInt.Text = "0 (0)";
 			// 
@@ -358,7 +359,7 @@ namespace Idmr.ProjectHex
 			// label8
 			// 
 			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(6, 94);
+			this.label8.Location = new System.Drawing.Point(6, 120);
 			this.label8.Name = "label8";
 			this.label8.Size = new System.Drawing.Size(41, 13);
 			this.label8.TabIndex = 2;
@@ -367,7 +368,7 @@ namespace Idmr.ProjectHex
 			// label7
 			// 
 			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(6, 81);
+			this.label7.Location = new System.Drawing.Point(6, 107);
 			this.label7.Name = "label7";
 			this.label7.Size = new System.Drawing.Size(36, 13);
 			this.label7.TabIndex = 2;
@@ -375,19 +376,17 @@ namespace Idmr.ProjectHex
 			// 
 			// label6
 			// 
-			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(6, 68);
+			this.label6.Location = new System.Drawing.Point(6, 81);
 			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(85, 13);
+			this.label6.Size = new System.Drawing.Size(70, 26);
 			this.label6.TabIndex = 2;
 			this.label6.Text = "Long (Unsigned)";
 			// 
 			// label5
 			// 
-			this.label5.AutoSize = true;
 			this.label5.Location = new System.Drawing.Point(6, 55);
 			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(73, 13);
+			this.label5.Size = new System.Drawing.Size(59, 26);
 			this.label5.TabIndex = 2;
 			this.label5.Text = "Int (Unsigned)";
 			// 
@@ -431,7 +430,7 @@ namespace Idmr.ProjectHex
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1012, 549);
+			this.ClientSize = new System.Drawing.Size(1023, 549);
 			this.Controls.Add(this.label9);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
