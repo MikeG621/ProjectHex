@@ -10,6 +10,7 @@
  */
 
 /* CHANGELOG
+ * [FIX] null check to CheckProjectMatch failure
  * [FIX] blank project now inits _prop and _types
  * [UPD] changed type class references to normal type
  * [NEW] Save
@@ -585,7 +586,7 @@ namespace Idmr.ProjectHex
 			}
 			catch (Exception x)
 			{
-				fs.Close();
+				if (fs != null) fs.Close();
 				System.Diagnostics.Debug.WriteLine("CheckProjectMatch: " + x.Message);
 				return false;
 			}

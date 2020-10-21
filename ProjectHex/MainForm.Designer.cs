@@ -83,7 +83,7 @@ namespace Idmr.ProjectHex
 			// opnFile
 			// 
 			this.opnFile.DefaultExt = "tie";
-			this.opnFile.Filter = "Mission Files|*.tie";
+			this.opnFile.Filter = "Mission Files|*.tie|All files|*.*";
 			this.opnFile.FileOk += new System.ComponentModel.CancelEventHandler(this.opnFile_FileOk);
 			// 
 			// menuMain
