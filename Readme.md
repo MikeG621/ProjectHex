@@ -1,7 +1,7 @@
 # ProjectHex #
 
-Author: [Michael Gaisser](mailto:mjgaisser@gmail.com)
-Version: 0.0.5
+Author: [Michael Gaisser](mailto:mjgaisser@gmail.com)  
+Version: 0.0.5  
 Date: 150705
 
 A project-based hex editor, with full tree navigation of binary files based on
