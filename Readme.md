@@ -4,6 +4,10 @@ Author: [Michael Gaisser](mailto:mjgaisser@gmail.com)
 Version: 0.0.5  
 Date: 150705
 
+## ARCHIVED ##
+Low motivation for this project in particular, need to learn a lot of new GUI things to do what I want, apparently it's been __5 years__ since I've touched this, and frankly I discovered editors after the fact that already do what I want, so...
+_____
+
 A project-based hex editor, with full tree navigation of binary files based on
 project files created by the user. The projects define the file structure and
 "building blocks" of the file, so defining a node once allows the use of the
@@ -43,7 +47,7 @@ Requires the use of [MikeG621\Common].
 
 _______________________________
 #### Copyright Information ####
-Copyright © Michael Gaisser, 2012-
+Copyright Â© Michael Gaisser, 2012-
 
 This software is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL (License.txt) was not distributed
